@@ -14,17 +14,13 @@ Open `http://localhost:5173/?sample` to read the small sample book. `#12` opens 
 - **Long poems continue on a second screen** (labelled "Continued") so text never shrinks below a readable size. Pagination is measured against a 9:16 stage, so every device gets the same pages.
 - Sound starts from the Begin button or the speaker button (browsers require a tap). `prefers-reduced-motion` pauses the video and skips the handwriting reveal.
 
-## What is not in git, and why
-| File | Why | How to get it |
-|---|---|---|
-| `data/book.json` | Full text of Deborah Datoru's *Rejuvenating*. Not published without her consent. | `cd reader && node tools/build-book.mjs "<book>.pdf"` (needs poppler's `pdftohtml`) |
-| `media/night-field.mp4`, `media/night-field.jpg` | Animated from a reference painting whose licence is not known. | Render from `animation/night-field` (needs `source.webp`), then `ffmpeg -i field_silent.mp4 -vf scale=720:1280 -c:v libx264 -crf 25 -an media/night-field.mp4` and take frame 0 as the jpg |
-
-Without them the reader still runs: sample text on a plain navy background, with the sound.
+## Content that ships with the repo
+- `data/book.json`: the full text of Deborah Datoru's *Rejuvenating*, imported with `tools/build-book.mjs`. **Published with the repo and the live site; it is her work, so keep her agreement on record.** To take it down, delete this file: the reader falls back to `data/book.sample.json`. The text stays in git history, so a full removal needs a history rewrite.
+- `media/night-field.mp4` and `media/night-field.jpg`: the 15 s background loop (720x1280) and its poster frame, from `animation/night-field`. It is animated from a reference painting whose licence has not been checked. Reference images and the original source image stay out of git (`animation/.gitignore`).
+- `media/night-field.wav`: the sound loop, synthesized by `animation/night-field/score.mjs`.
 
 ## Files
 - `index.html`, `reader.css`, `reader.js`: the reader.
 - `data/book.sample.json`: the page model (`kind`, `title`, `stanzas` of `lines` with `gap`).
 - `tools/build-book.mjs`: imports a poetry PDF into that model (titles = bold lines, vertical gaps = stanza breaks, wrapped lines re-joined).
 - `serve.mjs`: static server with byte-range support (Safari needs it for video).
-- `media/night-field.wav`: the 15 s sound loop, synthesized by `animation/night-field/score.mjs`.

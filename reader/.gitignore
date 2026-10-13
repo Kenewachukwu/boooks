@@ -1,7 +1,0 @@
-# The full text of Deborah Datoru's "Rejuvenating". Not published without her consent; rebuild it locally with tools/build-book.mjs.
-data/book.json
-
-# The painted background loop and its poster frame come from a reference painting whose licence is not known yet.
-# Re-make them from animation/night-field (see README.md).
-media/night-field.mp4
-media/night-field.jpg

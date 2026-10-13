@@ -308,7 +308,7 @@ pagesEl.addEventListener('wheel', e => {
 
 // ---------- background video and tab visibility
 if (reduceMotion) { bg.removeAttribute('autoplay'); bg.pause(); }
-document.addEventListener('pointerup', () => { if (bg.paused && !reduceMotion) bg.play().catch(() => {}); }, { once: true });
+document.addEventListener('pointerup', () => { if (bg.paused && !reduceMotion) bg.play().catch(() => {}); }, { once: true }); // low-power modes block autoplay until a tap
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) { bg.pause(); sound.hold(); } else { if (!reduceMotion) bg.play().catch(() => {}); sound.release(); }
 });
