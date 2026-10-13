@@ -1,0 +1,12 @@
+node_modules/
+stills/
+moon_silent.mp4
+strip.png
+# renders and generated audio (re-make with render.mjs and score.mjs)
+*.mp4
+*.wav
+# third-party reference artwork: licence unknown, kept local only
+references/
+source.webp
+# generated from source.webp by build.mjs (embeds the painting)
+night-field/piece.html

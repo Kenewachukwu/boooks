@@ -1,0 +1,109 @@
+/* booooks reader prototype: handwritten text over the night-field loop.
+   Colours come from design-system/tokens.css (yellow, yellow-pale, pink). Chalk cream is local to this template. */
+:root {
+  --night: #06123a;
+  --ink: #fdf3c4;
+  --gold: #ffd24a;
+  --pale: #faed8f;
+  --pink: #fd48f2;
+  --hand: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  --ui: "MD Nichrome", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; background: #020817; color: var(--ink); -webkit-tap-highlight-color: transparent; }
+body { display: grid; place-items: center; overflow: hidden; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---- stage: a 9:16 window; fills a phone, stays a phone-shaped column on desktop */
+.stage {
+  position: relative; overflow: hidden; background: var(--night); container-type: size;
+  height: 100vh; height: 100dvh; width: min(100vw, calc(100dvh * 9 / 16));
+}
+@media (min-width: 600px) { .stage { border-radius: 22px; height: min(100dvh, 960px); width: min(100vw, calc(min(100dvh, 960px) * 9 / 16)); } }
+.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; }
+.scrim { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to bottom, rgba(3, 8, 34, 0.5), rgba(3, 8, 34, 0) 20%), rgba(3, 8, 34, 0.1); }
+
+/* ---- HUD: loading-style progress, rolling counter, sound */
+.bar { position: absolute; z-index: 6; top: env(safe-area-inset-top, 0px); left: 0; right: 0; height: 3px; background: rgba(253, 243, 196, 0.14); }
+.bar i { display: block; height: 100%; background: var(--pink); transform-origin: 0 50%; transform: scaleX(0); will-change: transform; transition: background 0.4s; }
+.hud { position: absolute; z-index: 5; inset: 0 0 auto 0; display: flex; justify-content: space-between; align-items: flex-start; padding: calc(env(safe-area-inset-top, 0px) + 18px) 18px 0 20px; pointer-events: none; }
+.hud > * { pointer-events: auto; }
+.count { display: flex; align-items: baseline; gap: 7px; font: 700 22px/1 var(--ui); letter-spacing: 0.02em; font-variant-numeric: tabular-nums; transition: color 0.4s; }
+.odo { display: inline-block; height: 1em; overflow: hidden; }
+.odo .col { display: flex; flex-direction: column; transform: translateY(calc(var(--v, 0) * -1em)); transition: transform 0.75s cubic-bezier(0.3, 1.35, 0.5, 1); }
+.odo i { display: block; height: 1em; font-style: normal; }
+.of { font-size: 13px; font-weight: 500; opacity: 0.6; }
+.sound { width: 44px; height: 44px; border: 0; border-radius: 50%; display: grid; place-items: center; color: var(--ink); background: rgba(6, 18, 58, 0.55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); cursor: pointer; transition: transform 0.15s var(--ease-out); }
+.sound:active { transform: scale(0.94); }
+.sound .cross { display: none; }
+.sound[aria-pressed="false"] .waves { display: none; }
+.sound[aria-pressed="false"] .cross { display: block; }
+.stage.complete .count { color: var(--gold); }
+.stage.complete .bar i { background: var(--gold); }
+
+/* ---- pages: one native scroll-snap column, one screen per page */
+.pages { position: absolute; inset: 0; z-index: 2; overflow-y: auto; overflow-x: hidden; scroll-snap-type: y mandatory; overscroll-behavior: none; scrollbar-width: none; touch-action: pan-y; outline: none; opacity: 0; transition: opacity 0.5s; }
+.pages::-webkit-scrollbar { display: none; }
+.stage.ready .pages { opacity: 1; }
+.page { position: relative; height: 100%; scroll-snap-align: start; scroll-snap-stop: always; contain: layout paint style; }
+.sheet, .cover-in, .end-in { will-change: opacity; }
+
+/* poem text: the sky above the horizon is the writing surface; the bottom quarter stays clear for the figure */
+.sheet { position: absolute; left: 9%; right: 8%; top: 13%; bottom: 26%; display: flex; flex-direction: column; justify-content: center; font-family: var(--hand); font-weight: 500; color: var(--ink); text-shadow: 0 1px 14px rgba(2, 8, 40, 0.6); }
+.flow { line-height: 1.14; }
+.stz { margin-top: calc(var(--gap, 0) * 0.62em); }
+.src { margin: 0; }
+.src:not(.split) { padding-left: 0.9em; text-indent: -0.9em; } /* measuring mode: hanging indent for wrapped lines */
+.sheet.measure { visibility: hidden; pointer-events: none; }
+.note { font: 500 clamp(11px, 3.2cqw, 13px)/1.2 var(--ui); letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.7; margin: 0 0 1.1em; }
+.title { font-size: 1.45em; font-weight: 700; color: var(--gold); line-height: 1; margin: 0; }
+.title .ln { transform-origin: 0 70%; }
+.rule { display: block; width: min(62%, 11em); height: 0.3em; margin: 0.12em 0 0.42em; overflow: visible; }
+.rule path { fill: none; stroke: var(--gold); stroke-width: 2.5; stroke-linecap: round; vector-effect: non-scaling-stroke; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.page.on .rule path { animation: draw 0.7s var(--ease-out) var(--rd, 0.6s) both; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+/* one visual line = one pen stroke: a soft-edged mask wipes it in left to right */
+.ln { display: block; white-space: nowrap; padding: 0.08em 0.15em 0.1em 0; margin: -0.08em 0 -0.1em; transform: rotate(var(--r, 0deg)); transform-origin: 0 60%;
+  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 33.3%, transparent 41%); mask-image: linear-gradient(90deg, #000 0, #000 33.3%, transparent 41%);
+  -webkit-mask-size: 300% 100%; mask-size: 300% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: 100% 0; mask-position: 100% 0; }
+.ln.cont { padding-left: 0.9em; }
+/* in poem flow the padding is paid for out of the line height, so a split paragraph is exactly as tall as the measured one
+   (adjacent negative margins would collapse and add a few px per line) */
+.flow { --lh: 1.14; }
+.title { --lh: 1; }
+.note { --lh: 1.2; }
+.flow .ln { margin: 0; line-height: calc(var(--lh) * 1em - 0.18em); }
+.page.on .ln { animation: write var(--w, 1s) linear var(--d, 0s) both; }
+.page.done .ln, .page.done .rule path { animation-duration: 0.01s; animation-delay: 0s; }
+.page.on .ln.written { -webkit-mask: none; mask: none; animation: none; }
+@keyframes write {
+  from { -webkit-mask-position: 100% 0; mask-position: 100% 0; }
+  to { -webkit-mask-position: 0 0; mask-position: 0 0; }
+}
+
+/* cover and end */
+.cover-in, .end-in { position: absolute; left: 9%; right: 9%; top: 15%; display: flex; flex-direction: column; align-items: flex-start; font-family: var(--hand); text-shadow: 0 1px 16px rgba(2, 8, 40, 0.6); }
+.kicker { font: 500 clamp(11px, 3.4cqw, 14px)/1 var(--ui); letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink); opacity: 0.8; margin: 0 0 0.9em; }
+.cover h1 { margin: 0; font-size: 16.5cqw; line-height: 0.92; font-weight: 700; color: var(--gold); }
+.cover .rule { width: 12em; font-size: 16.5cqw; margin-top: 0.02em; }
+.by { margin: 0.1em 0 0; font-size: 9.2cqw; font-weight: 500; color: var(--ink); }
+.btn { margin-top: clamp(28px, 7cqh, 56px); min-height: 48px; padding: 0 28px; border: 0; border-radius: 1rem; background: var(--pink); color: #000; font: 700 16px/1 var(--ui); cursor: pointer; transition: transform 0.15s var(--ease-out); }
+.btn:active { transform: scale(0.97); }
+.btn.secondary { background: var(--pale); }
+.hint { margin: 14px 0 0; font: 500 13px/1.4 var(--ui); color: var(--ink); opacity: 0.72; display: flex; align-items: center; gap: 8px; }
+.hint svg { animation: nudge 1.8s var(--ease-out) infinite; }
+.cover.begun .btn { display: none; }
+.cover.begun .hint { margin-top: clamp(28px, 7cqh, 56px); font-size: 15px; opacity: 0.95; }
+@keyframes nudge { 0%, 100% { transform: translateY(2px); } 50% { transform: translateY(-4px); } }
+.end h2 { margin: 0; font-size: 17cqw; line-height: 0.95; font-weight: 700; color: var(--gold); }
+.end .rule { font-size: 17cqw; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ln { -webkit-mask: none; mask: none; transform: none; }
+  .page.on .ln, .page.on .rule path { animation: none; }
+  .rule path { stroke-dashoffset: 0; }
+  .odo .col, .hint svg { transition: none; animation: none; }
+}

@@ -1,0 +1,27 @@
+{
+ "title": "A sample book",
+ "author": "booooks",
+ "pages": [
+  { "n": 1, "kind": "cover" },
+  {
+   "n": 2, "kind": "poem", "title": "Night shift",
+   "stanzas": [
+    { "gap": 1, "lines": ["The kettle clicks off", "and the house keeps listening", "for something to say"] },
+    { "gap": 1, "lines": ["I write one line", "and let it sit", "like tea going cold"] }
+   ]
+  },
+  {
+   "n": 3, "kind": "poem", "title": null,
+   "stanzas": [
+    { "gap": 1, "lines": ["Some pages want a lot of words", "and some want almost none"] },
+    { "gap": 2, "lines": ["This one is only here", "to show that silence has a shape"] }
+   ]
+  },
+  {
+   "n": 4, "kind": "poem", "title": "Morning",
+   "stanzas": [
+    { "gap": 1, "lines": ["Light comes in sideways", "and finds the cup", "and the unfinished line", "and me"] }
+   ]
+  }
+ ]
+}

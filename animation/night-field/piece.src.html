@@ -1,0 +1,129 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Night field (animated painting loop)</title>
+<style>html,body{margin:0;background:#06123a}canvas{display:block;width:100vw;max-height:100vh;aspect-ratio:9/16;margin:auto}</style>
+<canvas id="c"></canvas>
+<script>
+const SRC = '__IMG__';
+const W = 1080, H = 1920, FPS = 30, DUR = 15, NF = FPS * DUR;
+const TAU = Math.PI * 2;
+const cv = document.getElementById('c'); cv.width = W; cv.height = H;
+const X = cv.getContext('2d', { willReadFrequently: true });
+const NOGRAIN = new URLSearchParams(location.search).has('nograin');
+const A = {};
+const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+const smooth = (a, b, v) => { const k = clamp01((v - a) / (b - a)); return k * k * (3 - 2 * k) };
+function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296 } }
+
+function makeAssets(img) {
+  // lay the painting across the full width, bottom-aligned; extend the dark sky upward by mirroring its top rows
+  const sc = W / img.naturalWidth, ih = img.naturalHeight * sc, off = H - ih;
+  A.sc = sc; A.ih = ih; A.off = off;
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d', { willReadFrequently: true });
+  g.imageSmoothingQuality = 'high';
+  const CROP = 12; // skip the painting's dark top edge row so the mirrored seam is invisible
+  g.drawImage(img, 0, CROP, img.naturalWidth, img.naturalHeight - CROP, 0, off + CROP * sc, W, ih - CROP * sc);
+  {
+    const need = off + CROP * sc, srcRows = Math.min(img.naturalHeight - CROP, Math.ceil(need / sc) + 2);
+    g.save(); g.translate(0, need); g.scale(1, -1); g.drawImage(img, 0, CROP, img.naturalWidth, srcRows, 0, 0, W, srcRows * sc); g.restore();
+  }
+  A.src = g.getImageData(0, 0, W, H).data;
+  A.out = X.createImageData(W, H);
+
+  // landmarks as fractions of the painting (measured on the original 736x1107 image)
+  const fy = f => off + f * ih;
+  A.yHorizon = fy(868 / 1107);        // top of the yellow field
+  A.yBand = fy(770 / 1107);           // top of the bright blue band
+  A.fig = { x: W * (404 / 736), y: fy(872 / 1107), rx: 44 * sc / 1.0, ry: 70 * sc / 1.0 };
+  A.head = { x: W * (404 / 736), y: fy(848 / 1107) };
+
+  // per-row weights
+  A.wSky = new Float32Array(H); A.wField = new Float32Array(H);
+  for (let y = 0; y < H; y++) {
+    A.wSky[y] = 1 - .75 * smooth(A.yBand, A.yHorizon, y) * 1;
+    if (y > A.yHorizon + 6) A.wField[y] = smooth(A.yHorizon, A.yHorizon + 80, y) * (1 + 1.2 * clamp01((y - A.yHorizon) / (H - A.yHorizon)));
+  }
+  // yellow flowers/field mask and per-block twinkle phase
+  A.yel = new Uint8Array(W * H); A.ph = new Float32Array(W * H); const r = rng(9);
+  const blk = new Float32Array((Math.ceil(W / 10) + 1) * (Math.ceil(H / 10) + 1)).map(() => r());
+  const bw = Math.ceil(W / 10) + 1;
+  for (let y = Math.floor(A.yHorizon); y < H; y++) for (let x = 0; x < W; x++) {
+    const i = (y * W + x) * 4, R = A.src[i], G = A.src[i + 1], B = A.src[i + 2];
+    const yel = clamp01((R - B) / 140) * clamp01((G - 90) / 90);
+    A.yel[y * W + x] = Math.round(yel * 255); A.ph[y * W + x] = blk[((y / 10) | 0) * bw + ((x / 10) | 0)];
+  }
+  // figure mask (soft ellipse)
+  A.mask = new Float32Array(W * H);
+  const f = A.fig;
+  for (let y = Math.max(0, Math.floor(f.y - f.ry * 1.6)); y < Math.min(H, Math.ceil(f.y + f.ry * 1.2)); y++) for (let x = Math.max(0, Math.floor(f.x - f.rx * 2)); x < Math.min(W, Math.ceil(f.x + f.rx * 2)); x++) {
+    const d = Math.hypot((x - f.x) / f.rx, (y - f.y) / f.ry);
+    A.mask[y * W + x] = 1 - smooth(.9, 1.5, d);
+  }
+  // grain tile
+  const gt = document.createElement('canvas'); gt.width = gt.height = 512; const gc = gt.getContext('2d'); const id = gc.createImageData(512, 512); const rr = rng(3);
+  for (let i = 0; i < id.data.length; i += 4) { const v = 128 + (rr() - .5) * 140; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; }
+  gc.putImageData(id, 0, 0); A.grainPat = X.createPattern(gt, 'repeat');
+}
+
+function render(f) {
+  const t = f / FPS, S = A.src, O = A.out.data;
+  X.setTransform(1, 0, 0, 1, 0, 0); X.globalAlpha = 1; X.globalCompositeOperation = 'source-over';
+  const yH = A.yHorizon, sc = A.sc;
+  const glow = .5 + .5 * Math.sin(TAU * (3 * t / DUR - .25));
+  const T1 = TAU * t / DUR, T2 = TAU * 2 * t / DUR, T3 = TAU * 3 * t / DUR, T5 = TAU * 5 * t / DUR;
+  const breath = Math.sin(T3 + .5);
+  for (let y = 0; y < H; y++) {
+    const ws = A.wSky[y], wf = A.wField[y], row = y * W;
+    const isField = y > yH;
+    for (let x = 0; x < W; x++) {
+      let dx = 0, dy = 0, lum = 1;
+      // painted sky flows slowly; luminance clouds drift right
+      dx += ws * 9 * Math.sin(T2 + y / 240 + x / 700);
+      dy += ws * 5 * Math.sin(T1 + x / 420 + y / 310);
+      lum += ws * (.07 * Math.sin(T1 * 2 - x / 380 + y / 520) + .05 * Math.sin(T2 - x / 260 - y / 410));
+      if (wf > 0) { // flowers sway in waves running left to right
+        const ph = T3 - x / W * 9 + y / 170;
+        dx += wf * 5 * Math.sin(ph); dy += wf * 2.2 * Math.sin(T5 - x / W * 15 + y / 100 + 1);
+        lum += .06 * Math.sin(T3 - x / W * 6) * (wf > .2 ? 1 : 0);
+      }
+      const m = A.mask[row + x];
+      if (m > 0) { dx *= 1 - m; dy = dy * (1 - m) + m * 1.4 * breath; }
+      { const e = smooth(0, 50, x) * smooth(0, 50, W - 1 - x); dx *= e; }
+      // bilinear sample
+      let sx = x - dx, sy = y - dy; if (sx < 0) sx = 0; else if (sx > W - 1.01) sx = W - 1.01; if (sy < 0) sy = 0; else if (sy > H - 1.01) sy = H - 1.01;
+      const x0 = sx | 0, y0 = sy | 0, fx = sx - x0, fy = sy - y0, i00 = (y0 * W + x0) * 4, i10 = i00 + 4, i01 = i00 + W * 4, i11 = i01 + 4;
+      const w00 = (1 - fx) * (1 - fy), w10 = fx * (1 - fy), w01 = (1 - fx) * fy, w11 = fx * fy;
+      let R = S[i00] * w00 + S[i10] * w10 + S[i01] * w01 + S[i11] * w11;
+      let G = S[i00 + 1] * w00 + S[i10 + 1] * w10 + S[i01 + 1] * w01 + S[i11 + 1] * w11;
+      let B = S[i00 + 2] * w00 + S[i10 + 2] * w10 + S[i01 + 2] * w01 + S[i11 + 2] * w11;
+      if (isField) { // yellow petals and the lit field twinkle
+        const yl = A.yel[row + x];
+        if (yl > 20) {
+          const petal = smooth(70, 130, y - yH), p = A.ph[row + x];
+          const k = 1 + (yl / 255) * (petal * .3 * Math.sin(TAU * (3 + ((p * 3) | 0)) * t / DUR + p * TAU) + (1 - petal) * .09 * Math.sin(T3 - x / W * 6));
+          R *= k; G *= k;
+        }
+      }
+      const i = (row + x) * 4; O[i] = R * lum; O[i + 1] = G * lum; O[i + 2] = B * lum; O[i + 3] = 255;
+    }
+  }
+  X.putImageData(A.out, 0, 0);
+
+  // soft pulse of light around the figure's pale head
+  X.globalCompositeOperation = 'screen';
+  const h = A.head, gr = X.createRadialGradient(h.x, h.y, 2, h.x, h.y, 150);
+  gr.addColorStop(0, 'rgba(255,240,150,' + (.16 + .34 * glow) + ')'); gr.addColorStop(.35, 'rgba(255,220,90,' + (.05 + .12 * glow) + ')'); gr.addColorStop(1, 'rgba(255,220,90,0)');
+  X.fillStyle = gr; X.fillRect(h.x - 160, h.y - 160, 320, 320);
+  X.globalCompositeOperation = 'source-over';
+
+  if (!NOGRAIN) {
+    X.save(); X.globalCompositeOperation = 'overlay'; X.globalAlpha = .1;
+    X.translate(-((f % 4) * 131 % 512), -((f % 4) * 197 % 512)); X.fillStyle = A.grainPat; X.fillRect(0, 0, W + 512, H + 512); X.restore();
+  }
+  X.globalCompositeOperation = 'source-over'; X.globalAlpha = 1;
+}
+
+const img = new Image();
+img.onload = () => { makeAssets(img); window.READY = true; if (!new URLSearchParams(location.search).has('render')) { const t0 = performance.now(); (function loop() { render(Math.floor(((performance.now() - t0) / 1000 * FPS) % NF)); requestAnimationFrame(loop) })(); } };
+img.src = SRC;
+</script>
