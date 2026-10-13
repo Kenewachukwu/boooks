@@ -1,0 +1,158 @@
+/*
+  booooks Tailwind v4 theme. Import this from the app's global CSS instead of tokens.css:
+    @import "../design-system/theme.css";
+  (tokens.css is the same system for non-Tailwind use. Do not import both.)
+  Values are documented in DESIGN.md. Off-system colours, radii and shadows are removed on purpose.
+*/
+@import "tailwindcss";
+
+@font-face {
+  font-family: "MD Nichrome";
+  src: url("/fonts/MDNichrome-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "MD Nichrome";
+  src: url("/fonts/MDNichrome-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+@theme {
+  /* Remove Tailwind defaults we do not use, so only system values exist */
+  --color-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --drop-shadow-*: initial;
+  --inset-shadow-*: initial;
+  --text-shadow-*: initial;
+
+  /* Colour: bg-yellow, text-violet, border-black, ... */
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-grey-soft: #f2f2f2;
+  --color-yellow: #ffd24a;
+  --color-yellow-pale: #faed8f;
+  --color-orange: #f9a220;
+  --color-orange-pale: #fbbe63;
+  --color-orange-soft: #fddaa6;
+  --color-pink: #fd48f2;
+  --color-pink-pale: #feb6fa;
+  --color-pink-soft: #ffdbfd;
+  --color-magenta: #ff008c;
+  --color-cyan: #1ce8ed;
+  --color-blue-pale: #a4f6f8;
+  --color-blue-soft: #ddfcfc;
+  --color-violet: #3b308f;
+  --color-periwinkle: #9982de;
+  --color-periwinkle-pale: #c2b4eb;
+  --color-periwinkle-soft: #d7cdf1;
+  --color-wine: #670a2e;
+  --color-wine-soft: #f0e6ea;
+  --color-green: #2de124;
+  --color-green-pale: #69fe6f;
+  --color-olive: #857521;
+
+  /* Font: font-sans (the only family) */
+  --font-sans: "MD Nichrome", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-weight-*: initial;
+  --font-weight-regular: 400;
+  --font-weight-bold: 700;
+
+  /* Type scale: text-xs ... text-display, each with its line height */
+  --text-*: initial;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.2;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.4;
+  --text-md: 1rem;
+  --text-md--line-height: 1.5;
+  --text-lg: 1.25rem;
+  --text-lg--line-height: 1.4;
+  --text-xl: 1.5rem;
+  --text-xl--line-height: 1;
+  --text-2xl: 2rem;
+  --text-2xl--line-height: 1;
+  --text-3xl: clamp(2.5rem, 8vw, 5rem);
+  --text-3xl--line-height: 0.8;
+  --text-display: clamp(3.25rem, 14vw, 9rem);
+  --text-display--line-height: 0.8;
+
+  --leading-*: initial;
+  --leading-display: 0.8;
+  --leading-heading: 1;
+  --leading-body: 1.5;
+  --leading-reading: 1.65;
+
+  --tracking-*: initial;
+  --tracking-display: -0.01em;
+  --tracking-body: -0.02em;
+  --tracking-reading: 0em;
+
+  /* Spacing: 4px base (p-4 = 1rem). Named extra: p-page */
+  --spacing: 0.25rem;
+  --spacing-page: 1.5rem;
+  --spacing-tap: 2.75rem; /* min-h-tap, size-tap */
+
+  /* Shape: rounded-sm | md | input | lg | tag | full. No shadows exist. */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-input: 0.8rem;
+  --radius-lg: 1rem;
+  --radius-tag: 0.8rem;
+  --radius-full: 9999px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --default-transition-duration: 240ms;
+  --default-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Semantic roles, usable as bg-action, text-on-dark, ring-focus ... */
+@theme inline {
+  --color-page: var(--color-white);
+  --color-brand: var(--color-yellow);
+  --color-muted: var(--color-grey-soft);
+  --color-ink: var(--color-black);
+  --color-on-dark: var(--color-white);
+  --color-action: var(--color-pink);
+  --color-action-secondary: var(--color-yellow-pale);
+  --color-focus: var(--color-violet);
+  --color-danger: var(--color-wine);
+  --color-success: var(--color-green);
+}
+
+@layer base {
+  html { @apply bg-page font-sans text-ink; }
+  body { @apply text-md tracking-body font-regular; }
+  h1, h2, h3 { @apply font-bold tracking-display; }
+  h1 { @apply text-3xl; }
+  h2 { @apply text-2xl; }
+  h3 { @apply text-xl; }
+  :focus-visible { @apply outline-3 outline-offset-2 outline-focus; }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex min-h-tap items-center justify-center gap-2 rounded-lg bg-action px-6 text-md font-bold text-ink transition-transform active:scale-[0.97] motion-reduce:transition-none;
+  }
+  .btn-secondary { @apply bg-action-secondary; }
+  .btn-inverse { @apply bg-black text-yellow-pale; }
+  .btn-square { @apply rounded-sm; }
+  .btn-icon { @apply size-tap rounded-full px-0; }
+
+  .tag { @apply inline-block rounded-tag bg-cyan px-2.5 py-1 text-xs font-bold text-ink; }
+  .tag-dark { @apply bg-black text-white; }
+  .tag-violet { @apply bg-violet text-white; }
+
+  .card { @apply rounded-lg bg-periwinkle p-6 text-ink; }
+
+  .input {
+    @apply min-h-tap w-full rounded-input border-2 border-black bg-white px-4 py-3 text-md text-ink placeholder:text-black/55;
+  }
+
+  /* Long-form text: calm, readable, no tight tracking */
+  .reading { @apply max-w-[68ch] text-lg leading-reading tracking-reading; }
+  .reading-poem { @apply max-w-[68ch] whitespace-pre-wrap text-lg leading-reading tracking-reading; }
+}

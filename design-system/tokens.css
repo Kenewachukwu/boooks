@@ -1,0 +1,173 @@
+/*
+  booooks design tokens
+  Visual language borrowed from aardvarkbookclub.com (values read from its published CSS on 2026-10-13):
+  flat saturated colour blocks, black type, pill tags, big tight display headings, no shadows, no borders.
+  Typeface: MD Nichrome for everything (display and body). It is a commercial font:
+  put licensed files in /public/fonts/ (see DESIGN.md). Fallbacks apply until then.
+*/
+
+@font-face {
+  font-family: "MD Nichrome";
+  src: url("/fonts/MDNichrome-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "MD Nichrome";
+  src: url("/fonts/MDNichrome-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+:root {
+  /* Ink and paper */
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-grey-soft: #f2f2f2;
+
+  /* Brand colours (names follow the reference site) */
+  --color-yellow: #ffd24a;
+  --color-yellow-pale: #faed8f;
+  --color-orange: #f9a220;
+  --color-orange-pale: #fbbe63;
+  --color-orange-soft: #fddaa6;
+  --color-pink-bright: #fd48f2;
+  --color-pink-pale: #feb6fa;
+  --color-pink-soft: #ffdbfd;
+  --color-magenta: #ff008c;
+  --color-cyan: #1ce8ed;
+  --color-blue-pale: #a4f6f8;
+  --color-blue-soft: #ddfcfc;
+  --color-violet: #3b308f;
+  --color-periwinkle: #9982de;
+  --color-periwinkle-pale: #c2b4eb;
+  --color-periwinkle-soft: #d7cdf1;
+  --color-wine: #670a2e;
+  --color-wine-soft: #f0e6ea;
+  --color-green: #2de124;
+  --color-green-pale: #69fe6f;
+  --color-olive: #857521;
+
+  /* Semantic roles (use these in components, not the raw colours) */
+  --surface-page: var(--color-white);
+  --surface-brand: var(--color-yellow);
+  --surface-muted: var(--color-grey-soft);
+  --text: var(--color-black);
+  --text-on-dark: var(--color-white);
+  --action-primary-bg: var(--color-pink-bright);
+  --action-primary-text: var(--color-black);
+  --action-secondary-bg: var(--color-yellow-pale);
+  --action-secondary-text: var(--color-black);
+  --action-inverse-bg: var(--color-black);
+  --action-inverse-text: var(--color-yellow-pale);
+  --focus-ring: var(--color-violet);
+  --danger: var(--color-wine);
+  --success: var(--color-green);
+
+  /* Typography */
+  --font-sans: "MD Nichrome", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-reading: var(--font-sans); /* long text uses the same family; revisit after reading tests */
+
+  --text-xs: 0.75rem;     /* 12  tags, captions */
+  --text-sm: 0.875rem;    /* 14  secondary */
+  --text-md: 1rem;        /* 16  body (minimum on mobile) */
+  --text-lg: 1.25rem;     /* 20  lead */
+  --text-xl: 1.5rem;      /* 24  card titles */
+  --text-2xl: 2rem;       /* 32  section headings */
+  --text-3xl: clamp(2.5rem, 8vw, 5rem);    /* page headings */
+  --text-display: clamp(3.25rem, 14vw, 9rem); /* hero only */
+
+  --weight-regular: 400;
+  --weight-bold: 700;
+  --leading-display: 0.8;   /* the reference site sets headings at about 0.8 */
+  --leading-heading: 1;
+  --leading-body: 1.5;
+  --tracking-display: -0.01em;
+  --tracking-body: -0.02em;
+
+  /* Space (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --page-margin: 1.5rem;
+
+  /* Shape */
+  --radius-sm: 0.25rem;   /* square-ish buttons */
+  --radius-md: 0.5rem;    /* app badge buttons */
+  --radius-input: 0.8rem;
+  --radius-lg: 1rem;      /* cards, primary pill buttons */
+  --radius-tag: 0.8rem;   /* tags */
+  --radius-round: 50%;
+
+  /* Elevation: none. Depth comes from colour blocks, not shadows. */
+  --shadow-none: none;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 120ms;
+  --duration-base: 240ms;
+  --duration-slow: 500ms;
+
+  /* Layout */
+  --header-height: 4.5rem;
+  --tap-target: 2.75rem; /* 44px minimum */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}
+
+/* Base */
+html { font-family: var(--font-sans); color: var(--text); background: var(--surface-page); }
+body { margin: 0; font-size: var(--text-md); line-height: var(--leading-body); letter-spacing: var(--tracking-body); font-weight: var(--weight-regular); }
+h1, h2, h3 { font-weight: var(--weight-bold); letter-spacing: var(--tracking-display); margin: 0; }
+h1 { font-size: var(--text-3xl); line-height: var(--leading-display); }
+h2 { font-size: var(--text-2xl); line-height: var(--leading-heading); }
+h3 { font-size: var(--text-xl); line-height: var(--leading-heading); }
+:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+
+/* Components */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-height: var(--tap-target); padding: 0 var(--space-5);
+  border: 0; border-radius: var(--radius-lg);
+  font: var(--weight-bold) var(--text-md)/1 var(--font-sans);
+  background: var(--action-primary-bg); color: var(--action-primary-text);
+  cursor: pointer; transition: transform var(--duration-fast) var(--ease-out);
+}
+.btn:active { transform: scale(0.97); }
+.btn--secondary { background: var(--action-secondary-bg); color: var(--action-secondary-text); }
+.btn--inverse { background: var(--action-inverse-bg); color: var(--action-inverse-text); }
+.btn--square { border-radius: var(--radius-sm); }
+.btn--icon { width: var(--tap-target); padding: 0; border-radius: var(--radius-round); }
+
+.tag {
+  display: inline-block; padding: 0.25rem 0.6rem; border-radius: var(--radius-tag);
+  font: var(--weight-bold) var(--text-xs)/1.2 var(--font-sans);
+  background: var(--color-cyan); color: var(--color-black);
+}
+.tag--dark { background: var(--color-black); color: var(--color-white); }
+.tag--violet { background: var(--color-violet); color: var(--color-white); }
+
+.card { border-radius: var(--radius-lg); padding: var(--space-5); background: var(--color-periwinkle); color: var(--color-black); }
+.card--cyan { background: var(--color-cyan); }
+.card--pink { background: var(--color-pink-bright); }
+.card--yellow { background: var(--color-yellow); }
+
+.input {
+  width: 100%; min-height: var(--tap-target); padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-black); border-radius: var(--radius-input);
+  font: var(--weight-regular) var(--text-md)/1.3 var(--font-sans);
+  background: var(--color-white); color: var(--color-black);
+}
+.input::placeholder { color: color-mix(in srgb, var(--color-black) 55%, transparent); }
