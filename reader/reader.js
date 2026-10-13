@@ -18,36 +18,69 @@ const RULE = '<svg class="rule" viewBox="0 0 200 12" preserveAspectRatio="none" 
 const rule = () => { const t = document.createElement('template'); t.innerHTML = RULE; return t.content.firstChild; };
 const pen = (tag, cls, text) => { const e = h(tag, cls); e.append(h('span', 'ln', text)); return e; }; // an element holding one written line
 
-// ---------- sound: Web Audio loop with fades. Needs a user gesture (the Begin button or the speaker button).
+// ---------- sound: a Web Audio loop with fades (the loop is seamless; an <audio loop> would click at the seam).
+// iPhone Safari needs three things that desktop browsers do not: a tap to start, the context resumed inside that tap, and the page
+// declared as "playback" audio. Without the last one iOS mutes Web Audio whenever the ring/silent switch is on silent.
 const sound = (() => {
-  let ctx, gain, buf, src, loading, playing = false, wanted = store.get('sound') !== 'off';
-  const paint = () => { soundBtn.setAttribute('aria-pressed', String(wanted)); soundBtn.setAttribute('aria-label', wanted ? 'Sound on' : 'Sound off'); };
+  let ctx, gain, buf, src, keep, playing = false, starting = false, intent = false, held = false;
+  let wanted = store.get('sound') !== 'off';
+  const fetchBytes = () => fetch(CONFIG.audio).then(r => { if (!r.ok) throw new Error('audio ' + r.status); return r.arrayBuffer(); });
+  let pending = fetchBytes().catch(() => null); // downloaded now, so a tap can start the sound at once (it is about 3 MB)
+  // the speaker button shows what is really happening, never what we hope will happen
+  const paint = () => {
+    soundBtn.setAttribute('aria-pressed', String(playing));
+    soundBtn.setAttribute('aria-label', playing ? 'Sound on' : 'Sound off. Tap to turn on');
+    soundBtn.classList.toggle('invite', wanted && !playing && !starting);
+    soundBtn.classList.toggle('loading', starting);
+  };
   const fade = (to, secs) => { const t = ctx.currentTime; gain.gain.cancelScheduledValues(t); gain.gain.setValueAtTime(gain.gain.value, t); gain.gain.linearRampToValueAtTime(to, t + secs); };
-  async function start() {
-    if (!ctx) { // created and resumed synchronously inside the gesture; iOS requires that
-      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
-      ctx = new AC(); gain = ctx.createGain(); gain.gain.value = 0; gain.connect(ctx.destination);
-    }
-    if (ctx.state === 'suspended') ctx.resume();
-    try {
-      loading ??= fetch(CONFIG.audio).then(r => r.arrayBuffer()).then(a => ctx.decodeAudioData(a));
-      buf = await loading;
-    } catch { wanted = false; paint(); return; }
-    if (!wanted) return;
-    if (!src) { src = ctx.createBufferSource(); src.buffer = buf; src.loop = true; src.connect(gain); src.start(); }
-    playing = true; fade(0.9, 1.6);
+  const decode = (c, ab) => new Promise((ok, no) => { const p = c.decodeAudioData(ab, ok, no); if (p && p.catch) p.catch(no); }); // old Safari only has the callback form
+  function silentLoop() { // a second of silence as an <audio> element: playing it moves older iOS (before 16.4) to the playback category
+    const sr = 8000, n = sr, b = new ArrayBuffer(44 + n * 2), v = new DataView(b), w = (o, t) => [...t].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+    w(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); w(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, n * 2, true);
+    const a = new Audio(URL.createObjectURL(new Blob([b], { type: 'audio/wav' }))); a.loop = true; a.setAttribute('playsinline', ''); return a;
   }
-  function stop() { if (!ctx || !playing) return; playing = false; fade(0, 0.5); }
+  async function start() {
+    if (playing || starting) return;
+    starting = true; intent = true; wanted = true; store.set('sound', 'on'); paint();
+    try {
+      if (navigator.audioSession) navigator.audioSession.type = 'playback'; // iOS 16.4+: ignore the silent switch
+      else { keep ??= silentLoop(); keep.play().catch(() => {}); }
+      if (!ctx) { // created and resumed synchronously inside the tap; iOS requires that
+        const AC = window.AudioContext || window.webkitAudioContext; if (!AC) throw new Error('no Web Audio');
+        ctx = new AC(); gain = ctx.createGain(); gain.gain.value = 0; gain.connect(ctx.destination);
+        ctx.onstatechange = () => { // a phone call or another app can interrupt the context; the icon must not lie about it
+          if (held) return;
+          if (ctx.state !== 'running' && playing) { playing = false; paint(); }
+        };
+      }
+      ctx.resume();
+      if (!buf) { const ab = await (pending ?? fetchBytes()); pending = null; buf = await decode(ctx, ab); }
+      if (!src) { src = ctx.createBufferSource(); src.buffer = buf; src.loop = true; src.connect(gain); src.start(); }
+      if (!intent) return; // switched off while the file was still loading
+      if (ctx.state !== 'running') await Promise.race([ctx.resume(), new Promise(r => setTimeout(r, 1500))]);
+      playing = ctx.state === 'running';
+      if (playing) fade(0.9, 1.6);
+    } catch (e) { console.warn('sound could not start', e); playing = false; }
+    finally { starting = false; paint(); }
+  }
+  function stop() {
+    intent = false; wanted = false; store.set('sound', 'off'); keep?.pause();
+    if (ctx && playing) { fade(0, 0.5); setTimeout(() => { if (!intent && ctx.state === 'running') ctx.suspend(); }, 600); }
+    playing = false; paint();
+  }
   paint();
   return {
     get wanted() { return wanted; },
-    start() { if (wanted) start(); },
-    set(v) { wanted = v; store.set('sound', v ? 'on' : 'off'); paint(); v ? start() : stop(); },
-    hold() { if (ctx && ctx.state === 'running') ctx.suspend(); },
-    release() { if (ctx && playing && ctx.state === 'suspended') ctx.resume(); },
+    get state() { return { ctx: ctx?.state, playing, starting, wanted, audioSession: navigator.audioSession?.type }; },
+    begin() { if (wanted) start(); }, // the Begin button: starts sound unless the reader turned it off before
+    toggle() { playing || starting ? stop() : start(); },
+    hold() { held = true; if (ctx && ctx.state === 'running') ctx.suspend(); }, // tab hidden
+    release() { held = false; if (ctx && intent) ctx.resume().then(() => { playing = ctx.state === 'running'; paint(); }); },
   };
 })();
-soundBtn.addEventListener('click', () => sound.set(!sound.wanted));
+soundBtn.addEventListener('click', () => sound.toggle());
 
 // ---------- loading-style counter: rolling digits plus a progress line
 function makeCounter(el, digits, suffix) {
@@ -145,7 +178,7 @@ function buildCover() {
   inner.append(pen('p', 'kicker', 'A book of poems'), pen('h1', null, book.title), rule(), pen('p', 'by', 'by ' + book.author), begin, hint);
   sec.append(inner);
   // Begin starts the sound and nothing else: pages only ever turn when the reader swipes or scrolls
-  begin.addEventListener('click', () => { if (!reduceMotion) bg.play().catch(() => {}); sound.start(); sec.classList.add('begun'); });
+  begin.addEventListener('click', () => { if (!reduceMotion) bg.play().catch(() => {}); sound.begin(); sec.classList.add('begun'); });
   return sec;
 }
 
@@ -323,7 +356,7 @@ stage.classList.add('ready');
 onScroll();
 pagesEl.focus({ preventScroll: true });
 
-window.reader = { goTo, get cur() { return cur; }, get pageH() { return pageH; }, total: TOTAL }; // handle for tests and the console
+window.reader = { goTo, get cur() { return cur; }, get pageH() { return pageH; }, sound, total: TOTAL }; // handle for tests and the console
 
 // #12 opens poem 12 (also the base for sharing a single page later)
 addEventListener('hashchange', () => { const i = clamp(parseInt(location.hash.slice(1), 10) || 0, 0, LAST); if (i !== cur) goTo(i, true); });
