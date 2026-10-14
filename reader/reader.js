@@ -1,15 +1,16 @@
 // booooks reader prototype: a looping painted background, a sound bed, and one handwritten page per screen.
 // Vanilla JS on purpose (no build step); the data model (data/book.json) and the CSS carry over to the Next.js reader in PLAN.md.
 
+import { TEMPLATES, googleFontsUrl } from './templates.js';
+
 const CONFIG = {
-  book: 'data/book.json',
+  registry: 'data/stories.json',
   sample: 'data/book.sample.json',
-  audio: 'media/night-field.wav',  // exact-length loop, played through Web Audio so the seam stays silent
-  maxReveal: 6,                    // seconds: a long poem is written faster instead of making the reader wait
+  maxReveal: 6,                    // seconds: a long page is written faster instead of making the reader wait
 };
 
 const $ = id => document.getElementById(id);
-const stage = $('stage'), pagesEl = $('pages'), bg = $('bg'), countEl = $('count'), fillEl = $('fill'), soundBtn = $('sound'), liveEl = $('live');
+const stage = $('stage'), pagesEl = $('pages'), countEl = $('count'), fillEl = $('fill'), soundBtn = $('sound'), liveEl = $('live');
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch { /* private mode */ } } };
@@ -18,13 +19,28 @@ const RULE = '<svg class="rule" viewBox="0 0 200 12" preserveAspectRatio="none" 
 const rule = () => { const t = document.createElement('template'); t.innerHTML = RULE; return t.content.firstChild; };
 const pen = (tag, cls, text) => { const e = h(tag, cls); e.append(h('span', 'ln', text)); return e; }; // an element holding one written line
 
+// ---------- which story, and the template (look) it brings
+const query = new URLSearchParams(location.search);
+const registry = await fetch(CONFIG.registry).then(r => r.ok ? r.json() : Promise.reject())
+  .catch(() => ({ default: 'rejuvenating', stories: [{ id: 'rejuvenating', file: 'data/book.json', template: 'night-field' }] }));
+const entry = registry.stories.find(s => s.id === query.get('story')) || registry.stories.find(s => s.id === registry.default) || registry.stories[0];
+const template = TEMPLATES[entry.template] || TEMPLATES['night-field'];
+{
+  const root = document.documentElement.style;
+  for (const [k, v] of Object.entries(template.vars || {})) root.setProperty(k, v);
+  root.setProperty('--sheet-top', template.sheet.top * 100 + '%'); root.setProperty('--sheet-bottom', template.sheet.bottom * 100 + '%');
+  $('fonts').href = googleFontsUrl(template);
+  stage.dataset.template = entry.template;
+}
+
 // ---------- sound: a Web Audio loop with fades (the loop is seamless; an <audio loop> would click at the seam).
 // iPhone Safari needs three things that desktop browsers do not: a tap to start, the context resumed inside that tap, and the page
 // declared as "playback" audio. Without the last one iOS mutes Web Audio whenever the ring/silent switch is on silent.
 const sound = (() => {
+  if (!template.sound) { soundBtn.hidden = true; return { wanted: false, state: {}, begin() {}, toggle() {}, hold() {}, release() {} }; }
   let ctx, gain, buf, src, keep, playing = false, starting = false, intent = false, held = false;
   let wanted = store.get('sound') !== 'off';
-  const fetchBytes = () => fetch(CONFIG.audio).then(r => { if (!r.ok) throw new Error('audio ' + r.status); return r.arrayBuffer(); });
+  const fetchBytes = () => fetch(template.sound).then(r => { if (!r.ok) throw new Error('audio ' + r.status); return r.arrayBuffer(); });
   let pending = fetchBytes().catch(() => null); // downloaded now, so a tap can start the sound at once (it is about 3 MB)
   // the speaker button shows what is really happening, never what we hope will happen
   const paint = () => {
@@ -95,15 +111,16 @@ function makeCounter(el, digits, suffix) {
 }
 
 // ---------- page building
-const FONT_MIN = 0.052, FONT_MAX = 0.118; // body text size as a fraction of the stage width
+const FONT_MIN = template.font.min, FONT_MAX = template.font.max; // body text size as a fraction of the stage width
 
 function plainFlow(p) { // unsplit text: the browser wraps it, and we measure that
   const nodes = [];
   if (p.title && !p.cont) nodes.push(h('h2', 'src title', p.title), rule());
-  else if (p.cont) nodes.push(h('p', 'src note', 'Continued'));
+  else if (p.cont && LAYOUT !== 'prose') nodes.push(h('p', 'src note', 'Continued'));
   p.stanzas.forEach((s, si) => {
     const stz = h('div', 'stz'); stz.style.setProperty('--gap', si ? s.gap : 0);
-    s.lines.forEach((l, li) => { const e = h('p', 'src', l); if (si && !li) e.dataset.pause = s.gap; stz.append(e); });
+    // verse: every line is its own line. prose: a stanza is a paragraph and its "lines" are sentences that run together.
+    (LAYOUT === 'prose' ? [s.lines.join(' ')] : s.lines).forEach((l, li) => { const e = h('p', 'src', l); if (si && !li) e.dataset.pause = s.gap; stz.append(e); });
     nodes.push(stz);
   });
   return nodes;
@@ -112,7 +129,9 @@ function plainFlow(p) { // unsplit text: the browser wraps it, and we measure th
 // A poem too long for one screen at the smallest readable size continues on the next screen. Measured against the tightest
 // stage (9:16), so every device gets the same pages and the counter means the same thing everywhere.
 function paginate(poems) {
-  const W = stage.clientWidth, maxH = W * (16 / 9) * 0.61;
+  // Verse is measured against the tightest stage (9:16) so every device gets the same pages. Prose has one fixed text size, so it
+  // reflows to the real screen like an ebook, and is re-paginated if the screen's shape changes a lot (see the resize handler).
+  const W = stage.clientWidth, refH = LAYOUT === 'prose' ? stage.clientHeight : W * (16 / 9), maxH = refH * (1 - template.sheet.top - template.sheet.bottom);
   const probe = h('div', 'sheet measure'), flow = h('div', 'flow'); probe.append(flow); probe.style.fontSize = W * FONT_MIN + 'px'; stage.append(probe);
   // plain text is a quick "no"; a plain "yes" is double-checked on the split lines, which can wrap one line differently
   const fits = pg => {
@@ -129,11 +148,25 @@ function paginate(poems) {
       for (const it of items.slice(a, b)) { if (!st.length || st.at(-1).si !== it.si) st.push({ si: it.si, gap: it.gap, lines: [] }); st.at(-1).lines.push(it.line); }
       return { title: p.title, cont: !first, stanzas: st.map(({ gap, lines }) => ({ gap, lines })) };
     };
+    if (LAYOUT === 'prose') { // prose: fill each screen, ending at a paragraph break when that wastes little (or at a sentence)
+      const out2 = [];
+      for (let a = 0; a < items.length;) {
+        let lo = a + 1, hi = items.length;
+        while (lo < hi) { const mid = (lo + hi + 1) >> 1; fits(make(a, mid, !out2.length)) ? lo = mid : hi = mid - 1; }
+        let b = lo;
+        if (b < items.length) for (let i = b; i > a + (b - a) * 0.72; i--) if (items[i].si !== items[i - 1].si) { b = i; break; }
+        out2.push(make(a, b, !out2.length)); a = b;
+      }
+      out.push(...out2); continue;
+    }
+    // verse: cut points are balanced by line count
+    const cum = []; items.reduce((t, it) => (cum.push(t += LAYOUT === 'prose' ? it.line.length : 1), t), 0);
+    const total = cum.at(-1), indexAt = frac => { const i = cum.findIndex(c => c >= frac * total); return i < 0 ? items.length : i + 1; };
     let chunks;
-    for (let n = 1; n <= 6; n++) {
+    for (let n = 1; n <= 16; n++) {
       const size = items.length / n, cuts = [0];
-      for (let k = 1; k < n; k++) { // cut at a stanza break near the middle if there is one, else mid-stanza
-        const target = Math.round(k * size), lo = cuts.at(-1); let best = target, bd = Math.max(2, Math.round(size * 0.25)) + 1;
+      for (let k = 1; k < n; k++) { // cut at a paragraph or stanza break near the middle if there is one, else mid-paragraph
+        const target = indexAt(k / n), lo = cuts.at(-1); let best = target, bd = Math.max(2, Math.round(size * 0.25)) + 1;
         for (let i = lo + 1; i < items.length; i++) if (items[i].si !== items[i - 1].si && Math.abs(i - target) < bd) { best = i; bd = Math.abs(i - target); }
         cuts.push(Math.max(lo + 1, Math.min(items.length - 1, best)));
       }
@@ -148,10 +181,13 @@ function paginate(poems) {
 }
 
 // data/book.json is the real book and stays local; the repo ships a small sample so the reader always runs (or add ?sample to the URL)
-const wantSample = new URLSearchParams(location.search).has('sample');
-const book = await (wantSample ? Promise.reject() : fetch(CONFIG.book).then(r => r.ok ? r : Promise.reject()))
+const wantSample = query.has('sample');
+const book = await (wantSample ? Promise.reject() : fetch(entry.file).then(r => r.ok ? r : Promise.reject()))
   .catch(() => fetch(CONFIG.sample)).then(r => r.json());
-await fontsReady(); // pagination measures real text, so the handwriting font has to be in first
+const LAYOUT = book.layout || template.layout || 'verse';
+document.title = `${book.title} · booooks reader`;
+await fontsReady(); // pagination measures real text, so the template's fonts have to be in first
+const shapeAtPagination = stage.clientHeight / stage.clientWidth;
 const pages = paginate(book.pages.filter(p => p.kind === 'poem'));
 const TOTAL = pages.length;
 const sections = [];   // 0 cover, 1..TOTAL pages, TOTAL+1 end
@@ -165,7 +201,7 @@ function buildPoem(p, i) {
   const sheet = h('div', 'sheet'); sheet.setAttribute('aria-hidden', 'true'); sheet.append(h('div', 'flow'));
   const sr = h('div', 'sr-only');
   if (p.title && !p.cont) sr.append(h('h2', null, p.title));
-  for (const s of p.stanzas) { const para = h('p'); para.innerText = s.lines.join('\n'); sr.append(para); }
+  for (const s of p.stanzas) { const para = h('p'); para.innerText = s.lines.join(LAYOUT === 'prose' ? ' ' : '\n'); sr.append(para); }
   sec.append(sheet, sr); sec._poem = p; return sec;
 }
 
@@ -175,10 +211,11 @@ function buildCover() {
   const begin = h('button', 'btn', 'Begin'); begin.type = 'button';
   const hint = h('p', 'hint'); hint.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15l7-7 7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   hint.append('Swipe up to turn the page');
-  inner.append(pen('p', 'kicker', 'A book of poems'), pen('h1', null, book.title), rule(), pen('p', 'by', 'by ' + book.author), begin, hint);
+  const title = h('h1'); (book.titleLines || [book.title]).forEach(l => title.append(h('span', 'ln', l))); // long titles are set in short lines
+  inner.append(pen('p', 'kicker', book.kicker || template.kicker || 'A book of poems'), title, rule(), pen('p', 'by', book.byline || 'by ' + book.author), begin, hint);
   sec.append(inner);
   // Begin starts the sound and nothing else: pages only ever turn when the reader swipes or scrolls
-  begin.addEventListener('click', () => { if (!reduceMotion) bg.play().catch(() => {}); sound.begin(); sec.classList.add('begun'); });
+  begin.addEventListener('click', () => { if (!reduceMotion) bgCtl.play(); sound.begin(); sec.classList.add('begun'); });
   return sec;
 }
 
@@ -187,6 +224,9 @@ function buildEnd() {
   const inner = h('div', 'end-in');
   const again = h('button', 'btn secondary', 'Read again'); again.type = 'button';
   inner.append(pen('p', 'kicker', `${book.title} · ${book.author}`), pen('h2', null, 'The end'), rule(), pen('p', 'by', 'Thank you for reading.'), again);
+  const others = registry.stories.filter(s => s.id !== entry.id);
+  if (others.length) { const next = h('a', 'btn secondary', 'Read another story'); next.href = '?story=' + others[registry.stories.indexOf(entry) % others.length].id; inner.append(next); }
+  if (book.source) { const src = h('a', 'link', 'Read the original on Medium'); src.href = book.source; src.target = '_blank'; src.rel = 'noopener'; inner.append(src); }
   sec.append(inner);
   again.addEventListener('click', () => goTo(0, true));
   return sec;
@@ -250,7 +290,7 @@ function layoutAll() {
 async function fontsReady() {
   const wait = ms => new Promise(r => setTimeout(r, ms)), link = $('fonts');
   await Promise.race([new Promise(r => { if (link.sheet) r(); else { link.addEventListener('load', r); link.addEventListener('error', r); } }), wait(3000)]);
-  await Promise.race([Promise.all([document.fonts.load('500 40px Caveat'), document.fonts.load('700 40px Caveat')]), wait(3000)]);
+  await Promise.race([Promise.all([...template.fonts.load.map(f => document.fonts.load(f))]), wait(3000)]);
 }
 
 // ---------- navigation, counter and page state
@@ -286,6 +326,7 @@ function onScroll() {
     // fade the two pages in view by their distance from the viewport (direct opacity: no style recalculation of the text inside)
     for (let i = Math.max(0, Math.floor(pos)); i <= Math.min(LAST, Math.ceil(pos)); i++) sections[i].firstElementChild.style.opacity = (1 - Math.min(1, Math.abs(i - pos) * 1.15)).toFixed(3);
     fillEl.style.transform = `scaleX(${clamp(pos / TOTAL, 0, 1).toFixed(4)})`;
+    bgCtl.setProgress(clamp(pos / TOTAL, 0, 1)); // an effect background can change as the story is read
     if (idx !== cur) { cur = idx; setCount(Math.min(idx, TOTAL)); stage.classList.toggle('complete', idx >= TOTAL); }
     clearTimeout(settleTimer);
     settleTimer = setTimeout(() => {
@@ -339,17 +380,39 @@ pagesEl.addEventListener('wheel', e => {
   if (Math.abs(wheelAcc) >= 28) { wheelLock = true; wheelAcc = 0; goTo(here() + Math.sign(dy)); }
 }, { passive: false });
 
-// ---------- background video and tab visibility
-if (reduceMotion) { bg.removeAttribute('autoplay'); bg.pause(); }
-document.addEventListener('pointerup', () => { if (bg.paused && !reduceMotion) bg.play().catch(() => {}); }, { once: true }); // low-power modes block autoplay until a tap
+// ---------- background (a video, or an image seed run through an effect) and tab visibility
+let bgCtl = { play() {}, pause() {}, setProgress() {}, paused: true }; // does nothing until the background has loaded
+async function mountBackground(cfg) {
+  if (cfg.type === 'fx') {
+    const [{ createFx }, { loadSeed }] = await Promise.all([import('./fx/fx.js'), import('./fx/seeds.js')]);
+    const canvas = h('canvas', 'bg'); canvas.setAttribute('aria-hidden', 'true');
+    const fx = createFx(canvas); fx.setImage(await loadSeed(cfg.seed)); fx.setEffect(cfg.effect, cfg.params);
+    let paused = true;
+    return {
+      el: canvas, get paused() { return paused; },
+      play() { paused = false; fx.start(); },
+      pause() { paused = true; fx.stop(); fx.draw(3); }, // a still frame
+      setProgress(p) { if (cfg.progress) { fx.setProgress(p); if (paused) fx.draw(3); } },
+    };
+  }
+  const v = h('video', 'bg'); v.src = cfg.src; if (cfg.poster) v.poster = cfg.poster;
+  v.muted = v.loop = v.playsInline = v.autoplay = true; v.preload = 'auto'; v.setAttribute('aria-hidden', 'true');
+  return { el: v, get paused() { return v.paused; }, play() { v.play().catch(() => {}); }, pause() { v.pause(); }, setProgress() {} };
+}
+mountBackground(template.background).then(ctl => {
+  bgCtl = ctl; stage.prepend(ctl.el);
+  if (reduceMotion) ctl.pause(); else ctl.play();
+}).catch(e => console.warn('background failed to load', e));
+document.addEventListener('pointerup', () => { if (bgCtl.paused && !reduceMotion) bgCtl.play(); }, { once: true }); // low-power modes block autoplay until a tap
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) { bg.pause(); sound.hold(); } else { if (!reduceMotion) bg.play().catch(() => {}); sound.release(); }
+  if (document.hidden) { bgCtl.pause(); sound.hold(); } else { if (!reduceMotion) bgCtl.play(); sound.release(); }
 });
 
 // ---------- go
 layoutAll();
 sections.forEach(s => io.observe(s));
-const start = clamp(parseInt(location.hash.slice(1), 10) || 0, 0, LAST);
+const resumeAt = (() => { try { const f = parseFloat(sessionStorage.getItem('resume')); sessionStorage.removeItem('resume'); return f > 0 ? Math.round(f * LAST) : 0; } catch { return 0; } })();
+const start = clamp(parseInt(location.hash.slice(1), 10) || resumeAt, 0, LAST);
 if (start) { pagesEl.scrollTo({ top: start * pageH, behavior: 'instant' }); }
 cur = stable = start; setCount(Math.min(start, TOTAL)); stage.classList.toggle('complete', start >= TOTAL);
 stage.classList.add('ready');
@@ -370,6 +433,10 @@ new ResizeObserver(() => {
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => {
     resizing = false; pageH = pagesEl.clientHeight;
+    if (LAYOUT === 'prose' && Math.abs(stage.clientHeight / stage.clientWidth - shapeAtPagination) / shapeAtPagination > 0.06) { // e.g. rotated: reflow into new pages
+      try { sessionStorage.setItem('resume', String(stable / LAST)); } catch { /* private mode */ }
+      location.reload(); return;
+    }
     if (Math.abs(stage.clientWidth - laidOut.w) > 2 || Math.abs(stage.clientHeight - laidOut.h) / laidOut.h > 0.12) { layoutAll(); sections[stable].classList.add('done'); }
     pagesEl.scrollTo({ top: stable * pageH, behavior: 'instant' });
     cur = stable; setCount(Math.min(cur, TOTAL)); stage.classList.toggle('complete', cur >= TOTAL);
