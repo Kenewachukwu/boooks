@@ -1,0 +1,30 @@
+<!doctype html>
+<!-- The 1200x630 picture shown when the article's link is pasted into a chat. Rendered by a headless browser (see README), not shipped as a page.
+     Open it with ?w=1200&h=630. It uses the same grunge-newspaper effect as the story's background. -->
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Newsreader:ital,wght@0,400;0,500&family=Special+Elite&display=swap">
+<style>
+  html, body { margin: 0; background: #d9c9a8; }
+  #card { position: relative; width: 1200px; height: 630px; overflow: hidden; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .glow { position: absolute; inset: 0; background: radial-gradient(70% 90% at 30% 50%, rgba(236, 224, 198, 0.82), rgba(236, 224, 198, 0) 75%); }
+  .text { position: absolute; left: 84px; top: 0; bottom: 0; width: 760px; display: flex; flex-direction: column; justify-content: center; color: #2b1812; text-shadow: 0 0 18px rgba(236, 224, 198, 0.95); }
+  .kicker { font: 400 24px/1 "Special Elite", monospace; letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 26px; }
+  h1 { margin: 0; font: italic 400 112px/0.98 "DM Serif Display", Georgia, serif; color: #b3123f; }
+  .by { margin-top: 30px; font: 500 38px/1 "Newsreader", Georgia, serif; }
+</style>
+<div id="card">
+  <canvas id="cv"></canvas><div class="glow"></div>
+  <div class="text"><div class="kicker">A short story</div><h1>Heart Break<br>and Hot Chocolate</h1><div class="by">by the.introverted_she</div></div>
+</div>
+<script type="module">
+  import { createFx } from './fx/fx.js';
+  import { loadSeed } from './fx/seeds.js';
+  const cv = document.getElementById('cv'), fx = createFx(cv, { maxRows: 4000 });
+  fx.setImage(await loadSeed('hot-chocolate'));
+  fx.setEffect('grunge-newspaper', { dot: 7, lift: 0.5, contrast: 0.95, grunge: 0.6, burn: 0.6, spotAmt: 0.4 });
+  fx.setProgress(0.4);
+  await document.fonts.ready; await Promise.all(['italic 400 40px "DM Serif Display"', '500 40px "Newsreader"', '400 40px "Special Elite"'].map(f => document.fonts.load(f)));
+  fx.draw(3);
+  window.READY = true;
+</script>
