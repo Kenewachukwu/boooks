@@ -1,7 +1,6 @@
 {
- "default": "rejuvenating",
+ "default": "heart-break-and-hot-chocolate",
  "stories": [
-  { "id": "rejuvenating", "title": "Rejuvenating", "author": "Deborah Datoru", "file": "data/book.json", "template": "night-field" },
   { "id": "heart-break-and-hot-chocolate", "title": "Heart Break and Hot Chocolate", "author": "the.introverted_she", "file": "data/heart-break-and-hot-chocolate.json", "template": "hot-chocolate" }
  ]
 }
