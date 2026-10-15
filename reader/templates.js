@@ -6,7 +6,7 @@ export const TEMPLATES = {
   'night-field': {
     layout: 'verse',
     fonts: { google: 'family=Caveat:wght@500;700', load: ['500 40px "Caveat"', '700 40px "Caveat"'] },
-    vars: {},
+    vars: { '--stage-bg': 'url("media/night-field.jpg") center bottom / cover no-repeat, #06123a' }, // the loop's first frame shows until the video plays
     sheet: { top: 0.13, bottom: 0.26 },   // the writing area, as fractions of the screen; the bottom quarter is left to the field
     font: { min: 0.052, max: 0.118 },     // text size as a fraction of the screen width (fitted per page between these)
     background: { type: 'video', src: 'media/night-field.mp4', poster: 'media/night-field.jpg' },
@@ -46,4 +46,4 @@ export const TEMPLATES = {
   },
 };
 
-export const googleFontsUrl = t => 'https://fonts.googleapis.com/css2?' + t.fonts.google + '&display=swap';
+export const googleFontsUrl = t => 'https://fonts.googleapis.com/css2?' + t.fonts.google + (t.fonts.google.includes('display=') ? '' : '&display=swap');

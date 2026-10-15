@@ -11,8 +11,10 @@ import grungeNewspaper from './effects/grunge-newspaper.js';
 import wobblyMap from './effects/wobbly-map.js';
 import radialGradient from './effects/radial-gradient.js';
 import flowingGradient from './effects/flowing-gradient.js';
+import shaderGradient from './effects/shader-gradient.js';
+import softPhoto from './effects/soft-photo.js';
 
-export const EFFECTS = [grungeNewspaper, wobblyMap, radialGradient, flowingGradient];
+export const EFFECTS = [grungeNewspaper, wobblyMap, radialGradient, flowingGradient, shaderGradient, softPhoto];
 export const effectById = id => EFFECTS.find(e => e.id === id);
 export const defaultsOf = effect => Object.fromEntries(effect.params.map(p => [p.id, p.value]));
 

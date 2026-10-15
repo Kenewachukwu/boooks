@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>booooks studio · make your book move</title>
+<meta name="description" content="Type or upload your book, pick a look, and publish a link where it reads as an animated story.">
+<meta name="theme-color" content="#fddaa6">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Archivo (condensed) stands in for MD Nichrome until its licensed files are added in /fonts (see fonts/README.md) -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap">
+<link rel="stylesheet" href="studio.css">
+</head>
+<body>
+
+<header class="top glass" id="top">
+  <a class="logo" href="/studio/" aria-label="booooks studio">booooks</a>
+  <nav class="steps" id="stepNav" aria-label="Steps">
+    <button class="pill" type="button" data-go="1"><b>1</b> Write</button>
+    <button class="pill" type="button" data-go="2"><b>2</b> Style</button>
+    <button class="pill" type="button" data-go="3"><b>3</b> Publish</button>
+  </nav>
+  <span class="saved pill" id="saved" role="status">Draft saved</span>
+</header>
+
+<main>
+  <section class="hero" id="hero">
+    <svg class="blobs" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <path class="b1" d="M-40 260C60 120 190 40 330 80s170 160 300 90 190-140 250-70v300H-40z"/>
+      <path class="b2" d="M120 400C150 250 280 190 400 250s210 80 330-40 90-140 140-120v310z"/>
+    </svg>
+    <p class="eyebrow">Creator studio</p>
+    <h1 class="display" id="heroTitle">Make your<br>book move.</h1>
+    <div class="tags" aria-hidden="true">
+      <span class="tag t-green">📖 Stories</span><span class="tag t-violet">✍️ Poems</span><span class="tag t-black">🎞️ Animated</span><span class="tag t-olive">🔗 One link</span>
+    </div>
+  </section>
+
+  <div class="layout">
+    <div class="flow" id="flow">
+
+      <!-- 1 · WRITE -->
+      <section class="step card c-peri" id="step1" data-step="1" aria-labelledby="h1w">
+        <h2 id="h1w" class="display sm">Write it.</h2>
+        <p class="lead">Type it, paste it, or drop in a file. We keep every word exactly as you wrote it.</p>
+        <div class="grid2">
+          <label class="field"><span>Title</span><input id="title" class="input" maxlength="140" autocomplete="off" placeholder="What is it called?"></label>
+          <label class="field"><span>Your name</span><input id="author" class="input" maxlength="80" autocomplete="name" placeholder="As you want it shown"></label>
+        </div>
+        <div class="field">
+          <label for="text">Your text</label>
+          <div class="drop" id="drop">
+            <textarea id="text" class="input" rows="12" placeholder="Start typing, or paste it here. A blank line starts a new paragraph."></textarea>
+            <div class="drop-hint" aria-hidden="true">Drop your file here</div>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn btn--secondary" id="pick" type="button">Upload PDF, Word or text</button>
+          <input id="file" class="vh" type="file" accept=".pdf,.docx,.txt,.md,.markdown,.text,application/pdf" tabindex="-1" aria-label="Choose a file">
+          <span class="note" id="fileNote" role="status"></span>
+        </div>
+        <fieldset class="seg" id="layoutSeg">
+          <legend>It is a…</legend>
+          <label><input type="radio" name="layout" value="auto" checked><span>Let us decide</span></label>
+          <label><input type="radio" name="layout" value="prose"><span>Story</span></label>
+          <label><input type="radio" name="layout" value="verse"><span>Poems</span></label>
+        </fieldset>
+        <p class="stats" id="stats" role="status"></p>
+        <div class="actions"><span></span><button class="btn" id="to2" type="button">Next: pick a look →</button></div>
+      </section>
+
+      <!-- 2 · STYLE -->
+      <section class="step card c-blue" id="step2" data-step="2" aria-labelledby="h2w" hidden>
+        <h2 id="h2w" class="display sm">Pick a look.</h2>
+        <h3>Template</h3>
+        <div class="gallery" id="gallery" role="radiogroup" aria-label="Template"></div>
+        <h3>Background mood</h3>
+        <p class="lead small">Choose a mood and we find a matching photo, then give it an effect.</p>
+        <div class="chips" id="modes" role="radiogroup" aria-label="Background mood"></div>
+        <div class="photos" id="photos" aria-label="Photos"></div>
+        <div class="row"><button class="btn btn--secondary" id="shuffle" type="button">🔀 Shuffle photo</button><span class="note" id="photoNote" role="status"></span></div>
+
+        <details class="adv" id="adv">
+          <summary><span>Advanced</span><i aria-hidden="true">+</i></summary>
+          <div class="adv-body">
+            <div class="field"><span class="lbl">Use your own image</span>
+              <div class="row"><button class="btn btn--secondary" id="pickImg" type="button">Upload an image</button><button class="btn btn--secondary" id="clearImg" type="button" hidden>Use a photo instead</button><span class="note" id="imgNote" role="status"></span></div>
+              <input id="imgFile" class="vh" type="file" accept="image/*" tabindex="-1" aria-label="Choose an image">
+            </div>
+            <div class="field"><span class="lbl">Effect on the image</span><div class="chips" id="effects" role="radiogroup" aria-label="Effect"></div></div>
+            <div class="switches">
+              <label class="switch"><input type="checkbox" id="animate" checked><i></i><span>Animate the text as it appears<small>Readers can switch this off themselves.</small></span></label>
+              <label class="switch"><input type="checkbox" id="sound"><i></i><span>Ambient sound<small>A soft loop readers can mute.</small></span></label>
+            </div>
+          </div>
+        </details>
+        <div class="actions"><button class="btn btn--secondary" data-go="1" type="button">← Back</button><button class="btn" id="to3" type="button">Next: publish →</button></div>
+      </section>
+
+      <!-- 3 · PUBLISH -->
+      <section class="step card c-pink" id="step3" data-step="3" aria-labelledby="h3w" hidden>
+        <h2 id="h3w" class="display sm">Publish it.</h2>
+        <p class="lead">One click gives you a link anyone can open. It reads as an animated story on any phone.</p>
+        <ul class="glance" id="glance"></ul>
+        <div class="field">
+          <label for="slug">Your link</label>
+          <div class="linkbox"><span id="linkPrefix"></span><input id="slug" class="input" maxlength="48" autocomplete="off" spellcheck="false" aria-describedby="slugNote"></div>
+          <p class="note" id="slugNote">Letters, numbers and dashes. If it is taken we add a number.</p>
+        </div>
+        <p class="error" id="error" role="alert" hidden></p>
+        <div class="actions"><button class="btn btn--secondary" data-go="2" type="button">← Back</button><button class="btn btn--big" id="publish" type="button">Publish ✨</button></div>
+      </section>
+
+      <!-- LIVE -->
+      <section class="live" id="live" hidden aria-labelledby="liveTitle">
+        <div class="live-hero">
+          <svg class="blobs" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path class="b1" d="M-40 260C60 120 190 40 330 80s170 160 300 90 190-140 250-70v300H-40z"/></svg>
+          <p class="eyebrow" id="liveBy"></p>
+          <h2 class="display" id="liveTitle"></h2>
+          <div class="tags" id="liveTags"></div>
+          <div class="cover"><span class="badge">LIVE</span><img id="liveCard" alt="Cover of your story"></div>
+        </div>
+        <div class="live-body">
+          <div class="linkrow glass">
+            <a id="liveLink" class="livelink" target="_blank" rel="noopener"></a>
+            <button class="btn btn--inverse" id="copy" type="button">Copy link</button>
+            <a class="btn" id="open" target="_blank" rel="noopener">Open it</a>
+            <button class="btn btn--secondary" id="share" type="button" hidden>Share</button>
+          </div>
+          <p class="note" id="liveNote" role="status"></p>
+          <h3>At a glance</h3>
+          <ul class="glance" id="liveGlance"></ul>
+          <h3>Get a taste</h3>
+          <blockquote class="taste" id="taste"></blockquote>
+          <div class="actions"><button class="btn btn--secondary" id="edit" type="button">← Edit this story</button><button class="btn btn--secondary" id="another" type="button">Start another</button></div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="preview" id="preview" aria-label="Live preview">
+      <div class="phone glass empty" id="phone">
+        <div class="frames" id="frames"></div>
+        <p class="phone-note" id="phoneNote" role="status">Finding a photo…</p>
+      </div>
+      <p class="credit">Photos from <a href="https://www.pexels.com" target="_blank" rel="noopener">Pexels</a></p>
+    </aside>
+  </div>
+</main>
+
+<button class="previewbtn glass" id="previewBtn" type="button" aria-pressed="false">Preview</button>
+<script type="module" src="studio.js"></script>
+</body>
+</html>

@@ -19,6 +19,27 @@ Open `http://localhost:5173/?sample` to read the small sample book. `#12` opens 
 - `media/night-field.mp4` and `media/night-field.jpg`: the 15 s background loop (720x1280) and its poster frame, from `animation/night-field`. It is animated from a reference painting whose licence has not been checked. Reference images and the original source image stay out of git (`animation/.gitignore`).
 - `media/night-field.wav`: the sound loop, synthesized by `animation/night-field/score.mjs`.
 
+## Creator studio (`/studio/`)
+A three-step flow for a creator: **write** (type, paste, or upload a PDF, Word, text or markdown file), **pick a look** (a template, a background mood, optional advanced choices), **publish** (a link). A live preview runs the real reader in a frame, so what you see is what is published.
+
+- **Import** (`lib/import.js`): detects poems or story, rebuilds paragraphs from a PDF's layout, never changes the author's words.
+- **Moods** (`lib/modes.js`): each mood searches Pexels for matching photos and puts an effect on one. Advanced: use your own image, change the effect, switch the text animation and the ambient sound.
+- **Publishing**: `POST /api/publish` stores the story and a 1200x630 share card, and returns `/s/<slug>`. The same browser can update its own story (an edit key kept in localStorage; only a hash is stored). Link previews in chat apps show the title and card.
+- **Text animation** can be off by default (creator) and is switchable by each reader from the sparkle button; the reader's choice is remembered.
+- The look is liquid-glass accents on flat Aardvark-style colour blocks, in MD Nichrome (see `fonts/README.md`).
+
+### Checking that nothing spills
+`node reader/tools/overflow-audit.cjs out.json` loads the reader with awkward stories (long titles and names, unbreakable links, long verse lines, 40 paragraphs) in every template at four screen sizes and reports any text that leaves its page. It should say `runs with problems: 0`; run it after any change to text, templates or layout.
+
+### Running it locally
+`node reader/serve.mjs` serves the site and the same API. Published stories are saved under `.data/` (not committed). For a sample photo without a key, put `PEXELS_MOCK=1` in `.env.local` at the repo root; for real photos put `PEXELS_API_KEY=...` there.
+
+### Switching it on at Vercel
+1. **Pexels**: Project Settings, Environment Variables, add `PEXELS_API_KEY` (a free key from pexels.com/api).
+2. **Publishing**: Project, Storage, Create a **Blob** store and connect it to this project (this adds `BLOB_READ_WRITE_TOKEN`). Without it, `/api/publish` answers that publishing is not set up yet.
+3. Redeploy. Published stories live at `/s/<slug>`; the rewrite is in `vercel.json`.
+- No sign-in yet: anyone can publish. Add accounts and rate limits (Turnstile) before opening it widely.
+
 ## Stories and templates
 Each story is a JSON file (`data/*.json`) listed in `data/stories.json`, and names a **template** in `templates.js`: its fonts, colours, text geometry, background and sound. `reader.css` holds the defaults (the night-field look); a template overrides them with CSS variables.
 

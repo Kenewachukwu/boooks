@@ -69,6 +69,19 @@ function terrain(w = 360, h = 640) {
   x.putImageData(id, 0, 0); return c;
 }
 
+// A calm, neutral slate with a few soft shapes: the fallback when a photo is missing or has not loaded, so nothing odd ever shows
+// (no sky, no colour cast: the effect and the mood supply the colour).
+function plain(w = 540, h = 960) {
+  const [c, x] = canvasOf(w, h), r = mulberry(11);
+  let g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#767b86'); g.addColorStop(1, '#4b505b'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+  for (let i = 0; i < 7; i++) {
+    const cx = r() * w, cy = r() * h, rad = 160 + r() * 280, a = 0.10 + r() * 0.12, light = r() < 0.5;
+    g = x.createRadialGradient(cx, cy, 0, cx, cy, rad); g.addColorStop(0, light ? `rgba(255,255,255,${a})` : `rgba(0,0,0,${a})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+    x.fillStyle = g; x.fillRect(0, 0, w, h);
+  }
+  return c;
+}
+
 // A low sun over layered hills.
 function dusk(w = 1080, h = 1920) {
   const [c, x] = canvasOf(w, h);
@@ -90,6 +103,7 @@ export const SEEDS = [
   { id: 'hot-chocolate', name: 'Heartbreak in a mug', draw: hotChocolate },
   { id: 'terrain', name: 'Hills (height map)', draw: terrain },
   { id: 'dusk', name: 'Dusk', draw: dusk },
+  { id: 'plain', name: 'Plain slate', draw: plain },
 ];
 
 export function loadImage(url, { crossOrigin = true } = {}) {

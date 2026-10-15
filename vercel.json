@@ -1,7 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": null,
   "buildCommand": null,
-  "outputDirectory": "reader"
+  "outputDirectory": "reader",
+  "rewrites": [
+    { "source": "/s/:slug", "destination": "/api/page?slug=:slug" }
+  ],
+  "functions": {
+    "api/page.js": { "includeFiles": "reader/index.html" }
+  }
 }

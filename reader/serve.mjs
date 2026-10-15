@@ -1,19 +1,30 @@
-// node serve.mjs [port]   Static server for the reader. Supports byte ranges (Safari will not play video without them)
-// and prints the network address so the reader can be opened on a phone on the same Wi-Fi.
+// node reader/serve.mjs [port]
+// The local stand-in for the Vercel site: static files with byte-range support (Safari needs it for video), the same /api functions,
+// and the /s/<slug> story pages (stories you publish here are saved under .data/ and never leave this machine).
+// It also prints the network address so the reader can be opened on a phone on the same Wi-Fi.
+// Secrets for local runs go in .env.local at the repo root (PEXELS_API_KEY=...). PEXELS_MOCK=1 returns one sample photo without a key.
 import http from 'http';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { handlers, toNode } from '../api/_lib/core.js';
+import { localAssetPath } from '../api/_lib/store.js';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const port = +process.argv[2] || 5173;
-const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.mp4': 'video/mp4', '.wav': 'audio/wav', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml' };
+const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.mp4': 'video/mp4', '.wav': 'audio/wav', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.woff2': 'font/woff2' };
 
-http.createServer((req, res) => {
-  const url = decodeURIComponent(req.url.split('?')[0]);
-  const file = path.join(root, url === '/' ? 'index.html' : url);
-  if (!file.startsWith(root + path.sep) || file.includes(path.sep + 'tools' + path.sep)) { res.writeHead(403); return res.end('forbidden'); }
+try { // .env.local at the repo root: KEY=value lines
+  for (const line of fs.readFileSync(path.join(root, '..', '.env.local'), 'utf8').split('\n')) {
+    const m = /^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/.exec(line); if (m && !(m[1] in process.env)) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
+  }
+} catch { /* no .env.local: fine */ }
+
+const api = { '/api/pexels': toNode(handlers.pexels), '/api/publish': toNode(handlers.publish), '/api/story': toNode(handlers.story) };
+const page = toNode(handlers.page);
+
+function sendFile(req, res, file) {
   fs.stat(file, (err, st) => {
     if (err || !st.isFile()) { res.writeHead(404); return res.end('not found'); }
     const head = { 'Content-Type': types[path.extname(file)] || 'application/octet-stream', 'Accept-Ranges': 'bytes', 'Cache-Control': 'no-cache' };
@@ -25,7 +36,24 @@ http.createServer((req, res) => {
     res.writeHead(206, { ...head, 'Content-Range': `bytes ${s}-${e}/${st.size}`, 'Content-Length': e - s + 1 });
     fs.createReadStream(file, { start: s, end: e }).pipe(res);
   });
+}
+
+http.createServer((req, res) => {
+  const u = new URL(req.url, 'http://x');
+  const pathname = decodeURIComponent(u.pathname);
+  if (api[pathname]) return api[pathname](req, res);
+  if (pathname === '/api/asset') { // images uploaded by creators while developing locally
+    const rel = u.searchParams.get('path') || '';
+    if (!/^images\/[\w.-]+$/.test(rel)) { res.writeHead(400); return res.end('bad path'); }
+    return sendFile(req, res, localAssetPath(rel));
+  }
+  const s = /^\/s\/([^/]+)\/?$/.exec(pathname);
+  if (s) { req.url = '/api/page?slug=' + encodeURIComponent(s[1]); return page(req, res); }
+  let rel = pathname; if (rel.endsWith('/')) rel += 'index.html'; if (rel === '') rel = '/index.html';
+  const file = path.join(root, rel);
+  if (!file.startsWith(root + path.sep) || file.includes(path.sep + 'tools' + path.sep)) { res.writeHead(403); return res.end('forbidden'); }
+  sendFile(req, res, file);
 }).listen(port, '0.0.0.0', () => {
-  console.log(`reader on http://localhost:${port}`);
+  console.log(`reader on http://localhost:${port}   (studio: /studio/)`);
   for (const list of Object.values(os.networkInterfaces())) for (const a of list || []) if (a.family === 'IPv4' && !a.internal) console.log(`on your phone (same Wi-Fi): http://${a.address}:${port}`);
 });

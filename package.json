@@ -1,0 +1,10 @@
+{
+  "name": "booooks",
+  "private": true,
+  "type": "module",
+  "description": "booooks: a reading experience and a creator studio. The static site is in reader/, the server functions in api/.",
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@vercel/blob": "^2.8.2"
+  }
+}

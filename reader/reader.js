@@ -2,6 +2,8 @@
 // Vanilla JS on purpose (no build step); the data model (data/book.json) and the CSS carry over to the Next.js reader in PLAN.md.
 
 import { TEMPLATES, googleFontsUrl } from './templates.js';
+import { compose } from './lib/compose.js';
+import { pexelsCredit } from './lib/modes.js';
 
 const CONFIG = {
   registry: 'data/stories.json',
@@ -20,11 +22,15 @@ const rule = () => { const t = document.createElement('template'); t.innerHTML =
 const pen = (tag, cls, text) => { const e = h(tag, cls); e.append(h('span', 'ln', text)); return e; }; // an element holding one written line
 
 // ---------- which story, and the template (look) it brings
+// A story arrives one of three ways: published (the server embeds it in the page), previewed (the studio saves it in localStorage and
+// opens this page in a frame), or from the registry of built-in stories. Published and previewed stories hold only the creator's choices;
+// the template is composed from them here, so it always comes from templates we control.
 const query = new URLSearchParams(location.search);
-const registry = await fetch(CONFIG.registry).then(r => r.ok ? r.json() : Promise.reject())
+const bundle = window.__BOOK__ || (query.has('preview') ? (() => { try { return { ...JSON.parse(localStorage.getItem('booooks.preview')), preview: true }; } catch { return null; } })() : null);
+const registry = bundle ? { default: '', stories: [] } : await fetch(CONFIG.registry).then(r => r.ok ? r.json() : Promise.reject())
   .catch(() => ({ default: 'rejuvenating', stories: [{ id: 'rejuvenating', file: 'data/book.json', template: 'night-field' }] }));
-const entry = registry.stories.find(s => s.id === query.get('story')) || registry.stories.find(s => s.id === registry.default) || registry.stories[0];
-const template = TEMPLATES[entry.template] || TEMPLATES['night-field'];
+const entry = bundle ? { id: 'bundle', template: 'custom' } : registry.stories.find(s => s.id === query.get('story')) || registry.stories.find(s => s.id === registry.default) || registry.stories[0];
+const template = bundle ? compose(bundle.style) : (TEMPLATES[entry.template] || TEMPLATES['night-field']);
 {
   const root = document.documentElement.style;
   for (const [k, v] of Object.entries(template.vars || {})) root.setProperty(k, v);
@@ -32,6 +38,28 @@ const template = TEMPLATES[entry.template] || TEMPLATES['night-field'];
   $('fonts').href = googleFontsUrl(template);
   stage.dataset.template = entry.template;
 }
+
+// ---------- background: starts loading at once, in parallel with the text, and fades in when its first frame is drawn
+// (a video, or an image seed run through an effect). Nothing else is painted before it is ready, so there is no flash of a wrong colour.
+let bgCtl = { play() {}, pause() {}, setProgress() {}, paused: true }; // does nothing until the background has loaded
+let bgDone; const bgReady = new Promise(r => { bgDone = r; });
+async function mountBackground(cfg) {
+  if (cfg.type === 'fx') {
+    const [{ createFx }, { loadSeed }] = await Promise.all([import('./fx/fx.js'), import('./fx/seeds.js')]);
+    const canvas = h('canvas', 'bg'); canvas.setAttribute('aria-hidden', 'true'); stage.prepend(canvas); // in the page from the start, so it has a size
+    const fx = createFx(canvas);
+    fx.setImage(await loadSeed(cfg.seed).catch(() => loadSeed(cfg.fallbackSeed || 'plain'))); // a photo that will not load falls back to a calm built-in image
+    fx.setEffect(cfg.effect, cfg.params); fx.draw(0.6);                                          // the first frame is drawn before it is shown
+    requestAnimationFrame(() => { canvas.classList.add('on'); bgDone(); });
+    let paused = true;
+    return { el: canvas, get paused() { return paused; }, play() { paused = false; fx.start(); }, pause() { paused = true; fx.stop(); fx.draw(3); }, setProgress(p) { if (cfg.progress) { fx.setProgress(p); if (paused) fx.draw(3); } } };
+  }
+  const v = h('video', 'bg'); v.src = cfg.src; if (cfg.poster) v.poster = cfg.poster;
+  v.muted = v.loop = v.playsInline = v.autoplay = true; v.preload = 'auto'; v.setAttribute('aria-hidden', 'true'); stage.prepend(v);
+  v.addEventListener('loadeddata', () => { v.classList.add('on'); bgDone(); }, { once: true }); v.addEventListener('error', () => bgDone(), { once: true });
+  return { el: v, get paused() { return v.paused; }, play() { v.play().catch(() => {}); }, pause() { v.pause(); }, setProgress() {} };
+}
+mountBackground(template.background).then(ctl => { bgCtl = ctl; if (reduceMotion) ctl.pause(); else ctl.play(); }).catch(e => { console.warn('background failed to load', e); bgDone(); });
 
 // ---------- sound: a Web Audio loop with fades (the loop is seamless; an <audio loop> would click at the seam).
 // iPhone Safari needs three things that desktop browsers do not: a tap to start, the context resumed inside that tap, and the page
@@ -97,6 +125,18 @@ const sound = (() => {
   };
 })();
 soundBtn.addEventListener('click', () => sound.toggle());
+
+// ---------- text animation on/off: the creator sets a default, and a reader's own choice wins (people read at different speeds)
+const animBtn = $('anim');
+let animate = ((bundle?.preview ? null : store.get('animate')) ?? (template.animate === false ? 'off' : 'on')) === 'on';
+const paintAnim = () => {
+  stage.classList.toggle('no-anim', !animate || reduceMotion);
+  animBtn.setAttribute('aria-pressed', String(animate));
+  animBtn.setAttribute('aria-label', animate ? 'Text animation on. Tap to turn off' : 'Text animation off. Tap to turn on');
+  animBtn.hidden = reduceMotion; // the system setting already turns it off
+};
+animBtn.addEventListener('click', () => { animate = !animate; store.set('animate', animate ? 'on' : 'off'); paintAnim(); });
+paintAnim();
 
 // ---------- loading-style counter: rolling digits plus a progress line
 function makeCounter(el, digits, suffix) {
@@ -182,7 +222,7 @@ function paginate(poems) {
 
 // data/book.json is the real book and stays local; the repo ships a small sample so the reader always runs (or add ?sample to the URL)
 const wantSample = query.has('sample');
-const book = await (wantSample ? Promise.reject() : fetch(entry.file).then(r => r.ok ? r : Promise.reject()))
+const book = bundle ? bundle.book : await (wantSample ? Promise.reject() : fetch(entry.file).then(r => r.ok ? r : Promise.reject()))
   .catch(() => fetch(CONFIG.sample)).then(r => r.json());
 const LAYOUT = book.layout || template.layout || 'verse';
 document.title = `${book.title} · booooks reader`;
@@ -226,6 +266,9 @@ function buildEnd() {
   inner.append(pen('p', 'kicker', `${book.title} · ${book.author}`), pen('h2', null, 'The end'), rule(), pen('p', 'by', 'Thank you for reading.'), again);
   const others = registry.stories.filter(s => s.id !== entry.id);
   if (others.length) { const next = h('a', 'btn secondary', 'Read another story'); next.href = '?story=' + others[registry.stories.indexOf(entry) % others.length].id; inner.append(next); }
+  const credit = pexelsCredit(bundle?.meta?.photo);
+  if (credit) { const a = h('a', 'link', credit.text); a.href = credit.url; a.target = '_blank'; a.rel = 'noopener'; inner.append(a); }
+  if (bundle && !bundle.preview) { const a = h('a', 'link', 'Make your own with booooks'); a.href = '/studio/'; inner.append(a); }
   if (book.source) { const src = h('a', 'link', 'Read the original on Medium'); src.href = book.source; src.target = '_blank'; src.rel = 'noopener'; inner.append(src); }
   sec.append(inner);
   again.addEventListener('click', () => goTo(0, true));
@@ -239,10 +282,15 @@ pagesEl.replaceChildren(...sections);
 
 // ---------- layout: fit each poem to the sky, then split it into the visual lines the browser chose
 function splitLines(p) {
-  const spans = p.textContent.split(/\s+/).filter(Boolean).map(w => { const s = h('span', null, w + ' '); return s; });
-  p.textContent = ''; p.append(...spans);
+  // Every word is an unbreakable unit and the spaces between words are the only places a line may break, so the lines measured here are
+  // exactly the lines the browser lays out (it would otherwise also break inside hyphenated words). A word longer than 18 characters
+  // (a link, a very long word) is cut into 8-character fragments with a zero-width break between them, so it can wrap like anything else.
+  const pieces = p.textContent.split(/\s+/).filter(Boolean).flatMap(w => w.length <= 18 ? [{ t: w, sep: ' ' }] : (w.match(/.{1,8}/g) || [w]).map((c, i, a) => ({ t: c, sep: i === a.length - 1 ? ' ' : '' })));
+  const spans = [], frag = document.createDocumentFragment();
+  for (const pc of pieces) { const s = h('span', null, pc.t); s.style.whiteSpace = 'nowrap'; frag.append(s, document.createTextNode(pc.sep || '\u200b')); spans.push({ s, pc }); }
+  p.textContent = ''; p.append(frag);
   const lines = []; let top = null;
-  for (const s of spans) { const t = s.offsetTop; if (top === null || Math.abs(t - top) > 2) { lines.push([]); top = t; } lines.at(-1).push(s.textContent); }
+  for (const { s, pc } of spans) { const t = s.offsetTop; if (top === null || Math.abs(t - top) > 2) { lines.push([]); top = t; } lines.at(-1).push(pc.t + pc.sep); }
   p.textContent = '';
   lines.forEach((ws, k) => p.append(h('span', 'ln' + (k ? ' cont' : ''), ws.join('').trim())));
   p.classList.add('split');
@@ -280,17 +328,36 @@ function schedule(sec) { // when each line starts and how long its stroke takes;
   });
 }
 
+// Cover and end text is set at a generous size, then shrunk (by CSS variables the stylesheet multiplies in) until every line fits the
+// width and the whole block stays clear of the bottom edge. A long title or an unbreakable word can no longer run off the page.
+function fitCover(sec) {
+  const box = sec.querySelector('.cover-in, .end-in'); if (!box) return;
+  box.style.removeProperty('--fit-all'); for (const g of box.children) g.style.removeProperty('--fit');
+  const avail = box.clientWidth;
+  for (const g of box.children) {
+    const lns = [...g.querySelectorAll('.ln')]; if (!lns.length) continue;
+    for (let i = 0, fit = 1; i < 16 && lns.some(l => l.scrollWidth > avail + 1); i++) { fit *= 0.93; g.style.setProperty('--fit', fit.toFixed(3)); }
+  }
+  const limit = sec.getBoundingClientRect().height - 28;
+  for (let i = 0, all = 1; i < 14 && box.offsetTop + box.offsetHeight > limit; i++) { all *= 0.93; box.style.setProperty('--fit-all', all.toFixed(3)); }
+}
+
 let laidOut = { w: 0, h: 0 };
 function layoutAll() {
   const W = stage.clientWidth;
   laidOut = { w: W, h: stage.clientHeight };
-  for (const sec of sections) { if (sec._poem) layoutPoem(sec, W * FONT_MIN, W * FONT_MAX); schedule(sec); }
+  for (const sec of sections) { if (sec._poem) layoutPoem(sec, W * FONT_MIN, W * FONT_MAX); else fitCover(sec); schedule(sec); }
 }
 
 async function fontsReady() {
   const wait = ms => new Promise(r => setTimeout(r, ms)), link = $('fonts');
-  await Promise.race([new Promise(r => { if (link.sheet) r(); else { link.addEventListener('load', r); link.addEventListener('error', r); } }), wait(3000)]);
-  await Promise.race([Promise.all([...template.fonts.load.map(f => document.fonts.load(f))]), wait(3000)]);
+  await Promise.race([new Promise(r => { if (link.sheet) r(); else { link.addEventListener('load', r); link.addEventListener('error', r); } }), wait(6000)]);
+  const loads = Promise.all(template.fonts.load.map(f => document.fonts.load(f).catch(() => {})));
+  const late = await Promise.race([loads.then(() => false), wait(6000).then(() => true)]);
+  if (late) { // lines were measured with a stand-in font; once the real one lands, lay everything out again (once, to avoid any loop)
+    let tried = false; try { tried = !!sessionStorage.getItem('fonts-retry'); sessionStorage.setItem('fonts-retry', '1'); } catch { /* private mode */ }
+    if (!tried) loads.then(() => location.reload());
+  }
 }
 
 // ---------- navigation, counter and page state
@@ -324,7 +391,13 @@ function onScroll() {
     if (resizing) return; // the browser re-snaps while the size changes; those scrolls are not the reader's
     const pos = pagesEl.scrollTop / pageH, idx = clamp(Math.round(pos), 0, LAST);
     // fade the two pages in view by their distance from the viewport (direct opacity: no style recalculation of the text inside)
-    for (let i = Math.max(0, Math.floor(pos)); i <= Math.min(LAST, Math.ceil(pos)); i++) sections[i].firstElementChild.style.opacity = (1 - Math.min(1, Math.abs(i - pos) * 1.15)).toFixed(3);
+    const fancy = !stage.classList.contains('no-anim');
+    for (let i = Math.max(0, Math.floor(pos)); i <= Math.min(LAST, Math.ceil(pos)); i++) {
+      const d = i - pos, a = Math.abs(d), el = sections[i].firstElementChild;
+      el.style.opacity = (1 - Math.min(1, a * 1.15)).toFixed(3);
+      // the text drifts a little slower than the page and settles in with a slight scale: depth without blur
+      el.style.transform = fancy ? `translate3d(0, ${(d * -7).toFixed(2)}%, 0) scale(${(1 - 0.045 * Math.min(a, 1)).toFixed(4)})` : '';
+    }
     fillEl.style.transform = `scaleX(${clamp(pos / TOTAL, 0, 1).toFixed(4)})`;
     bgCtl.setProgress(clamp(pos / TOTAL, 0, 1)); // an effect background can change as the story is read
     if (idx !== cur) { cur = idx; setCount(Math.min(idx, TOTAL)); stage.classList.toggle('complete', idx >= TOTAL); }
@@ -380,29 +453,7 @@ pagesEl.addEventListener('wheel', e => {
   if (Math.abs(wheelAcc) >= 28) { wheelLock = true; wheelAcc = 0; goTo(here() + Math.sign(dy)); }
 }, { passive: false });
 
-// ---------- background (a video, or an image seed run through an effect) and tab visibility
-let bgCtl = { play() {}, pause() {}, setProgress() {}, paused: true }; // does nothing until the background has loaded
-async function mountBackground(cfg) {
-  if (cfg.type === 'fx') {
-    const [{ createFx }, { loadSeed }] = await Promise.all([import('./fx/fx.js'), import('./fx/seeds.js')]);
-    const canvas = h('canvas', 'bg'); canvas.setAttribute('aria-hidden', 'true');
-    const fx = createFx(canvas); fx.setImage(await loadSeed(cfg.seed)); fx.setEffect(cfg.effect, cfg.params);
-    let paused = true;
-    return {
-      el: canvas, get paused() { return paused; },
-      play() { paused = false; fx.start(); },
-      pause() { paused = true; fx.stop(); fx.draw(3); }, // a still frame
-      setProgress(p) { if (cfg.progress) { fx.setProgress(p); if (paused) fx.draw(3); } },
-    };
-  }
-  const v = h('video', 'bg'); v.src = cfg.src; if (cfg.poster) v.poster = cfg.poster;
-  v.muted = v.loop = v.playsInline = v.autoplay = true; v.preload = 'auto'; v.setAttribute('aria-hidden', 'true');
-  return { el: v, get paused() { return v.paused; }, play() { v.play().catch(() => {}); }, pause() { v.pause(); }, setProgress() {} };
-}
-mountBackground(template.background).then(ctl => {
-  bgCtl = ctl; stage.prepend(ctl.el);
-  if (reduceMotion) ctl.pause(); else ctl.play();
-}).catch(e => console.warn('background failed to load', e));
+// ---------- tab visibility and the background (the background itself is started early, above)
 document.addEventListener('pointerup', () => { if (bgCtl.paused && !reduceMotion) bgCtl.play(); }, { once: true }); // low-power modes block autoplay until a tap
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) { bgCtl.pause(); sound.hold(); } else { if (!reduceMotion) bgCtl.play(); sound.release(); }
@@ -417,6 +468,11 @@ if (start) { pagesEl.scrollTo({ top: start * pageH, behavior: 'instant' }); }
 cur = stable = start; setCount(Math.min(start, TOTAL)); stage.classList.toggle('complete', start >= TOTAL);
 stage.classList.add('ready');
 onScroll();
+try { sessionStorage.removeItem('fonts-retry'); } catch { /* private mode */ }
+Promise.race([bgReady, new Promise(r => setTimeout(r, 4000))]).then(() => requestAnimationFrame(() => {
+  stage.classList.add('shown');
+  try { if (parent !== window) parent.postMessage({ type: 'booooks-ready', page: cur, total: TOTAL }, location.origin); } catch { /* cross-origin parent */ }
+}));
 pagesEl.focus({ preventScroll: true });
 
 window.reader = { goTo, get cur() { return cur; }, get pageH() { return pageH; }, sound, total: TOTAL }; // handle for tests and the console
