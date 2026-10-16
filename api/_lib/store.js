@@ -23,37 +23,57 @@ function localStore() {
   };
 }
 
-function blobStore() {
-  const sdk = () => import('@vercel/blob');
+// ---- Vercel Blob. Reads cost almost nothing: a story or the front-page index is fetched straight from its public address, and a cache hit is free.
+// (Looking a blob up with list() is an "advanced operation", the scarce kind on the free plan, so it is never used on a read.)
+// The address is the store's own host plus the file's path; the host is worked out from the store id and confirmed the first time a real blob answers.
+const INDEX = 'index.json', INDEX_MAX = 300;
+let learnedBase = null;                                                // set once a real blob from this store has been seen
+const learn = url => { try { learnedBase = new URL(url).origin + '/'; } catch { /* keep what we had */ } };
+const expectedBase = env => {
+  const id = String(env.BLOB_STORE_ID || '').replace(/^store_/, '') || (/^vercel_blob_rw_([A-Za-z0-9]+)_/.exec(env.BLOB_READ_WRITE_TOKEN || '') || [])[1];
+  return id ? `https://${id.toLowerCase()}.public.blob.vercel-storage.com/` : null;
+};
+
+export function blobStore(env = process.env, sdk = () => import('@vercel/blob')) {
+  const lib = () => sdk();
+  const isMissing = (e, mod) => e instanceof mod.BlobNotFoundError || /not.?found/i.test(e?.message || '');
+
+  // read a JSON file. Normal reads go to the public address (cached at the edge, so repeat reads are free).
+  // fresh: true asks the store for the newest version first, which a writer needs so it never builds on a stale copy.
+  async function readJson(path, { fresh = false } = {}) {
+    const mod = await lib();
+    const viaStore = async () => {
+      try { const h = await mod.head(path); learn(h.url); const r = await fetch(h.url + (fresh ? '?v=' + new Date(h.uploadedAt).getTime() : '')); return r.ok ? await r.json() : null; }
+      catch (e) { if (isMissing(e, mod)) return null; throw e; }
+    };
+    if (fresh) return viaStore();
+    const base = learnedBase || expectedBase(env);
+    if (base) {
+      try { const r = await fetch(base + path); if (r.ok) { learnedBase = base; return await r.json(); } if (r.status === 404 && learnedBase) return null; } catch { /* fall through to the store */ }
+    }
+    return viaStore(); // the expected address was not confirmed: ask the store once, which also teaches us the real address
+  }
+  const writeJson = async (path, value, maxAge) => { const { put } = await lib(); const r = await put(path, JSON.stringify(value), { access: 'public', contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: maxAge }); learn(r.url); return r; };
+
   return {
     kind: 'blob',
-    async get(slug) {
-      const { list } = await sdk(), path = `stories/${slug}.json`;
-      const { blobs } = await list({ prefix: path, limit: 5 });
-      const hit = blobs.find(b => b.pathname === path); if (!hit) return null;
-      const r = await fetch(hit.url + '?v=' + new Date(hit.uploadedAt).getTime()); return r.ok ? r.json() : null; // the timestamp keeps an edited story from being served stale
-    },
+    get: slug => readJson(`stories/${slug}.json`),
     async put(slug, rec, meta) {
-      const { put } = await sdk();
-      await put(`stories/${slug}.json`, JSON.stringify(rec), { access: 'public', contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: 60 });
-      if (meta) await put(`meta/${slug}.json`, JSON.stringify(meta), { access: 'public', contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: 30 });
+      await writeJson(`stories/${slug}.json`, rec, 60);
+      if (!meta) return;
+      // the front page reads one small index file instead of listing the store; the newest stories sit at the top
+      const index = (await readJson(INDEX, { fresh: true })) || [];
+      const next = [meta, ...index.filter(m => m.slug !== meta.slug)].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0, INDEX_MAX);
+      await writeJson(INDEX, next, 60);
     },
-    async list(limit = 60) { // one small record per story, so listing never has to download whole stories
-      const { list } = await sdk(), { blobs } = await list({ prefix: 'meta/', limit: 1000 });
-      const newest = blobs.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt)).slice(0, limit);
-      const all = await Promise.all(newest.map(async b => { try { const r = await fetch(b.url + '?v=' + new Date(b.uploadedAt).getTime()); return r.ok ? await r.json() : null; } catch { return null; } }));
-      return all.filter(Boolean).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
-    },
-    async putImage(name, buf, type) {
-      const { put } = await sdk();
-      return (await put(`images/${name}`, buf, { access: 'public', contentType: type, addRandomSuffix: false, allowOverwrite: true })).url;
-    },
+    async list(limit = 60) { return ((await readJson(INDEX)) || []).slice(0, limit); },
+    async putImage(name, buf, type) { const { put } = await lib(); const r = await put(`images/${name}`, buf, { access: 'public', contentType: type, addRandomSuffix: false, allowOverwrite: true }); learn(r.url); return r.url; },
   };
 }
 
 // no Blob token on Vercel means publishing is not set up: say so rather than pretending to save
 export function getStore(env) {
-  if (env.BLOB_READ_WRITE_TOKEN) return blobStore();
+  if (env.BLOB_READ_WRITE_TOKEN || env.BLOB_STORE_ID) return blobStore(env); // a token, or the store id that goes with Vercel's automatic (OIDC) sign-in
   if (env.VERCEL) return null;
   return localStore();
 }

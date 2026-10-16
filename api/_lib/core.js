@@ -145,7 +145,7 @@ export const handlers = {
     const store = getStore(env); if (!store) return { json: { stories: [], store: false } };
     const limit = Math.min(60, Math.max(1, parseInt(url.searchParams.get('limit'), 10) || 40));
     const rows = (await store.list(limit)).filter(r => r.listed !== false).map(r => ({ slug: r.slug, title: r.title, author: r.author, genre: r.genre, kind: r.kind, template: r.template, mood: r.mood, cover: r.cover || null, card: r.card || null, minutes: r.minutes, createdAt: r.createdAt }));
-    return { headers: { 'cache-control': 'public, s-maxage=20, stale-while-revalidate=120' }, json: { stories: rows, store: true } };
+    return { headers: { 'cache-control': 'public, s-maxage=60, stale-while-revalidate=300' }, json: { stories: rows, store: true } };
   },
 
   async story({ url, env }) {
@@ -160,13 +160,11 @@ export const handlers = {
   async page({ url, env, headers }) {
     const store = getStore(env), slug = slugify(url.searchParams.get('slug'));
     const shell = await readFile(new URL('../../reader/read.html', import.meta.url), 'utf8');
-    let rec = store && slug ? await store.get(slug) : null, bundle = rec?.bundle || null, seed = null, storyId = null;
-    if (!rec && slug) {
-      seed = (await readLibrary()).books.find(b => b.slug === slug) || null;
-      if (seed?.source === 'bundle') bundle = JSON.parse(await readFile(new URL(`../../reader/data/seed/${seed.slug}.json`, import.meta.url), 'utf8'));
-      else if (seed) storyId = seed.registryId;
-    }
-    if (!bundle && !storyId) return { status: 404, html: shell.replace('</head>', '<meta name="robots" content="noindex"></head>').replace('<title>booooks reader</title>', '<title>Story not found · booooks</title>').replace('</body>', '<p style="position:fixed;inset:0;display:grid;place-items:center;margin:0;background:#090a0b;color:#fff;font:700 28px/1.2 system-ui;text-align:center;z-index:99">This story is not here (yet).<br><a href="/" style="color:#ffc7c6">See all stories</a> · <a href="/studio/" style="color:#ffc7c6">Make one</a></p></body>') };
+    // the sample stories live in the repo, so they never need the store; a published story is read from it
+    let seed = slug ? (await readLibrary()).books.find(b => b.slug === slug) || null : null, rec = !seed && store && slug ? await store.get(slug) : null, bundle = rec?.bundle || null, storyId = null;
+    if (seed?.source === 'bundle') bundle = JSON.parse(await readFile(new URL(`../../reader/data/seed/${seed.slug}.json`, import.meta.url), 'utf8'));
+    else if (seed) storyId = seed.registryId;
+    if (!bundle && !storyId) return { status: 404, headers: { 'cache-control': 'public, s-maxage=10' }, html: shell.replace('</head>', '<meta name="robots" content="noindex"></head>').replace('<title>booooks reader</title>', '<title>Story not found · booooks</title>').replace('</body>', '<p style="position:fixed;inset:0;display:grid;place-items:center;margin:0;background:#090a0b;color:#fff;font:700 28px/1.2 system-ui;text-align:center;z-index:99">This story is not here (yet).<br><a href="/" style="color:#ffc7c6">See all stories</a> · <a href="/studio/" style="color:#ffc7c6">Make one</a></p></body>') };
     const o = originOf(headers), link = `${o}/s/${slug}`;
     const title = bundle?.book.title || seed.title, author = bundle?.book.author || seed.author, kicker = bundle?.book.kicker || (seed?.kind === 'verse' ? 'A book of poems' : 'A short story');
     const desc = `${kicker} by ${author}. Swipe up to read it.`;
