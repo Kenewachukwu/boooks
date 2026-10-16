@@ -8,7 +8,10 @@ import { EFFECTS } from '../../reader/fx/fx.js';
 import { SEEDS } from '../../reader/fx/seeds.js';
 import { getStore } from './store.js';
 
-const RESERVED = new Set(['studio', 'api', 'read', 's', 'fx', 'fx-lab', 'lib', 'media', 'data', 'index', 'new', 'admin', 'login', 'about', 'tools']);
+// the seeded sample library: books, profiles and genres (also what the front page shows before anyone has published)
+export const readLibrary = async () => JSON.parse(await readFile(new URL('../../reader/data/library.json', import.meta.url), 'utf8'));
+
+const RESERVED = new Set(['profile', 'explore', 'genres', 'u', 'me', 'studio', 'api', 'read', 's', 'fx', 'fx-lab', 'lib', 'media', 'data', 'index', 'new', 'admin', 'login', 'about', 'tools']);
 const MAX_TEXT_CHARS = 400_000;
 const SOUNDS = new Set(['media/night-field.wav']);
 
@@ -90,21 +93,35 @@ export const handlers = {
     // pick the link: keep it if it is this creator's own story, otherwise find a free one
     const base = slugify(body?.slug) || slugify(bundle.book.title) || 'story';
     let slug = base, existing = null;
+    const sample = new Set((await readLibrary().catch(() => ({ books: [] }))).books.map(b => b.slug)); // a published story may not take a sample story's link
     for (let i = 2; i < 40; i++) {
-      if (RESERVED.has(slug)) { slug = `${base}-${i}`; continue; }
+      if (RESERVED.has(slug) || sample.has(slug)) { slug = `${base}-${i}`; continue; }
       existing = await store.get(slug);
       if (!existing || existing.keyHash === sha(key)) break;
       slug = `${base}-${i}`;
     }
     try {
       if (body.image) { const { type, buf } = parseDataUrl(body.image, ['image/jpeg', 'image/png', 'image/webp'], 1_800_000); bundle.style.seed = await store.putImage(`${slug}-bg-${randomBytes(3).toString('hex')}.${type.split('/')[1]}`, buf, type); }
-      let cardUrl = existing?.cardUrl || null;
+      let cardUrl = existing?.cardUrl || null, coverUrl = existing?.coverUrl || null;
       if (body.card) { const { type, buf } = parseDataUrl(body.card, ['image/jpeg'], 400_000); cardUrl = await store.putImage(`${slug}-card-${randomBytes(3).toString('hex')}.jpg`, buf, type); }
-      const now = new Date().toISOString();
-      await store.put(slug, { slug, keyHash: sha(key), bundle, cardUrl, createdAt: existing?.createdAt || now, updatedAt: now });
+      if (body.cover) { const { type, buf } = parseDataUrl(body.cover, ['image/jpeg'], 300_000); coverUrl = await store.putImage(`${slug}-cover-${randomBytes(3).toString('hex')}.jpg`, buf, type); }
+      const now = new Date().toISOString(), createdAt = existing?.createdAt || now;
+      const genre = (await readLibrary().catch(() => ({ genres: [] }))).genres.some(g => g.id === body.genre) ? body.genre : 'fiction';
+      const words = bundle.book.pages[1].stanzas.reduce((n, s) => n + s.lines.reduce((m, l) => m + (l.match(/\S+/g) || []).length, 0), 0);
+      const listing = { slug, title: bundle.book.title, author: bundle.book.author, genre, kind: bundle.book.layout, template: bundle.style.templateId, mood: bundle.style.modeId, cover: coverUrl, card: cardUrl,
+        minutes: Math.max(1, Math.round(words / 200)), listed: body.listed !== false, createdAt, updatedAt: now };
+      await store.put(slug, { slug, keyHash: sha(key), bundle, cardUrl, coverUrl, genre, createdAt, updatedAt: now }, listing);
     } catch (e) { return { status: 400, json: { error: e.message } }; }
     const o = originOf(headers);
     return { json: { ok: true, slug, path: `/s/${slug}`, url: `${o}/s/${slug}`, updated: !!existing } };
+  },
+
+  // GET /api/stories  ->  the stories creators have published and chosen to list, newest first (no edit keys, no text)
+  async stories({ url, env }) {
+    const store = getStore(env); if (!store) return { json: { stories: [], store: false } };
+    const limit = Math.min(60, Math.max(1, parseInt(url.searchParams.get('limit'), 10) || 40));
+    const rows = (await store.list(limit)).filter(r => r.listed !== false).map(r => ({ slug: r.slug, title: r.title, author: r.author, genre: r.genre, kind: r.kind, template: r.template, mood: r.mood, cover: r.cover || null, card: r.card || null, minutes: r.minutes, createdAt: r.createdAt }));
+    return { headers: { 'cache-control': 'public, s-maxage=20, stale-while-revalidate=120' }, json: { stories: rows, store: true } };
   },
 
   async story({ url, env }) {
@@ -114,22 +131,33 @@ export const handlers = {
     return { headers: { 'cache-control': 'public, s-maxage=30, stale-while-revalidate=300' }, json: { slug, bundle: rec.bundle, cardUrl: rec.cardUrl, updatedAt: rec.updatedAt } };
   },
 
-  // GET /s/:slug  ->  the reader page with the story embedded and proper link-preview tags
+  // GET /s/:slug  ->  the reader page with the story embedded and proper link-preview tags.
+  // A story is one a creator published (in the store), one of the seeded samples (reader/data/seed), or a built-in registry story.
   async page({ url, env, headers }) {
     const store = getStore(env), slug = slugify(url.searchParams.get('slug'));
-    const rec = store && slug ? await store.get(slug) : null;
-    const shell = await readFile(new URL('../../reader/index.html', import.meta.url), 'utf8');
-    if (!rec) return { status: 404, html: shell.replace('</head>', '<meta name="robots" content="noindex"></head>').replace('<title>booooks reader</title>', '<title>Story not found · booooks</title>').replace('</body>', '<p style="position:fixed;inset:0;display:grid;place-items:center;margin:0;background:#fff;color:#000;font:700 28px/1.2 system-ui;text-align:center;z-index:99">This story is not here (yet).<br><a href="/studio/" style="color:#b3123f">Make one</a></p></body>') };
-    const b = rec.bundle, o = originOf(headers), link = `${o}/s/${slug}`;
-    const desc = `${b.book.kicker} by ${b.book.author}. Swipe up to read it.`;
+    const shell = await readFile(new URL('../../reader/read.html', import.meta.url), 'utf8');
+    let rec = store && slug ? await store.get(slug) : null, bundle = rec?.bundle || null, seed = null, storyId = null;
+    if (!rec && slug) {
+      seed = (await readLibrary()).books.find(b => b.slug === slug) || null;
+      if (seed?.source === 'bundle') bundle = JSON.parse(await readFile(new URL(`../../reader/data/seed/${seed.slug}.json`, import.meta.url), 'utf8'));
+      else if (seed) storyId = seed.registryId;
+    }
+    if (!bundle && !storyId) return { status: 404, html: shell.replace('</head>', '<meta name="robots" content="noindex"></head>').replace('<title>booooks reader</title>', '<title>Story not found · booooks</title>').replace('</body>', '<p style="position:fixed;inset:0;display:grid;place-items:center;margin:0;background:#090a0b;color:#fff;font:700 28px/1.2 system-ui;text-align:center;z-index:99">This story is not here (yet).<br><a href="/" style="color:#ffc7c6">See all stories</a> · <a href="/studio/" style="color:#ffc7c6">Make one</a></p></body>') };
+    const o = originOf(headers), link = `${o}/s/${slug}`;
+    const title = bundle?.book.title || seed.title, author = bundle?.book.author || seed.author, kicker = bundle?.book.kicker || (seed?.kind === 'verse' ? 'A book of poems' : 'A short story');
+    const desc = `${kicker} by ${author}. Swipe up to read it.`;
+    const image = rec?.cardUrl || (seed?.cover ? `${o}/${seed.cover}` : null), wide = !!rec?.cardUrl;
     const tags = [
-      `<title>${esc(b.book.title)} · ${esc(b.book.author)}</title>`, `<meta name="description" content="${esc(desc)}">`, '<base href="/">',
-      '<meta property="og:type" content="article">', '<meta property="og:site_name" content="booooks">', `<meta property="og:title" content="${esc(b.book.title)}">`,
-      `<meta property="og:description" content="${esc(desc)}">`, `<meta property="og:url" content="${esc(link)}">`, '<meta name="twitter:card" content="summary_large_image">',
-      ...(rec.cardUrl ? [`<meta property="og:image" content="${esc(rec.cardUrl)}">`, '<meta property="og:image:width" content="1200">', '<meta property="og:image:height" content="630">', `<meta name="twitter:image" content="${esc(rec.cardUrl)}">`] : []),
+      `<title>${esc(title)} · ${esc(author)}</title>`, `<meta name="description" content="${esc(desc)}">`, '<base href="/">',
+      '<meta property="og:type" content="article">', '<meta property="og:site_name" content="booooks">', `<meta property="og:title" content="${esc(title)}">`,
+      `<meta property="og:description" content="${esc(desc)}">`, `<meta property="og:url" content="${esc(link)}">`, `<meta name="twitter:card" content="${wide ? 'summary_large_image' : 'summary'}">`,
+      ...(image ? [`<meta property="og:image" content="${esc(image)}">`, ...(wide ? ['<meta property="og:image:width" content="1200">', '<meta property="og:image:height" content="630">'] : []), `<meta name="twitter:image" content="${esc(image)}">`] : []),
     ].join('\n');
-    const data = `<script>window.__BOOK__ = ${JSON.stringify(b).replace(/</g, '\\u003c').replace(/[\u2028\u2029]/g, c => '\\u' + c.charCodeAt(0).toString(16))};</script>`;
-    const html = shell.replace(/<title>[^<]*<\/title>\s*(<meta name="description"[^>]*>)?/, tags + '\n').replace('<script type="module" src="reader.js"></script>', data + '\n<script type="module" src="reader.js"></script>');
+    const json = v => JSON.stringify(v).replace(/</g, '\\u003c').replace(/[\u2028\u2029]/g, c => '\\u' + c.charCodeAt(0).toString(16));
+    const data = `<script>${bundle ? `window.__BOOK__ = ${json(bundle)};` : `window.__STORY__ = ${json(storyId)};`}</script>`;
+    const titleRe = /<title>[^<]*<\/title>\s*(<meta name="description"[^>]*>)?/, scriptTag = '<script type="module" src="reader.js"></script>';
+    if (!titleRe.test(shell) || !shell.includes(scriptTag)) throw new Error('reader/read.html changed: update the /s/<slug> page template in api/_lib/core.js.');
+    const html = shell.replace(titleRe, tags + '\n').replace(scriptTag, data + '\n' + scriptTag);
     return { headers: { 'cache-control': 'public, s-maxage=30, stale-while-revalidate=300' }, html };
   },
 };

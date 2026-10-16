@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<!-- Used by tools/build-covers.mjs through headless Chrome: draws one book cover (480 x 720) over a painting, and crops the clean 9:16 photo the reader uses as its background. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=Roboto+Mono:wght@400;500&display=swap">
+<style>
+  html, body { margin: 0; background: #000; }
+  .cv { position: relative; width: 480px; height: 720px; overflow: hidden; color: #fff; background: #111 center / cover no-repeat; --c: #fff; }
+  .cv * { box-sizing: border-box; margin: 0; }
+  .mono { font: 500 12px/1.2 "Roboto Mono", monospace; text-transform: uppercase; letter-spacing: 0.16em; }
+  .ttl { font-family: "Fraunces", Georgia, serif; font-weight: 300; font-optical-sizing: auto; letter-spacing: -0.02em; line-height: 0.98; text-wrap: balance; }
+  .cnd { font-family: "Archivo", sans-serif; font-weight: 900; font-stretch: 62%; text-transform: uppercase; line-height: 0.8; letter-spacing: 0.01em; }
+  .shade { position: absolute; inset: 0; }
+  .box { position: absolute; }
+  .c { color: var(--c); }
+  .rule { width: 42px; height: 3px; background: var(--c); }
+
+  /* 1: serif at the bottom */
+  .s1 .shade { background: linear-gradient(to top, rgba(4,4,6,0.94) 0%, rgba(4,4,6,0.7) 34%, rgba(4,4,6,0) 66%); }
+  .s1 .box { left: 34px; right: 34px; bottom: 36px; display: grid; gap: 16px; }
+  .s1 .ttl { font-size: 58px; }
+  /* 2: condensed poster type at the top */
+  .s2 .shade { background: linear-gradient(to bottom, rgba(4,4,6,0.9) 0%, rgba(4,4,6,0.55) 36%, rgba(4,4,6,0) 64%), linear-gradient(to top, rgba(4,4,6,0.8), rgba(4,4,6,0) 24%); }
+  .s2 .top { left: 30px; right: 30px; top: 30px; }
+  .s2 .cnd { font-size: 104px; }
+  .s2 .bot { left: 30px; right: 30px; bottom: 30px; display: flex; justify-content: space-between; align-items: end; }
+  /* 3: framed, centred italic title */
+  .s3 .shade { background: linear-gradient(to top, rgba(4,4,6,0.86) 0%, rgba(4,4,6,0.4) 40%, rgba(4,4,6,0.12) 70%, rgba(4,4,6,0.35) 100%); }
+  .s3::after { content: ""; position: absolute; inset: 18px; border: 1.5px solid rgba(255,255,255,0.72); pointer-events: none; }
+  .s3 .top { left: 0; right: 0; top: 40px; text-align: center; }
+  .s3 .box { left: 44px; right: 44px; bottom: 54px; text-align: center; display: grid; gap: 18px; justify-items: center; }
+  .s3 .ttl { font-size: 54px; font-style: italic; }
+  /* 4: picture above, a solid band below */
+  .s4 { background-size: 100% 72%; background-position: center top; background-color: #0b0b0d; }
+  .s4 .shade { background: linear-gradient(to bottom, rgba(4,4,6,0.25), rgba(4,4,6,0) 30%); }
+  .s4 .band { position: absolute; left: 0; right: 0; bottom: 0; height: 28%; background: #0b0b0d; border-top: 4px solid var(--c); padding: 22px 30px; display: grid; align-content: center; gap: 12px; }
+  .s4 .ttl { font-size: 38px; }
+  .s4 .top { left: 30px; top: 28px; }
+  /* 5: centred poster type */
+  .s5 .shade { background: radial-gradient(90% 60% at 50% 52%, rgba(4,4,6,0.78), rgba(4,4,6,0.3) 70%, rgba(4,4,6,0.55)); }
+  .s5 .mid { left: 30px; right: 30px; top: 50%; transform: translateY(-50%); text-align: center; display: grid; gap: 22px; justify-items: center; }
+  .s5 .cnd { font-size: 86px; line-height: 0.84; }
+  .s5 .top { left: 0; right: 0; top: 34px; text-align: center; }
+  .s5 .bot { left: 0; right: 0; bottom: 34px; text-align: center; }
+  /* 6: author along the edge, title low and right */
+  .s6 .shade { background: linear-gradient(to top, rgba(4,4,6,0.92) 0%, rgba(4,4,6,0.45) 38%, rgba(4,4,6,0) 64%), linear-gradient(to right, rgba(4,4,6,0.55), rgba(4,4,6,0) 22%); }
+  .s6 .side { position: absolute; left: 22px; top: 34px; writing-mode: vertical-rl; transform: rotate(180deg); }
+  .s6 .box { left: 64px; right: 32px; bottom: 36px; text-align: right; display: grid; gap: 14px; justify-items: end; }
+  .s6 .ttl { font-size: 56px; }
+  .s6 .rule { margin-left: auto; }
+</style></head>
+<body>
+<script type="module">
+  import { SEEDS } from '../fx/seeds.js';
+  const $ = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+  const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  const load = src => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = src; });
+  const STYLE_OF = { poetry: 3, 'love-heartbreak': 1, fiction: 4, memoir: 6, fantasy: 1, horror: 2, 'sci-fi': 5, mystery: 4, faith: 3, 'young-adult': 6, essays: 4, humour: 2 };
+
+  // the picture behind a cover: a painting file, or one of the code-drawn seeds
+  async function pictureOf(spec) {
+    if (spec.draw) return SEEDS.find(s => s.id === spec.draw).draw();
+    return load(spec.image);
+  }
+  const cropTo = (img, w, h, fx, fy) => { // cover-fit crop with a focus point (percent)
+    const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d');
+    const iw = img.width, ih = img.height, s = Math.max(w / iw, h / ih), dw = iw * s, dh = ih * s;
+    x.imageSmoothingQuality = 'high'; x.drawImage(img, -(dw - w) * fx / 100, -(dh - h) * fy / 100, dw, dh); return c;
+  };
+
+  // shrink a heading until it fits its box (long titles must never spill)
+  function fit(el, maxH, min = 0.45) {
+    let k = 1; const base = parseFloat(getComputedStyle(el).fontSize);
+    while ((el.scrollHeight > maxH + 1 || el.scrollWidth > el.clientWidth + 1) && k > min) { k -= 0.04; el.style.fontSize = base * k + 'px'; }
+  }
+
+  window.makeCover = async spec => {
+    document.querySelectorAll('.cv').forEach(e => e.remove());
+    await Promise.all(['300 40px "Fraunces"', 'italic 300 40px "Fraunces"', '900 40px "Archivo"', '500 12px "Roboto Mono"'].map(f => document.fonts.load(f))); // so fitting measures the real fonts
+    const img = await pictureOf(spec), canvas = cropTo(img, 480, 720, spec.fx ?? 50, spec.fy ?? 50);
+    const style = spec.style || STYLE_OF[spec.genre] || 1;
+    const el = $('div', 'cv s' + style); el.style.setProperty('--c', spec.color);
+    el.style.backgroundImage = `url(${canvas.toDataURL('image/jpeg', 0.92)})`;
+    el.append($('div', 'shade')); document.body.append(el); // in the page before fitting, so the text can be measured
+    const label = `<span class="mono c">${esc(spec.genreName)}</span>`, by = `<span class="mono">${esc(spec.author)}</span>`;
+    const lines = (spec.titleLines || [spec.title]).map(esc);
+    if (style === 1) { const b = $('div', 'box', `${label}<h2 class="ttl">${esc(spec.title)}</h2><div class="rule"></div>${by}`); el.append(b); fit(b.querySelector('.ttl'), 260); }
+    if (style === 2) {
+      const t = $('div', 'box top', `<h2 class="cnd">${lines.map((l, i) => i === lines.length - 1 && lines.length > 1 ? `<span class="c">${l}</span>` : l).join('<br>')}</h2>`);
+      el.append(t, $('div', 'box bot', `${by}${label}`)); fit(t.querySelector('.cnd'), 380, 0.4);
+    }
+    if (style === 3) { const b = $('div', 'box', `<h2 class="ttl">${esc(spec.title)}</h2><div class="rule"></div>${by}`); el.append($('div', 'box top', label), b); fit(b.querySelector('.ttl'), 250); }
+    if (style === 4) { const b = $('div', 'band', `<h2 class="ttl">${esc(spec.title)}</h2>${by}`); el.append(b, $('div', 'box top', label)); fit(b.querySelector('.ttl'), 96); }
+    if (style === 5) { const m = $('div', 'box mid', `<h2 class="cnd">${lines.join('<br>')}</h2><div class="rule"></div>`); el.append($('div', 'box top', label), m, $('div', 'box bot', by)); fit(m.querySelector('.cnd'), 360, 0.4); }
+    if (style === 6) { const b = $('div', 'box', `<h2 class="ttl">${esc(spec.title)}</h2><div class="rule"></div>${label}`); el.append($('div', 'side', by), b); fit(b.querySelector('.ttl'), 250); }
+    await document.fonts.ready;
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    return true;
+  };
+
+  // the clean photo the reader uses as its background (9:16, no text)
+  window.makePhoto = async spec => {
+    const img = await pictureOf(spec); return cropTo(img, 540, 960, spec.fx ?? 50, spec.fy ?? 50).toDataURL('image/jpeg', 0.74);
+  };
+  window.READY = true;
+</script>
+</body></html>

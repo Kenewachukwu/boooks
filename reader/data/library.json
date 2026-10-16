@@ -1,0 +1,727 @@
+{
+ "v": 1,
+ "genres": [
+  {
+   "id": "poetry",
+   "name": "Poetry",
+   "color": "#ffc7c6",
+   "blurb": "Short lines, long echoes."
+  },
+  {
+   "id": "love-heartbreak",
+   "name": "Love & Heartbreak",
+   "color": "#e10600",
+   "blurb": "The ones that sting, and stay."
+  },
+  {
+   "id": "fiction",
+   "name": "Fiction",
+   "color": "#847dff",
+   "blurb": "Invented people, true feelings."
+  },
+  {
+   "id": "memoir",
+   "name": "Memoir",
+   "color": "#ffb23e",
+   "blurb": "Real life, told slant."
+  },
+  {
+   "id": "fantasy",
+   "name": "Fantasy",
+   "color": "#dd90d8",
+   "blurb": "Doors that should not be there."
+  },
+  {
+   "id": "horror",
+   "name": "Horror",
+   "color": "#c6ff5e",
+   "blurb": "Read these with the lights on."
+  },
+  {
+   "id": "sci-fi",
+   "name": "Sci-fi",
+   "color": "#00b3dd",
+   "blurb": "Tomorrow, up close."
+  },
+  {
+   "id": "mystery",
+   "name": "Mystery",
+   "color": "#d1c9ff",
+   "blurb": "Everyone is hiding something."
+  },
+  {
+   "id": "faith",
+   "name": "Faith & Spirit",
+   "color": "#ffd24a",
+   "blurb": "Quiet prayers, loud mornings."
+  },
+  {
+   "id": "young-adult",
+   "name": "Young Adult",
+   "color": "#62f0c2",
+   "blurb": "First everything."
+  },
+  {
+   "id": "essays",
+   "name": "Essays",
+   "color": "#90b8f0",
+   "blurb": "One thought, thoroughly loved."
+  },
+  {
+   "id": "humour",
+   "name": "Humour",
+   "color": "#ff7a59",
+   "blurb": "Laugh first, think later."
+  }
+ ],
+ "profiles": [
+  {
+   "handle": "deborah.datoru",
+   "name": "Deborah Datoru",
+   "bio": "Author of Rejuvenating.",
+   "city": "",
+   "real": true
+  },
+  {
+   "handle": "the.introverted_she",
+   "name": "the.introverted_she",
+   "bio": "Author of Heart Break and Hot Chocolate.",
+   "city": "",
+   "real": true
+  },
+  {
+   "handle": "amara.writes",
+   "name": "Amara Okafor",
+   "bio": "Poet from Enugu, living in Lagos. Writes about weather, mothers and small mercies.",
+   "city": "Lagos"
+  },
+  {
+   "handle": "marisol.rain",
+   "name": "Marisol Duarte",
+   "bio": "Writes love poems and love letters, mostly the ones that never get sent.",
+   "city": "Lisbon"
+  },
+  {
+   "handle": "tobi.nights",
+   "name": "Tobi Adeyemi",
+   "bio": "Short stories about small towns, big feelings and people who notice the rain.",
+   "city": "Ibadan"
+  },
+  {
+   "handle": "sana.in.ink",
+   "name": "Sana Qureshi",
+   "bio": "Memoir in short pieces: markets, ferries and other places where strangers are kind.",
+   "city": "Toronto"
+  },
+  {
+   "handle": "lena.vale",
+   "name": "Lena Vale",
+   "bio": "Fantasy for people who check behind doors. Maps, ruins and orchards.",
+   "city": "Bergen"
+  },
+  {
+   "handle": "noor.hollow",
+   "name": "Noor Hollow",
+   "bio": "Horror in under two hundred words. Please do not answer the door.",
+   "city": "Manchester"
+  },
+  {
+   "handle": "kofi.quill",
+   "name": "Kofi Mensah",
+   "bio": "Science fiction with a grandmother in it. Kumasi by way of orbit.",
+   "city": "Kumasi"
+  },
+  {
+   "handle": "eli.fennick",
+   "name": "Eli Fennick",
+   "bio": "Mysteries solved by the people nobody asks: guards, clerks and clockmakers.",
+   "city": "Leeds"
+  },
+  {
+   "handle": "ngozi.afterdark",
+   "name": "Ngozi Eze",
+   "bio": "Psalms and small sermons for tired people. Tea first, then prayer.",
+   "city": "Abuja"
+  },
+  {
+   "handle": "jun.hartley",
+   "name": "Jun Hartley",
+   "bio": "Young adult stories about summers, lunch tables and almost saying it.",
+   "city": "Vancouver"
+  },
+  {
+   "handle": "bea.lindqvist",
+   "name": "Bea Lindqvist",
+   "bio": "Humour about being late, being wrong and being in the group chat.",
+   "city": "Malmö"
+  },
+  {
+   "handle": "dami.reads",
+   "name": "Dami Balogun",
+   "bio": "Essays on slowness, drawers and the quiet furniture of a life.",
+   "city": "Accra"
+  }
+ ],
+ "books": [
+  {
+   "slug": "heart-break-and-hot-chocolate",
+   "title": "Heart Break and Hot Chocolate",
+   "handle": "the.introverted_she",
+   "author": "the.introverted_she",
+   "genre": "love-heartbreak",
+   "kind": "prose",
+   "minutes": 6,
+   "blurb": "A short story where a cracked heart floats in a mug of hot chocolate.",
+   "template": "hot-chocolate",
+   "mood": "hot-chocolate",
+   "cover": "media/covers/heart-break-and-hot-chocolate.jpg",
+   "source": "registry",
+   "registryId": "heart-break-and-hot-chocolate",
+   "date": "2026-10-12"
+  },
+  {
+   "slug": "do-not-answer-the-third-knock",
+   "title": "Do Not Answer the Third Knock",
+   "handle": "noor.hollow",
+   "author": "Noor Hollow",
+   "genre": "horror",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 166,
+   "blurb": "Grandma had rules for the village. The last one was the important one.",
+   "template": "newsprint",
+   "mood": "dark-abstract",
+   "cover": "media/covers/do-not-answer-the-third-knock.jpg",
+   "photo": "media/photos/do-not-answer-the-third-knock.jpg",
+   "source": "bundle",
+   "date": "2026-10-09",
+   "art": {
+    "artist": "Akseli Gallen-Kallela",
+    "source": "https://commons.wikimedia.org/wiki/File:Akseli_Gallen-Kallela_-_Unelmien_saari.jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "the-girl-who-sat-alone-at-lunch",
+   "title": "The Girl Who Sat Alone at Lunch",
+   "handle": "jun.hartley",
+   "author": "Jun Hartley",
+   "genre": "young-adult",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 159,
+   "blurb": "Being alone is only a waiting room.",
+   "template": "poster",
+   "mood": "soft-pastel",
+   "cover": "media/covers/the-girl-who-sat-alone-at-lunch.jpg",
+   "photo": "media/photos/the-girl-who-sat-alone-at-lunch.jpg",
+   "source": "bundle",
+   "date": "2026-10-07",
+   "art": {
+    "artist": "Ferdinand Hodler",
+    "source": "https://commons.wikimedia.org/wiki/File:Ferdinand_Hodler_-_Anbetung_-_1043_-_Kunsthaus_Z%C3%BCrich.jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "seven-days-of-not-texting",
+   "title": "Seven Days of Not Texting",
+   "handle": "marisol.rain",
+   "author": "Marisol Duarte",
+   "genre": "love-heartbreak",
+   "kind": "verse",
+   "minutes": 1,
+   "words": 162,
+   "blurb": "A week in the life of a phone lying face down.",
+   "template": "handwritten",
+   "mood": "dark-abstract",
+   "cover": "media/covers/seven-days-of-not-texting.jpg",
+   "photo": "media/photos/seven-days-of-not-texting.jpg",
+   "source": "bundle",
+   "date": "2026-10-05",
+   "art": {
+    "artist": "Ivan Aivazovsky",
+    "source": "https://commons.wikimedia.org/wiki/File:SAILING_SHIP_ON_A_CALM_SEA_BY_MOONLIGHT.jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "the-house-keeps-counting",
+   "title": "The House Keeps Counting",
+   "handle": "noor.hollow",
+   "author": "Noor Hollow",
+   "genre": "horror",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 175,
+   "blurb": "It counted the windows, then the spoons, then the children.",
+   "template": "poster",
+   "mood": "mono-grain",
+   "cover": "media/covers/the-house-keeps-counting.jpg",
+   "photo": "media/photos/the-house-keeps-counting.jpg",
+   "source": "bundle",
+   "date": "2026-10-01",
+   "art": {
+    "artist": "Akseli Gallen-Kallela",
+    "source": "https://commons.wikimedia.org/wiki/File:Akseli_Gallen-Kallela_-_Verkonkutoja_-_Helsinki_Art_Museum.jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "missing-in-plain-sight",
+   "title": "Missing in Plain Sight",
+   "handle": "eli.fennick",
+   "author": "Eli Fennick",
+   "genre": "mystery",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 171,
+   "blurb": "The painting was never stolen. It was just replaced, and the sky knew.",
+   "template": "quiet-serif",
+   "mood": "dark-abstract",
+   "cover": "media/covers/missing-in-plain-sight.jpg",
+   "photo": "media/photos/missing-in-plain-sight.jpg",
+   "source": "bundle",
+   "date": "2026-09-30",
+   "art": {
+    "artist": "In the style of James McNeill Whistler",
+    "source": "https://commons.wikimedia.org/wiki/File:James_Abbott_McNeill_Whistler_(1834-1903)_(style_of)_-_The_Thames%2C_Evening_-_STOPM%2C_2007.233_-_Stockport_Heritage_Services.jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "the-last-voicenote",
+   "title": "The Last Voicenote",
+   "handle": "marisol.rain",
+   "author": "Marisol Duarte",
+   "genre": "love-heartbreak",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 189,
+   "blurb": "Forty-one seconds of a voice, played three hundred times.",
+   "template": "quiet-serif",
+   "mood": "neon-night",
+   "cover": "media/covers/the-last-voicenote.jpg",
+   "photo": "media/photos/the-last-voicenote.jpg",
+   "source": "bundle",
+   "date": "2026-09-27",
+   "art": {
+    "artist": "Akseli Gallen-Kallela",
+    "source": "https://commons.wikimedia.org/wiki/File:Gall%C3%A9n-Kallela_-_Marie_Gall%C3%A9n_auf_der_Kuhmoniemi-Br%C3%BCcke_-_1890.jpeg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "the-group-chat-has-gone-quiet",
+   "title": "The Group Chat Has Gone Quiet",
+   "handle": "bea.lindqvist",
+   "author": "Bea Lindqvist",
+   "genre": "humour",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 170,
+   "blurb": "A missing-persons report, filed at 8 a.m.",
+   "template": "newsprint",
+   "mood": "soft-pastel",
+   "cover": "media/covers/the-group-chat-has-gone-quiet.jpg",
+   "photo": "media/photos/the-group-chat-has-gone-quiet.jpg",
+   "source": "bundle",
+   "date": "2026-09-25",
+   "art": {
+    "artist": "Ferdinand Hodler",
+    "source": "https://commons.wikimedia.org/wiki/File:Ferdinand_Hodler_Les_Buveurs_Geneva_21102014.jpg",
+    "license": "CC0"
+   }
+  },
+  {
+   "slug": "the-last-gardener-on-mars",
+   "title": "The Last Gardener on Mars",
+   "handle": "kofi.quill",
+   "author": "Kofi Mensah",
+   "genre": "sci-fi",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 173,
+   "blurb": "The supply ship is cancelled. The tomato, meanwhile, is ripe.",
+   "template": "newsprint",
+   "mood": "golden-hour",
+   "cover": "media/covers/the-last-gardener-on-mars.jpg",
+   "photo": "media/photos/the-last-gardener-on-mars.jpg",
+   "source": "bundle",
+   "date": "2026-09-23",
+   "art": {
+    "artist": "Akseli Gallen-Kallela",
+    "source": "https://commons.wikimedia.org/wiki/File:Akseli_Gallen-Kallela_-_Sahara_(1910).jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "harmattan-letters",
+   "title": "Harmattan Letters",
+   "handle": "amara.writes",
+   "author": "Amara Okafor",
+   "genre": "poetry",
+   "kind": "verse",
+   "minutes": 1,
+   "words": 122,
+   "blurb": "Dust on the leaves, a name on the windscreen, and the long dry wait for rain.",
+   "template": "handwritten",
+   "mood": "golden-hour",
+   "cover": "media/covers/harmattan-letters.jpg",
+   "photo": "media/photos/harmattan-letters.jpg",
+   "source": "bundle",
+   "date": "2026-09-19",
+   "art": {
+    "artist": "Akseli Gallen-Kallela",
+    "source": "https://commons.wikimedia.org/wiki/File:Akseli_Gallen-Kallela_-_Brushfire_(1909).jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "what-we-keep-in-drawers",
+   "title": "What We Keep in Drawers",
+   "handle": "dami.reads",
+   "author": "Dami Balogun",
+   "genre": "essays",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 174,
+   "blurb": "A diary written by objects.",
+   "template": "newsprint",
+   "mood": "warm-paper",
+   "cover": "media/covers/what-we-keep-in-drawers.jpg",
+   "photo": "media/photos/what-we-keep-in-drawers.jpg",
+   "source": "bundle",
+   "date": "2026-09-17",
+   "art": {
+    "artist": "Ferdinand Hodler",
+    "source": "https://commons.wikimedia.org/wiki/File:Ferdinand_Hodler_-_Der_Schuhmacher_-_1129_-_Kunsthaus_Z%C3%BCrich.jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "a-door-in-the-orchard",
+   "title": "A Door in the Orchard",
+   "handle": "lena.vale",
+   "author": "Lena Vale",
+   "genre": "fantasy",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 171,
+   "blurb": "A doorframe between two apple trees. Children are forbidden to walk through it.",
+   "template": "quiet-serif",
+   "mood": "forest-mist",
+   "cover": "media/covers/a-door-in-the-orchard.jpg",
+   "photo": "media/photos/a-door-in-the-orchard.jpg",
+   "source": "bundle",
+   "date": "2026-09-15",
+   "art": {
+    "artist": "Frederic Edwin Church",
+    "source": "https://commons.wikimedia.org/wiki/File:Frederic_Edwin_Church_-_Landscape_with_Two_Trees_-_1982.402_-_Museum_of_Fine_Arts.jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "ledger-of-rain",
+   "title": "Ledger of Rain",
+   "handle": "tobi.nights",
+   "author": "Tobi Adeyemi",
+   "genre": "fiction",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 176,
+   "blurb": "Thirty-one years of numbers, and one margin that finally got a remark.",
+   "template": "quiet-serif",
+   "mood": "forest-mist",
+   "cover": "media/covers/ledger-of-rain.jpg",
+   "photo": "media/photos/ledger-of-rain.jpg",
+   "source": "bundle",
+   "date": "2026-09-11",
+   "art": {
+    "artist": "John Atkinson Grimshaw",
+    "source": "https://commons.wikimedia.org/wiki/File:John_Atkinson_Grimshaw_(1836-1893)_-_Silver_Moonlight_-_1983.444_-_Kirklees_Museums_and_Galleries.jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "what-the-ferry-knew",
+   "title": "What the Ferry Knew",
+   "handle": "sana.in.ink",
+   "author": "Sana Qureshi",
+   "genre": "memoir",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 179,
+   "blurb": "Forty minutes a day, with strangers who asked for nothing.",
+   "template": "quiet-serif",
+   "mood": "ocean-calm",
+   "cover": "media/covers/what-the-ferry-knew.jpg",
+   "photo": "media/photos/what-the-ferry-knew.jpg",
+   "source": "bundle",
+   "date": "2026-09-08",
+   "art": {
+    "artist": "Hugo Simberg",
+    "source": "https://commons.wikimedia.org/wiki/File:Simberg%2C_Suomalainen_elegia.jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "what-the-rooster-taught-me",
+   "title": "What the Rooster Taught Me",
+   "handle": "ngozi.afterdark",
+   "author": "Ngozi Eze",
+   "genre": "faith",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 168,
+   "blurb": "He crowed into the dark with no evidence at all.",
+   "template": "quiet-serif",
+   "mood": "golden-hour",
+   "cover": "media/covers/what-the-rooster-taught-me.jpg",
+   "photo": "media/photos/what-the-rooster-taught-me.jpg",
+   "source": "bundle",
+   "date": "2026-09-04",
+   "art": {
+    "artist": "Akseli Gallen-Kallela",
+    "source": "https://commons.wikimedia.org/wiki/File:Akseli_Gallen-Kallela_-_View_from_the_tower_of_Tarvasp%C3%A4%C3%A4.jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "salt-and-small-mercies",
+   "title": "Salt and Small Mercies",
+   "handle": "amara.writes",
+   "author": "Amara Okafor",
+   "genre": "poetry",
+   "kind": "verse",
+   "minutes": 1,
+   "words": 121,
+   "blurb": "A grandmother counts blessings in salt. A granddaughter learns what mercy looks like when it is small.",
+   "template": "handwritten",
+   "mood": "ocean-calm",
+   "cover": "media/covers/salt-and-small-mercies.jpg",
+   "photo": "media/photos/salt-and-small-mercies.jpg",
+   "source": "bundle",
+   "date": "2026-09-02",
+   "art": {
+    "artist": "Ivan Aivazovsky",
+    "source": "https://commons.wikimedia.org/wiki/File:Aivazovsky_Ice_on_Dnipro.jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "the-weight-of-a-small-town",
+   "title": "The Weight of a Small Town",
+   "handle": "tobi.nights",
+   "author": "Tobi Adeyemi",
+   "genre": "fiction",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 197,
+   "blurb": "Everybody knew what you carried before you did. Then you came home.",
+   "template": "newsprint",
+   "mood": "warm-paper",
+   "cover": "media/covers/the-weight-of-a-small-town.jpg",
+   "photo": "media/photos/the-weight-of-a-small-town.jpg",
+   "source": "bundle",
+   "date": "2026-08-30",
+   "art": {
+    "artist": "Fernand Khnopff",
+    "source": "https://commons.wikimedia.org/wiki/File:Fernand_Khnopff_-_Landscape_at_Fosset_-_1982-P_-_Museum_of_Fine_Arts_Ghent_(MSK).jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "the-summer-i-learned-to-swim",
+   "title": "The Summer I Learned to Swim",
+   "handle": "jun.hartley",
+   "author": "Jun Hartley",
+   "genre": "young-adult",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 188,
+   "blurb": "Everyone in the family could swim. Except her.",
+   "template": "quiet-serif",
+   "mood": "ocean-calm",
+   "cover": "media/covers/the-summer-i-learned-to-swim.jpg",
+   "photo": "media/photos/the-summer-i-learned-to-swim.jpg",
+   "source": "bundle",
+   "date": "2026-08-26",
+   "art": {
+    "artist": "Hugo Simberg",
+    "source": "https://commons.wikimedia.org/wiki/File:Simberg_Pier_in_summer_landscape.jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "my-mother-in-the-market",
+   "title": "My Mother in the Market",
+   "handle": "sana.in.ink",
+   "author": "Sana Qureshi",
+   "genre": "memoir",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 179,
+   "blurb": "She haggled the way other people pray.",
+   "template": "newsprint",
+   "mood": "golden-hour",
+   "cover": "media/covers/my-mother-in-the-market.jpg",
+   "photo": "media/photos/my-mother-in-the-market.jpg",
+   "source": "bundle",
+   "date": "2026-08-21",
+   "art": {
+    "artist": "Ivan Shishkin",
+    "source": "https://commons.wikimedia.org/wiki/File:%D0%98%D0%B2%D0%B0%D0%BD_%D0%98._%D0%A8%D0%B8%D1%88%D0%BA%D0%B8%D0%BD_-_%D0%A4%D0%B5%D1%80%D0%BC%D0%B5%D1%80_%D0%B6%D0%B5%D0%BD%D1%8B.jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "psalm-for-a-tired-heart",
+   "title": "Psalm for a Tired Heart",
+   "handle": "ngozi.afterdark",
+   "author": "Ngozi Eze",
+   "genre": "faith",
+   "kind": "verse",
+   "minutes": 1,
+   "words": 136,
+   "blurb": "A prayer for the places nobody sees.",
+   "template": "handwritten",
+   "mood": "soft-pastel",
+   "cover": "media/covers/psalm-for-a-tired-heart.jpg",
+   "photo": "media/photos/psalm-for-a-tired-heart.jpg",
+   "source": "bundle",
+   "date": "2026-08-17",
+   "art": {
+    "artist": "Akseli Gallen-Kallela",
+    "source": "https://commons.wikimedia.org/wiki/File:Akseli_Gallen-Kallela_-_Mt_Kenya_20_V_1910%2C_Mother_and_Father's_21st_Wedding_Anniversary.jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "signal-from-kepler",
+   "title": "Signal from Kepler",
+   "handle": "kofi.quill",
+   "author": "Kofi Mensah",
+   "genre": "sci-fi",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 182,
+   "blurb": "A pulse every eleven seconds, and a rhythm Abena already knew.",
+   "template": "poster",
+   "mood": "neon-night",
+   "cover": "media/covers/signal-from-kepler.jpg",
+   "photo": "media/photos/signal-from-kepler.jpg",
+   "source": "bundle",
+   "date": "2026-08-12",
+   "art": {
+    "artist": "Ivan Aivazovsky",
+    "source": "https://commons.wikimedia.org/wiki/File:%D0%98%D0%B2%D0%B0%D0%BD_%D0%90%D0%B9%D0%B2%D0%B0%D0%B7%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D0%B9_%C2%AB%D0%94%D0%B0%D1%80%D1%8C%D1%8F%D0%BB%D1%8C%D1%81%D0%BA%D0%BE%D0%B5_%D1%83%D1%89%D0%B5%D0%BB%D1%8C%D0%B5%C2%BB%2C_1862.jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "in-praise-of-slow-mornings",
+   "title": "In Praise of Slow Mornings",
+   "handle": "dami.reads",
+   "author": "Dami Balogun",
+   "genre": "essays",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 165,
+   "blurb": "An hour defended like a small, ridiculous country.",
+   "template": "quiet-serif",
+   "mood": "golden-hour",
+   "cover": "media/covers/in-praise-of-slow-mornings.jpg",
+   "photo": "media/photos/in-praise-of-slow-mornings.jpg",
+   "source": "bundle",
+   "date": "2026-08-08",
+   "art": {
+    "artist": "Akseli Gallen-Kallela",
+    "source": "https://commons.wikimedia.org/wiki/File:Akseli_Gallen-Kallela_-_Sunflower_at_the_Nairobi_Savannah_(1909%E2%80%921910).jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "the-clockmakers-alibi",
+   "title": "The Clockmaker's Alibi",
+   "handle": "eli.fennick",
+   "author": "Eli Fennick",
+   "genre": "mystery",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 178,
+   "blurb": "Forty clocks, one that was right, and a witness who was not there.",
+   "template": "newsprint",
+   "mood": "mono-grain",
+   "cover": "media/covers/the-clockmakers-alibi.jpg",
+   "photo": "media/photos/the-clockmakers-alibi.jpg",
+   "source": "bundle",
+   "date": "2026-08-04",
+   "art": {
+    "artist": "John Atkinson Grimshaw (attributed)",
+    "source": "https://commons.wikimedia.org/wiki/File:John_Atkinson_Grimshaw_(1836-1893)_(attributed_to)_-_Liverpool_Docks_(panel_5_of_5)_-_G325_-_Grundy_Art_Gallery.jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "rejuvenating",
+   "title": "Rejuvenating",
+   "handle": "deborah.datoru",
+   "author": "Deborah Datoru",
+   "genre": "poetry",
+   "kind": "verse",
+   "minutes": 14,
+   "blurb": "A book of poems about starting again, set over a looping painted night.",
+   "template": "night-field",
+   "mood": "night-field",
+   "cover": "media/covers/rejuvenating.jpg",
+   "source": "registry",
+   "registryId": "rejuvenating",
+   "date": "2026-08-01"
+  },
+  {
+   "slug": "the-cartographer-of-ash",
+   "title": "The Cartographer of Ash",
+   "handle": "lena.vale",
+   "author": "Lena Vale",
+   "genre": "fantasy",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 178,
+   "blurb": "After the fire, a mapmaker draws a kingdom back into being.",
+   "template": "poster",
+   "mood": "dark-abstract",
+   "cover": "media/covers/the-cartographer-of-ash.jpg",
+   "photo": "media/photos/the-cartographer-of-ash.jpg",
+   "source": "bundle",
+   "date": "2026-07-29",
+   "art": {
+    "artist": "Thomas Cole",
+    "source": "https://commons.wikimedia.org/wiki/File:Landscape_with_Tower_in_Ruin%2C_by_Thomas_Cole%2C_1839%2C_oil_on_canvas_-_Currier_Museum_of_Art_-_Manchester%2C_NH_-_DSC07498.jpg",
+    "license": "Public domain"
+   }
+  },
+  {
+   "slug": "on-being-late-to-everything",
+   "title": "On Being Late to Everything",
+   "handle": "bea.lindqvist",
+   "author": "Bea Lindqvist",
+   "genre": "humour",
+   "kind": "prose",
+   "minutes": 1,
+   "words": 191,
+   "blurb": "Two weeks late to her own birth, and still not sorry.",
+   "template": "poster",
+   "mood": "warm-paper",
+   "cover": "media/covers/on-being-late-to-everything.jpg",
+   "photo": "media/photos/on-being-late-to-everything.jpg",
+   "source": "bundle",
+   "date": "2026-07-18",
+   "art": {
+    "artist": "Akseli Gallen-Kallela",
+    "source": "https://commons.wikimedia.org/wiki/File:Akseli_Gallen-Kallela_-_Caf%C3%A9_in_Paris.jpg",
+    "license": "Public domain"
+   }
+  }
+ ]
+}

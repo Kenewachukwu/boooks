@@ -4,9 +4,22 @@
   "buildCommand": null,
   "outputDirectory": "reader",
   "rewrites": [
-    { "source": "/s/:slug", "destination": "/api/page?slug=:slug" }
+    {
+      "source": "/s/:slug",
+      "destination": "/api/page?slug=:slug"
+    },
+    {
+      "source": "/read",
+      "destination": "/read.html"
+    },
+    {
+      "source": "/@:handle",
+      "destination": "/profile.html"
+    }
   ],
   "functions": {
-    "api/page.js": { "includeFiles": "reader/index.html" }
+    "api/page.js": {
+      "includeFiles": "reader/{read.html,data/library.json,data/seed/*.json}"
+    }
   }
 }

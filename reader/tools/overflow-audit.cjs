@@ -40,7 +40,7 @@ const VIEWPORTS = [[320, 568], [390, 844], [768, 1024], [1280, 720]];
       const bundle = { v: 1, book, style: { templateId: t, modeId: 'ocean-calm', effect: 'soft-photo', params: {}, seed: 'plain', layout: book.layout, animate: false }, meta: {} };
       await pg.setViewport({ width: v[0], height: v[1], deviceScaleFactor: 1 });
       await pg.evaluateOnNewDocument(b => { localStorage.setItem('booooks.preview', b); }, JSON.stringify(bundle));
-      await pg.goto(BASE + '/?preview=1&x=' + Math.random(), { waitUntil: 'load' });
+      await pg.goto(BASE + '/read?preview=1&x=' + Math.random(), { waitUntil: 'load' });
       await pg.waitForFunction("window.reader && document.getElementById('stage').classList.contains('ready')", { timeout: 40000 }).catch(() => {});
       await new Promise(r => setTimeout(r, 350));
       const found = await pg.evaluate(() => {

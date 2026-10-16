@@ -55,6 +55,8 @@ body { display: grid; place-items: center; overflow: hidden; }
 .hud-right { display: flex; gap: 8px; }
 .sound { width: 44px; height: 44px; border: 0; border-radius: 50%; display: grid; place-items: center; color: var(--ink); background: var(--chip-bg); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); cursor: pointer; transition: transform 0.15s var(--ease-out); }
 .sound:active { transform: scale(0.94); }
+.back { text-decoration: none; }
+.framed .back { display: none; } /* inside the studio preview there is nowhere to go back to */
 .sound { position: relative; }
 .sound.loading { opacity: 0.6; }
 /* a ring pulses on the speaker until sound has really started, so it is clear one tap is needed */

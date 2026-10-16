@@ -29,7 +29,7 @@ const query = new URLSearchParams(location.search);
 const bundle = window.__BOOK__ || (query.has('preview') ? (() => { try { return { ...JSON.parse(localStorage.getItem('booooks.preview')), preview: true }; } catch { return null; } })() : null);
 const registry = bundle ? { default: '', stories: [] } : await fetch(CONFIG.registry).then(r => r.ok ? r.json() : Promise.reject())
   .catch(() => ({ default: 'rejuvenating', stories: [{ id: 'rejuvenating', file: 'data/book.json', template: 'night-field' }] }));
-const entry = bundle ? { id: 'bundle', template: 'custom' } : registry.stories.find(s => s.id === query.get('story')) || registry.stories.find(s => s.id === registry.default) || registry.stories[0];
+const entry = bundle ? { id: 'bundle', template: 'custom' } : registry.stories.find(s => s.id === (window.__STORY__ || query.get('story'))) || registry.stories.find(s => s.id === registry.default) || registry.stories[0];
 const template = bundle ? compose(bundle.style) : (TEMPLATES[entry.template] || TEMPLATES['night-field']);
 {
   const root = document.documentElement.style;
@@ -265,7 +265,7 @@ function buildEnd() {
   const again = h('button', 'btn secondary', 'Read again'); again.type = 'button';
   inner.append(pen('p', 'kicker', `${book.title} · ${book.author}`), pen('h2', null, 'The end'), rule(), pen('p', 'by', 'Thank you for reading.'), again);
   const others = registry.stories.filter(s => s.id !== entry.id);
-  if (others.length) { const next = h('a', 'btn secondary', 'Read another story'); next.href = '?story=' + others[registry.stories.indexOf(entry) % others.length].id; inner.append(next); }
+  if (others.length) { const next = h('a', 'btn secondary', 'Read another story'); next.href = '/read?story=' + others[registry.stories.indexOf(entry) % others.length].id; inner.append(next); }
   const credit = pexelsCredit(bundle?.meta?.photo);
   if (credit) { const a = h('a', 'link', credit.text); a.href = credit.url; a.target = '_blank'; a.rel = 'noopener'; inner.append(a); }
   if (bundle && !bundle.preview) { const a = h('a', 'link', 'Make your own with booooks'); a.href = '/studio/'; inner.append(a); }
@@ -273,6 +273,16 @@ function buildEnd() {
   sec.append(inner);
   again.addEventListener('click', () => goTo(0, true));
   return sec;
+}
+
+// the back arrow returns to wherever the reader came from (the feed, a profile), and to the front page otherwise
+{
+  const back = $('back');
+  if (window.top !== window) document.documentElement.classList.add('framed');
+  back.addEventListener('click', e => {
+    let same = false; try { same = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch { /* no referrer */ }
+    if (same && history.length > 1) { e.preventDefault(); history.back(); }
+  });
 }
 
 sections.push(buildCover());
@@ -404,7 +414,7 @@ function onScroll() {
     clearTimeout(settleTimer);
     settleTimer = setTimeout(() => {
       if (!resizing) stable = cur; // only a quiet, un-resized position counts as "where the reader is"
-      history.replaceState(null, '', cur ? '#' + cur : location.pathname);
+      history.replaceState(null, '', cur ? '#' + cur : location.pathname + location.search);
       liveEl.textContent = sections[cur].getAttribute('aria-label');
     }, 350);
   });

@@ -1,0 +1,43 @@
+/* booooks motion: shared entrances, reveals and page-to-page transitions.
+   Rules (from the animate skill): only transform, opacity and clip-path move; strong ease-out curves from tokens.css; entrances stagger
+   30-80 ms; hover motion only on fine pointers; reduced motion keeps fades and drops the movement. */
+
+/* a page fades up from the dark when it opens, and the browser blends between our pages where it can (Chrome, Safari 18.2+) */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: 0.28s var(--ease-out) both vt-out; }
+::view-transition-new(root) { animation: 0.4s var(--ease-out) both vt-in; }
+@keyframes vt-out { to { opacity: 0; } }
+@keyframes vt-in { from { opacity: 0; } }
+
+/* scroll reveal: the element sits 18px low and invisible until it is mostly in view, then rises with the stagger set in --i */
+.js [data-reveal] { opacity: 0; transform: translate3d(0, 18px, 0); }
+.js [data-reveal].in { opacity: 1; transform: none; transition: opacity 0.7s var(--ease-out) calc(var(--i, 0) * 60ms), transform 0.7s var(--ease-out) calc(var(--i, 0) * 60ms); }
+.js [data-reveal="scale"] { transform: translate3d(0, 10px, 0) scale(0.96); }
+.js [data-reveal="fade"] { transform: none; }
+
+/* headlines write themselves line by line: each line is a mask and its text slides up inside it */
+.ln { display: block; overflow: hidden; padding-block: 0.05em; margin-block: -0.05em; }
+.ln > span { display: block; }
+.js .lines .ln > span { transform: translate3d(0, 108%, 0); }
+.js .lines.in .ln > span { transform: none; transition: transform 1s var(--ease-out) calc(var(--i, 0) * 90ms); }
+
+/* a stagger group: children get --i from motion.js */
+.js .stagger > * { opacity: 0; transform: translate3d(0, 16px, 0); }
+.js .stagger.in > * { opacity: 1; transform: none; transition: opacity 0.6s var(--ease-out) calc(var(--i, 0) * 45ms), transform 0.6s var(--ease-out) calc(var(--i, 0) * 45ms); }
+
+/* the cover that flies from a card into the reader */
+.fly { position: fixed; z-index: 200; left: 0; top: 0; margin: 0; overflow: hidden; transform-origin: 0 0; will-change: transform, clip-path; pointer-events: none; background: #111; }
+.fly img { width: 100%; height: 100%; object-fit: cover; }
+.veil { position: fixed; inset: 0; z-index: 190; background: #050506; opacity: 0; pointer-events: none; }
+
+/* press feedback for anything that is a tile */
+.press { transition: transform 0.18s var(--ease-out); }
+.press:active { transform: scale(0.985); }
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal], .js .stagger > *, .js [data-reveal="scale"] { transform: none; }
+  .js [data-reveal].in, .js .stagger.in > * { transition: opacity 0.4s linear; }
+  .js .lines .ln > span { transform: none; opacity: 0; }
+  .js .lines.in .ln > span { opacity: 1; transition: opacity 0.5s linear; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.12s; }
+}

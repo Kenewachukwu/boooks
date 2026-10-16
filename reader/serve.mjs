@@ -21,7 +21,7 @@ try { // .env.local at the repo root: KEY=value lines
   }
 } catch { /* no .env.local: fine */ }
 
-const api = { '/api/pexels': toNode(handlers.pexels), '/api/publish': toNode(handlers.publish), '/api/story': toNode(handlers.story) };
+const api = { '/api/pexels': toNode(handlers.pexels), '/api/publish': toNode(handlers.publish), '/api/story': toNode(handlers.story), '/api/stories': toNode(handlers.stories) };
 const page = toNode(handlers.page);
 
 function sendFile(req, res, file) {
@@ -47,6 +47,10 @@ http.createServer((req, res) => {
     if (!/^images\/[\w.-]+$/.test(rel)) { res.writeHead(400); return res.end('bad path'); }
     return sendFile(req, res, localAssetPath(rel));
   }
+  // the same short URLs vercel.json rewrites on the live site
+  if (pathname === '/read') return sendFile(req, res, path.join(root, 'read.html'));
+  if (/^\/@[\w.-]+\/?$/.test(pathname)) return sendFile(req, res, path.join(root, 'profile.html'));
+  if (pathname === '/studio') { res.writeHead(301, { Location: '/studio/' + u.search }); return res.end(); }
   const s = /^\/s\/([^/]+)\/?$/.exec(pathname);
   if (s) { req.url = '/api/page?slug=' + encodeURIComponent(s[1]); return page(req, res); }
   let rel = pathname; if (rel.endsWith('/')) rel += 'index.html'; if (rel === '') rel = '/index.html';
@@ -54,6 +58,6 @@ http.createServer((req, res) => {
   if (!file.startsWith(root + path.sep) || file.includes(path.sep + 'tools' + path.sep)) { res.writeHead(403); return res.end('forbidden'); }
   sendFile(req, res, file);
 }).listen(port, '0.0.0.0', () => {
-  console.log(`reader on http://localhost:${port}   (studio: /studio/)`);
+  console.log(`booooks on http://localhost:${port}   (reader: /read, studio: /studio/)`);
   for (const list of Object.values(os.networkInterfaces())) for (const a of list || []) if (a.family === 'IPv4' && !a.internal) console.log(`on your phone (same Wi-Fi): http://${a.address}:${port}`);
 });

@@ -52,7 +52,7 @@ function renderPreview() {
   store.set(PREVIEW, JSON.stringify(bundle().b));
   const shown = frames.querySelector('iframe.on'); let page = 0; try { page = shown?.contentWindow?.reader?.cur || 0; } catch { /* still loading */ }
   const next = document.createElement('iframe'); next.title = 'Live preview of your story'; next._seq = seq;
-  next.src = `/?preview=1&t=${Date.now()}${page ? '#' + page : ''}`;
+  next.src = `/read?preview=1&t=${Date.now()}${page ? '#' + page : ''}`;
   phone.classList.add('busy'); frames.append(next);
   let done = false;
   const reveal = () => {

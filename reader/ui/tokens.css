@@ -1,0 +1,103 @@
+/* booooks: the shared dark look for the front page, profiles and studio.
+   Structure and type from the Origin Financial "midnight gallery" system (serif display, clean sans, mono labels, flat surfaces, a blurred bar);
+   the loud parts from Impossible Foods (huge condensed headlines, colour-shifting type, wine and red, 15px pills).
+   Fonts are free stand-ins: Archivo (condensed) for the display face, Fraunces for the serif, Inter for the UI, Roboto Mono for labels. */
+
+:root {
+  color-scheme: dark;
+  --bg: #050506; --bg-1: #0b0b0d; --surface: #101012; --surface-2: #17171a; --line: #2a2a2e; --line-2: #3a3a40;
+  --text: #f6f3ee; --dim: #a9a7ae; --faint: #6d6c74;
+  --red: #e10600; --blush: #ffc7c6; --wine: #260212; --burgundy: #4f0423;
+  --iris: #847dff; --cyan: #00b3dd; --orchid: #dd90d8; --pale-iris: #d1c9ff; --deep-iris: #4b49aa; --peri: #90b8f0;
+  --accent: var(--red);          /* the page colour that sections, headlines and rules pick up; the front page changes it as you scroll */
+
+  --f-display: "Archivo", "Arial Narrow", Impact, system-ui, sans-serif;
+  --f-serif: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --f-ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --r-btn: 15px; --r-card: 16px; --r-tile: 30px;
+  --gutter: clamp(16px, 4vw, 48px);
+  --page: 1440px;
+  --nav-h: 64px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--bg); color: var(--text); -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--nav-h) + 12px); }
+body { margin: 0; min-height: 100vh; min-height: 100dvh; background: var(--bg); color: var(--text); font: 400 1rem/1.5 var(--f-ui); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: clip; }
+h1, h2, h3, h4, p, figure, ul, ol { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+img, canvas, svg { display: block; max-width: 100%; }
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+::selection { background: var(--red); color: #fff; }
+:focus-visible { outline: 2px solid var(--blush); outline-offset: 3px; border-radius: 6px; }
+[hidden] { display: none !important; }
+.vh { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---- type */
+.display { font-family: var(--f-display); font-weight: 900; font-stretch: 62%; text-transform: uppercase; line-height: 0.8; letter-spacing: 0.01em; }
+.serif { font-family: var(--f-serif); font-weight: 300; font-optical-sizing: auto; line-height: 1; letter-spacing: -0.015em; }
+.label { font: 500 0.72rem/1.2 var(--f-mono); text-transform: uppercase; letter-spacing: 0.14em; color: var(--dim); }
+.eyebrow { font: 500 0.75rem/1.2 var(--f-mono); text-transform: uppercase; letter-spacing: 0.16em; color: var(--accent); transition: color 0.6s var(--ease-out); }
+.eyebrow::before { content: "◂ "; } .eyebrow::after { content: " ▸"; }
+.lead { font: 400 clamp(1.05rem, 1.6vw, 1.3rem)/1.5 var(--f-ui); color: var(--dim); max-width: 46ch; }
+.accent { color: var(--accent); transition: color 0.6s var(--ease-out); }
+
+/* ---- buttons: white is the only primary action; red and ghost are the Impossible pair */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.6em; min-height: 52px; padding: 0 26px; border: 1px solid transparent; border-radius: var(--r-btn); background: #fff; color: #000; font: 600 0.95rem/1 var(--f-ui); letter-spacing: 0.01em; text-decoration: none; cursor: pointer; white-space: nowrap;
+  transition: transform 0.16s var(--ease-out), background-color 0.2s, color 0.2s, border-color 0.2s; -webkit-tap-highlight-color: transparent; }
+.btn:active { transform: scale(0.97); }
+.btn--ghost { background: transparent; color: var(--text); border-color: rgba(255, 255, 255, 0.4); }
+.btn--red { background: var(--red); color: #fff; }
+.btn--sm { min-height: 40px; padding: 0 18px; font-size: 0.85rem; }
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { background: var(--blush); }
+  .btn--ghost:hover { background: #fff; color: #000; border-color: #fff; }
+  .btn--red:hover { background: #ff3a2e; color: #fff; }
+}
+
+/* filter pills and category tabs */
+.pill { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border: 1px solid var(--line-2); border-radius: var(--r-btn); background: transparent; color: var(--text); font: 500 0.85rem/1 var(--f-ui); cursor: pointer; white-space: nowrap;
+  transition: transform 0.16s var(--ease-out), background-color 0.2s, color 0.2s, border-color 0.2s; }
+.pill:active { transform: scale(0.96); }
+.pill[aria-pressed="true"], .pill[aria-selected="true"] { background: #fff; color: #000; border-color: #fff; }
+.pill small { font: 500 0.7rem/1 var(--f-mono); opacity: 0.6; }
+@media (hover: hover) and (pointer: fine) { .pill:hover:not([aria-pressed="true"]):not([aria-selected="true"]) { border-color: #fff; } }
+
+/* ---- top bar: blurred, hairline under it */
+.nav { position: fixed; z-index: 50; inset: 0 0 auto 0; height: var(--nav-h); display: flex; align-items: center; gap: 24px; padding: 0 var(--gutter);
+  background: rgba(5, 5, 6, 0.55); -webkit-backdrop-filter: blur(24px) saturate(1.4); backdrop-filter: blur(24px) saturate(1.4); border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  transition: transform 0.4s var(--ease-drawer), background-color 0.3s; }
+.nav.is-hidden { transform: translateY(-100%); }
+.logo { font: 900 1.75rem/1 var(--f-display); font-stretch: 62%; text-transform: lowercase; letter-spacing: 0.01em; color: var(--text); text-decoration: none; }
+.logo i { font-style: normal; color: var(--accent); transition: color 0.6s var(--ease-out); }
+.nav-links { display: flex; gap: 4px; margin-left: 12px; }
+.nav-links a { padding: 10px 14px; border-radius: 10px; color: var(--dim); font: 500 0.88rem/1 var(--f-ui); text-decoration: none; transition: color 0.2s; }
+.nav-links a[aria-current="page"], .nav-links a.is-on { color: var(--text); }
+.nav .btn { margin-left: auto; min-height: 40px; padding: 0 20px; font-size: 0.88rem; }
+@media (hover: hover) and (pointer: fine) { .nav-links a:hover { color: var(--text); } }
+@media (max-width: 700px) { .nav-links { display: none; } .logo { font-size: 1.55rem; } }
+
+/* ---- marquee of words */
+.marquee { overflow: hidden; border-block: 1px solid var(--line); padding: 14px 0; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.marquee-track { display: flex; width: max-content; gap: 2.2rem; animation: marquee 48s linear infinite; }
+.marquee-track span { font: 500 0.78rem/1 var(--f-mono); text-transform: uppercase; letter-spacing: 0.18em; color: var(--dim); white-space: nowrap; }
+.marquee-track span::before { content: "✦"; margin-right: 2.2rem; color: var(--accent); }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* ---- shared page chrome */
+.wrap { width: min(var(--page), 100%); margin-inline: auto; padding-inline: var(--gutter); }
+.footer { border-top: 1px solid var(--line); padding: 56px var(--gutter) 40px; color: var(--dim); font-size: 0.85rem; }
+.footer .wrap { display: grid; gap: 28px; grid-template-columns: 1fr auto; align-items: end; padding: 0; }
+.footer a { color: var(--text); }
+@media (max-width: 700px) { .footer .wrap { grid-template-columns: 1fr; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation-duration: 240s; }
+  .btn, .pill, .nav { transition-duration: 0.01s; }
+}

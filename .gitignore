@@ -6,3 +6,6 @@ node_modules/
 
 # the Anatomy skill ships 10 MB of example figures; kept on this machine only (see .claude/skills/anatomy/SOURCE.md)
 .claude/skills/anatomy/examples/
+
+# painting sources downloaded by tools/fetch-art.mjs
+reader/tools/art/
