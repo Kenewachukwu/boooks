@@ -9,7 +9,7 @@ export function createDeck(root, items, { offsetX = 14, offsetY = 12, rotateStep
     const img = new Image(); img.src = b.cover; img.alt = `Cover of ${b.title}`; img.draggable = false; img.decoding = 'async';
     const cap = document.createElement('div'); cap.className = 'deck-cap';
     const g = document.createElement('span'); g.className = 'label'; g.textContent = `${b.genreName} · ${b.minutes} min`;
-    const t = document.createElement('strong'); t.textContent = b.title; cap.append(g, t);
+    const t = document.createElement('span'); t.className = 'label go'; t.textContent = 'Tap to read →'; cap.append(g, t);
     c.append(img, cap); root.append(c); return c;
   });
 

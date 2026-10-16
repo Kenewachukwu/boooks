@@ -26,7 +26,7 @@ wireCardOpen();
   const { genres, gById, profiles, books } = lib;
 
   // ---- hero count + spiral
-  const heroCount = $('heroCount'); heroCount.textContent = `${books.length} stories · ${lib.writers} writers`;
+  const heroCount = $('heroCount'); $('nStories').textContent = books.length; $('nWriters').textContent = lib.writers;
   const helixBooks = books.filter(b => b.cover);
   const helix = createHelix({ canvas: $('helix'), items: helixBooks, copy: $('heroCopy') });
   $('helixList').append(...helixBooks.map(b => { const li = el('li'), a = el('a', null, `${b.title} by ${b.author}`); a.href = b.href; li.append(a); return li; }));
@@ -85,7 +85,7 @@ wireCardOpen();
     const r = rows[i]; [...tabs.children].forEach((b, k) => b.setAttribute('aria-selected', String(k === i)));
     const t = tabs.children[i]; if (t) tabs.scrollTo({ left: t.offsetLeft - tabs.clientWidth / 2 + t.clientWidth / 2, behavior: reduced ? 'auto' : 'smooth' });
     nameEl.style.setProperty('--gc', r.color); nameEl.textContent = ''; const s = el('span', null, r.name); nameEl.append(s);
-    if (!reduced) s.animate([{ opacity: 0, transform: 'translate3d(0, 30px, 0)' }, { opacity: 1, transform: 'none' }], { duration: 560, easing: EASE });
+    if (!reduced) s.animate([{ opacity: 0, transform: 'translate3d(0, 30px, 0)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: EASE });
     meta.textContent = `${r.books.length} stories · ${r.books.reduce((n, b) => n + b.minutes, 0)} min`; go.dataset.id = r.id; $('genAccent').style.color = r.color;
     if (reelsInView) root.style.setProperty('--accent', r.color);
   } });
@@ -142,6 +142,6 @@ wireCardOpen();
   for (const a of navLinks) { const s = document.querySelector(a.getAttribute('href')); if (s) spy.observe(s); }
 
   await fontsReady; reveal();
-  new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { o.disconnect(); heroCount.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: 900, fill: 'backwards' }); } }).observe(heroCount);
-  void countUp; void clamp;
+  setTimeout(() => { countUp($('nStories'), books.length, 1200); countUp($('nWriters'), lib.writers, 1200); }, 700);
+  void clamp;
 })();

@@ -5,7 +5,7 @@ import { reduced, clamp, lerp, easeInOut, fitCanvas, onTabVisibility, loadCover,
 const hash = (a, b, c, d) => { let h = (a * 374761393 + b * 668265263 + c * 2147483647 + d * 1274126177) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); h ^= h >>> 16; return (h >>> 0) / 4294967296; };
 
 export function createWander({ canvas, books, onFocus, opts = {} }) {
-  const o = { cell: 110, density: 3, size: 15, range: 2, fogNear: 110, fogFar: 330, friction: 0.9, drift: 7, focalK: 0.95, autoZoom: reduced ? 0 : 0.16, ...opts };
+  const o = { cell: 110, density: 5, size: 17, range: 2, fogNear: 120, fogFar: 360, friction: 0.9, drift: 7, focalK: 0.95, autoZoom: reduced ? 0 : 0.16, ...opts };
   let W = 0, H = 0, ctx, running = false, raf = 0, last = 0;
   const cam = { x: 0, y: 0, z: 0 }, vel = { x: 0, y: 0, z: 0 }, mouse = { x: 0, y: 0 };
   let drag = null, flying = null, focused = null, planes = [];

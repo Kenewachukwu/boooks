@@ -88,10 +88,10 @@ export function openStory(href, fromEl, coverSrc) {
   const to = { transform: `translate3d(${tx}px, ${ty}px, 0) scale(1)`, clipPath: `inset(0px 0 0px 0 round ${phone ? 0 : 22}px)` };
   fly.style.transform = from.transform; fly.style.clipPath = from.clipPath;
   fromEl.style.visibility = 'hidden';
-  veil.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, easing: 'cubic-bezier(0.23, 1, 0.32, 1)', fill: 'forwards' });
-  const anim = fly.animate([from, to], { duration: 560, easing: 'cubic-bezier(0.77, 0, 0.175, 1)', fill: 'forwards' });
+  veil.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 360, easing: 'cubic-bezier(0.23, 1, 0.32, 1)', fill: 'forwards' });
+  const anim = fly.animate([from, to], { duration: 480, easing: 'cubic-bezier(0.77, 0, 0.175, 1)', fill: 'forwards' });
   let done = false; const finish = () => { if (!done) { done = true; go(); } };
-  anim.onfinish = finish; setTimeout(finish, 900);
+  anim.onfinish = finish; setTimeout(finish, 800);
   // if the reader is restored from the back/forward cache, put the card back
   addEventListener('pageshow', e => { if (e.persisted) { veil.remove(); fly.remove(); fromEl.style.visibility = ''; done = false; } }, { once: true });
 }

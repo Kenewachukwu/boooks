@@ -6,7 +6,7 @@ The book reading experience: a looping painted background, a sound bed, and one 
 node reader/serve.mjs        # http://localhost:5173, and a Wi-Fi address to open on your phone
 ```
 
-Open `http://localhost:5173/?sample` to read the small sample book. `#12` opens page 12.
+`/` is the front page (a spiral of covers, the feed, genre reels, writers, and a page-turning book that explains making your own). The reader itself is at `/read`: `/read?sample` opens the small sample book, and `#12` opens page 12. Every story, sample or published, also has its own link, `/s/<slug>`. Old links such as `/?story=rejuvenating` are forwarded to `/read?story=rejuvenating`.
 
 ## How it behaves
 - **Pages turn only when the reader scrolls.** Touch uses native scroll-snap. Wheel, trackpad and arrow keys turn exactly one page per gesture with an eased glide; a light nudge does nothing.
@@ -45,8 +45,8 @@ Each story is a JSON file (`data/*.json`) listed in `data/stories.json`, and nam
 
 | URL | Story | Template |
 |---|---|---|
-| `/` | *Rejuvenating*, Deborah Datoru (verse) | `night-field`: Caveat handwriting, gold on night blue, painted video loop |
-| `/?story=heart-break-and-hot-chocolate` | *Heart Break and Hot Chocolate*, the.introverted_she (prose) | `hot-chocolate`: DM Serif Display, Newsreader and Special Elite on grunge newsprint, effect background |
+| `/s/rejuvenating` (or `/read`) | *Rejuvenating*, Deborah Datoru (verse) | `night-field`: Caveat handwriting, gold on night blue, painted video loop |
+| `/s/heart-break-and-hot-chocolate` (or `/read?story=heart-break-and-hot-chocolate`) | *Heart Break and Hot Chocolate*, the.introverted_she (prose) | `hot-chocolate`: DM Serif Display, Newsreader and Special Elite on grunge newsprint, effect background |
 
 - **Verse** keeps every line and stanza break, and is paginated the same on every device. **Prose** runs sentences into paragraphs, uses one text size, and reflows to the real screen like an ebook (it re-paginates if the screen's shape changes a lot, for example on rotation).
 - Import prose with `node tools/build-story.mjs <paragraphs.txt> --title "..." --author "..." --source <url> --out data/<id>.json`. The author's wording and spelling are never changed.
@@ -61,7 +61,10 @@ Image effects drawn live by WebGL: give one any image and it draws the result, a
 - Stock photos (Pexels, Pinterest) are not wired in: both need an API key and a small server to call them, and Pinterest images need their licence checked. Until then, save the photo and upload it.
 
 ## Files
-- `index.html`, `reader.css`, `reader.js`, `templates.js`: the reader.
+- `read.html`, `reader.css`, `reader.js`, `templates.js`: the reader. `index.html` is the front page and `profile.html` a writer's page (`/@handle`).
+- `ui/`: the dark front-page system. `tokens.css` (palette, type, buttons), `motion.css`/`motion.js` (reveals, the cover that flies into the reader), `landing.*`, `profile.*`, `cards.*`, `data.js` (loads the library and `/api/stories`), and `ui/fx/` with the canvas effects: `helix.js` (the hero spiral), `reels.js` (genre rows), `wander.js` (the field of covers), `deck.js` (the swipe deck), `small.js` (rising ink, card tilt, scroll stack, the turning book). They are written from the documented behaviour of React Bits Pro components; no code is copied.
+- `data/library.json`, `data/seed/*.json`, `media/covers`, `media/photos`: the sample library (12 made-up writers, 24 short stories, the two real stories). Rebuild with `node tools/fetch-art.mjs && node tools/build-library.mjs && node tools/build-covers.mjs`. Cover art is public-domain paintings from Wikimedia Commons, listed in `tools/cover-art.json`.
+- `tools/page-audit.cjs`: layout audit for the front page, profiles and studio (expect 0 problems). `tools/overflow-audit.cjs` is the same for the reader.
 - `fx-lab.html`, `fx-lab.js`, `fx/`: the effects library and its editor.
 - `data/book.sample.json`: the page model (`kind`, `title`, `stanzas` of `lines` with `gap`).
 - `tools/build-story.mjs`: imports prose. `tools/build-book.mjs`: imports a poetry PDF into that model (titles = bold lines, vertical gaps = stanza breaks, wrapped lines re-joined).

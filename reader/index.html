@@ -8,10 +8,11 @@
 <meta name="theme-color" content="#050506">
 <meta property="og:type" content="website"><meta property="og:site_name" content="booooks"><meta property="og:title" content="booooks · stories that move">
 <meta property="og:description" content="Short stories and poems set as animated pages. Read free. Publish yours as one link.">
-<meta property="og:image" content="/media/covers/heart-break-and-hot-chocolate.jpg">
+<meta property="og:image" content="https://boooks-two.vercel.app/media/covers/heart-break-and-hot-chocolate.jpg">
 <meta name="twitter:card" content="summary">
 <!-- links shared before the front page existed (/?story=…, /?preview=…) still open the reader -->
 <script>(function () { var p = new URLSearchParams(location.search); if (p.has('story') || p.has('preview') || p.has('sample')) location.replace('/read' + location.search + location.hash); })();</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%23050506%27/%3E%3Ccircle cx=%2722%27 cy=%2736%27 r=%279%27 fill=%27none%27 stroke=%27%23e10600%27 stroke-width=%276%27/%3E%3Ccircle cx=%2744%27 cy=%2736%27 r=%279%27 fill=%27none%27 stroke=%27%23e10600%27 stroke-width=%276%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Inter:wght@400..650&family=Roboto+Mono:wght@400;500&display=swap">
@@ -49,7 +50,7 @@
         <a class="btn btn--ghost" href="/studio/">Publish yours</a>
       </div>
     </div>
-    <p class="hero-hint label" aria-hidden="true"><span>◂ drag the spiral ▸</span><span id="heroCount"></span></p>
+    <p class="hero-hint label" aria-hidden="true"><span>◂ drag the spiral ▸</span><span id="heroCount"><b id="nStories">0</b> stories · <b id="nWriters">0</b> writers</span></p>
     <ul class="vh" id="helixList" aria-label="All stories"></ul>
   </section>
 

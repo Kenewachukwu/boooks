@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="theme-color" content="#050506">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Effects lab · booooks</title>
 <style>
@@ -36,6 +37,19 @@
   .phone.drop { outline: 4px dashed var(--pink); outline-offset: -4px; }
   body.drop::after { content: "Drop the image to use it"; position: fixed; inset: 0; display: grid; place-items: center; background: rgba(250, 237, 143, 0.85); font: 700 28px/1.2 "Helvetica Neue", Arial, sans-serif; pointer-events: none; z-index: 10; }
   #msg.ok { color: #176b2c; }
+  /* dark theme, matching the rest of the product */
+  :root { color-scheme: dark; --pink: #e10600; --pale: #ffc7c6; --violet: #ffc7c6; --ink: #f6f3ee; --muted: #17171a; }
+  body { background: #050506; color: var(--ink); font-family: "Inter", "Helvetica Neue", Arial, system-ui, sans-serif; }
+  :focus-visible { outline-color: #ffc7c6; }
+  p.sub, .ctl output, .note { color: #a9a7ae; }
+  .chip { border: 1px solid #3a3a40; background: transparent; color: var(--ink); border-radius: 15px; }
+  .chip[aria-pressed="true"] { background: #fff; color: #000; border-color: #fff; box-shadow: none; }
+  .btn { background: #fff; color: #000; border-radius: 15px; } .btn.alt { background: transparent; color: var(--ink); border: 1px solid rgba(255, 255, 255, 0.4); }
+  input[type="text"] { background: #17171a; color: var(--ink); border: 1px solid #3a3a40; }
+  .ctl input[type="color"] { border-color: #3a3a40; }
+  #msg { color: #ff8a80; } #msg.ok { color: #62f0c2; }
+  pre { background: #101012; border: 1px solid #2a2a2e; color: #d9d6dc; }
+  body.drop::after { background: rgba(5, 5, 6, 0.9); color: #ffc7c6; }
 </style>
 </head>
 <body>
