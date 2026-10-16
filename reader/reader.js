@@ -3,7 +3,7 @@
 
 import { TEMPLATES, googleFontsUrl } from './templates.js';
 import { compose } from './lib/compose.js';
-import { pexelsCredit } from './lib/modes.js';
+import { photoCredit } from './lib/modes.js';
 
 const CONFIG = {
   registry: 'data/stories.json',
@@ -266,7 +266,7 @@ function buildEnd() {
   inner.append(pen('p', 'kicker', `${book.title} · ${book.author}`), pen('h2', null, 'The end'), rule(), pen('p', 'by', 'Thank you for reading.'), again);
   const others = registry.stories.filter(s => s.id !== entry.id);
   if (others.length) { const next = h('a', 'btn secondary', 'Read another story'); next.href = '/read?story=' + others[registry.stories.indexOf(entry) % others.length].id; inner.append(next); }
-  const credit = pexelsCredit(bundle?.meta?.photo);
+  const credit = photoCredit(bundle?.meta?.photo);
   if (credit) { const a = h('a', 'link', credit.text); a.href = credit.url; a.target = '_blank'; a.rel = 'noopener'; inner.append(a); }
   if (bundle && !bundle.preview) { const a = h('a', 'link', 'Make your own with booooks'); a.href = '/studio/'; inner.append(a); }
   if (book.source) { const src = h('a', 'link', 'Read the original on Medium'); src.href = book.source; src.target = '_blank'; src.rel = 'noopener'; inner.append(src); }

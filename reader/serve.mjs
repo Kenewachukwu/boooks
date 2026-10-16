@@ -2,7 +2,7 @@
 // The local stand-in for the Vercel site: static files with byte-range support (Safari needs it for video), the same /api functions,
 // and the /s/<slug> story pages (stories you publish here are saved under .data/ and never leave this machine).
 // It also prints the network address so the reader can be opened on a phone on the same Wi-Fi.
-// Secrets for local runs go in .env.local at the repo root (PEXELS_API_KEY=...). PEXELS_MOCK=1 returns one sample photo without a key.
+// Secrets for local runs go in .env.local at the repo root (PIXABAY_API_KEY=... or PEXELS_API_KEY=...). PEXELS_MOCK=1 returns one sample photo without a key.
 import http from 'http';
 import fs from 'fs';
 import os from 'os';
@@ -21,7 +21,7 @@ try { // .env.local at the repo root: KEY=value lines
   }
 } catch { /* no .env.local: fine */ }
 
-const api = { '/api/pexels': toNode(handlers.pexels), '/api/publish': toNode(handlers.publish), '/api/story': toNode(handlers.story), '/api/stories': toNode(handlers.stories) };
+const api = { '/api/photos': toNode(handlers.photos), '/api/pexels': toNode(handlers.pexels), '/api/publish': toNode(handlers.publish), '/api/story': toNode(handlers.story), '/api/stories': toNode(handlers.stories) };
 const page = toNode(handlers.page);
 
 function sendFile(req, res, file) {

@@ -1,6 +1,6 @@
 // Background "modes": how a creator picks a look without thinking about images or shaders. A mode names the kind of photo to pull from
-// Pexels, which effect to put on it, and whether the page is dark or light (so the text colours always contrast).
-// Shared by the studio, the reader and the server (the server only ever searches Pexels for a mode's own query).
+// the photo library (Pixabay, or Pexels), which effect to put on it, and whether the page is dark or light (so the text colours always contrast).
+// Shared by the studio, the reader and the server (the server only ever searches the photo library for a mode's own query).
 
 export const MODES = [
   { id: 'dark-abstract', name: 'Dark abstract', emoji: '🌑', query: 'dark abstract background', tone: 'dark', accent: '#ff5fa2', effect: 'flowing-gradient',
@@ -23,5 +23,7 @@ export const MODES = [
 
 export const modeById = id => MODES.find(m => m.id === id) || MODES[0];
 
-// Pexels asks that photos shown from its API are credited with a link back to Pexels; the reader shows this on the last page.
-export const pexelsCredit = photo => photo ? { text: `Photo by ${photo.photographer} on Pexels`, url: photo.pexelsUrl || 'https://www.pexels.com' } : null;
+// Pixabay and Pexels both appreciate a credit with a link back; the reader shows it on the last page, the studio next to the picker.
+export const PHOTO_SOURCES = { pixabay: { name: 'Pixabay', url: 'https://pixabay.com' }, pexels: { name: 'Pexels', url: 'https://www.pexels.com' } };
+export const photoCredit = photo => { if (!photo) return null; const src = PHOTO_SOURCES[photo.provider] || PHOTO_SOURCES.pexels; return { text: `Photo by ${photo.photographer} on ${src.name}`, url: photo.pageUrl || photo.pexelsUrl || src.url }; };
+export const pexelsCredit = photoCredit; // older name

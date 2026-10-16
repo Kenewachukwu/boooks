@@ -1,6 +1,6 @@
 // The creator studio: write (or upload) a book, pick a look, publish a link. Everything a reader will see is previewed live in a frame
 // by the real reader, so what the creator sees is what is published.
-import { MODES, modeById } from '../lib/modes.js';
+import { MODES, modeById, photoCredit, PHOTO_SOURCES } from '../lib/modes.js';
 import { GALLERY, templateById, compose, titleLines } from '../lib/compose.js';
 import { buildBook, readFile } from '../lib/import.js';
 import { EFFECTS, createFx } from '../fx/fx.js';
@@ -17,8 +17,8 @@ const slugify = t => String(t || '').normalize('NFKD').replace(/[̀-ͯ]/g, '').t
 const editKey = () => { let k = store.get(KEY); if (!k) { k = [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, '0')).join(''); store.set(KEY, k); } return k; };
 
 const S = { step: 1, title: '', author: '', text: '', layout: 'auto', templateId: 'newsprint', modeId: 'dark-abstract', effect: null, photos: [], photoIndex: -1, fbIndex: 0,
-  customImage: null, animate: true, sound: false, slug: '', slugTouched: false, published: null, pexels: null, genre: 'fiction', listed: true };
-try { Object.assign(S, JSON.parse(store.get(DRAFT) || '{}'), { photos: [], photoIndex: -1, customImage: null, step: 1, published: null, pexels: null }); } catch { /* a fresh start */ }
+  customImage: null, animate: true, sound: false, slug: '', slugTouched: false, published: null, photosOn: null, provider: 'pixabay', genre: 'fiction', listed: true };
+try { Object.assign(S, JSON.parse(store.get(DRAFT) || '{}'), { photos: [], photoIndex: -1, customImage: null, step: 1, published: null, photosOn: null }); } catch { /* a fresh start */ }
 
 // ---------- what the creator has chosen, as a story bundle (the same shape the server stores)
 const derived = () => buildBook({ title: S.title, author: S.author, text: S.text.trim() ? S.text : DEMO, layout: S.layout === 'auto' ? undefined : S.layout });
@@ -32,7 +32,7 @@ function bundle() {
   const { book, stats } = derived(), ph = currentPhoto(), mode = modeById(S.modeId), title = S.title || 'Your title';
   return { stats, b: { v: 1, book: { ...book, title, titleLines: titleLines(title), author: S.author || 'Your name', byline: 'by ' + (S.author || 'Your name') },
     style: { templateId: S.templateId, modeId: S.modeId, effect: S.effect || mode.effect, params: {}, layout: book.layout, seed: seedNow(), animate: S.animate, sound: S.sound ? 'media/night-field.wav' : null },
-    meta: { photo: ph ? { id: ph.id, photographer: ph.photographer, pexelsUrl: ph.pexelsUrl, url: ph.url } : null } } };
+    meta: { photo: ph ? { id: ph.id, provider: ph.provider || S.provider, photographer: ph.photographer, pageUrl: ph.pageUrl || ph.pexelsUrl, url: ph.url } : null } } };
 }
 
 // ---------- saving and the live preview
@@ -157,17 +157,18 @@ function paintPhotos() {
   box.replaceChildren(...S.photos.map((p, i) => { const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', String(!S.customImage && i === S.photoIndex)); b.style.backgroundImage = `url("${p.thumb}")`; b.setAttribute('aria-label', `Photo by ${p.photographer}`);
     b.addEventListener('click', () => { S.photoIndex = i; S.customImage = null; paintPhotos(); paintImgNote(); changed(150); }); return b; }));
   const ph = currentPhoto();
-  $('photoNote').textContent = S.customImage ? 'Using your own image.' : ph ? `Photo by ${ph.photographer} on Pexels` : S.pexels === false ? 'Photos switch on once a Pexels key is added. For now you get a built-in background.' : '';
+  const src = PHOTO_SOURCES[S.provider] || PHOTO_SOURCES.pixabay, cr = $('creditLink'); if (cr) { cr.textContent = src.name; cr.href = src.url; }
+  $('photoNote').textContent = S.customImage ? 'Using your own image.' : ph ? photoCredit({ ...ph, provider: ph.provider || S.provider }).text : S.photosOn === false ? 'Photos switch on once a photo key is added. For now you get a built-in background.' : '';
 }
 let photoToken = 0;
 async function loadPhotos() {
   const token = ++photoToken, id = S.modeId; $('photoNote').textContent = 'Finding a photo…';
   S.loadingPhoto = true; if (!$('frames').querySelector('iframe.on')) $('phoneNote').textContent = 'Finding a photo…';
   try {
-    const r = await fetch(`/api/pexels?mode=${encodeURIComponent(id)}`), j = await r.json();
+    const r = await fetch(`/api/photos?mode=${encodeURIComponent(id)}`), j = await r.json();
     if (token !== photoToken) return;
-    S.pexels = !!j.configured; S.photos = j.photos || []; S.photoIndex = S.photos.length ? Math.floor(Math.random() * S.photos.length) : -1;
-  } catch { if (token !== photoToken) return; S.pexels = false; S.photos = []; S.photoIndex = -1; }
+    S.photosOn = !!j.configured; if (j.provider) S.provider = j.provider; S.photos = j.photos || []; S.photoIndex = S.photos.length ? Math.floor(Math.random() * S.photos.length) : -1;
+  } catch { if (token !== photoToken) return; S.photosOn = false; S.photos = []; S.photoIndex = -1; }
   S.loadingPhoto = false; $('phoneNote').textContent = 'Your story appears here';
   paintPhotos(); changed(60);
 }

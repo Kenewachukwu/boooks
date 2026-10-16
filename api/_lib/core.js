@@ -23,7 +23,9 @@ const originOf = h => `${/localhost|127\.0\.0\.1|192\.168\./.test(h.host || '') 
 
 // ---- validation: rebuild the bundle from known fields only, so nothing unexpected is ever stored or served
 const str = (v, max, name) => { if (typeof v !== 'string' || !v.trim()) throw new Error(`${name} is missing.`); if (v.length > max) throw new Error(`${name} is too long.`); return v; };
-const okSeed = s => typeof s === 'string' && (SEEDS.some(x => x.id === s) || /^https:\/\/images\.pexels\.com\//.test(s) || /^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\//.test(s) || /^\/api\/asset\?path=[\w./-]+$/.test(s));
+const PIXABAY_IMG = /^https:\/\/(pixabay\.com\/get\/[\w.-]+|cdn\.pixabay\.com\/photo\/[\w./-]+)$/;
+const PHOTO_PAGE = /^https:\/\/(pixabay\.com|www\.pexels\.com)\//;
+const okSeed = s => typeof s === 'string' && (SEEDS.some(x => x.id === s) || /^https:\/\/images\.pexels\.com\//.test(s) || PIXABAY_IMG.test(s) || /^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\//.test(s) || /^\/api\/asset\?path=[\w./-]+$/.test(s));
 
 export function cleanBundle(b) {
   if (!b || b.v !== 1) throw new Error('This story is in a format we do not recognise.');
@@ -45,7 +47,8 @@ export function cleanBundle(b) {
   if (!okSeed(st.seed)) throw new Error('That background image cannot be used.');
   const params = {}; for (const [k, v] of Object.entries(st.params || {}).slice(0, 30)) if (/^[a-zA-Z0-9]{1,20}$/.test(k) && (isHex(v) || (typeof v === 'number' && isFinite(v)))) params[k] = v;
   const ph = b.meta?.photo;
-  const photo = ph && /^https:\/\/www\.pexels\.com\//.test(ph.pexelsUrl || '') ? { id: Number(ph.id) || 0, photographer: String(ph.photographer || '').slice(0, 80), pexelsUrl: ph.pexelsUrl, url: String(ph.url || '').slice(0, 300) } : null;
+  const page = ph && (ph.pageUrl || ph.pexelsUrl || '');
+  const photo = ph && PHOTO_PAGE.test(page) ? { id: Number(ph.id) || 0, provider: /pixabay\.com/.test(page) ? 'pixabay' : 'pexels', photographer: String(ph.photographer || '').slice(0, 80), pageUrl: page, url: /pixabay\.com/.test(page) ? '' : String(ph.url || '').slice(0, 300) } : null; // no Pixabay link is kept: the story holds its own copy of the picture
   return {
     v: 1,
     book: {
@@ -66,23 +69,38 @@ const parseDataUrl = (d, types, max) => {
 
 // ---- handlers
 export const handlers = {
-  async pexels({ url, env }) {
+  // GET /api/photos?mode=<mood>  ->  photos for a mood, from Pixabay (PIXABAY_API_KEY) or else Pexels (PEXELS_API_KEY).
+  // Every photo has the same shape whichever library it came from. /api/pexels is the older name for the same thing.
+  async photos({ url, env }) {
     const mode = MODES.find(m => m.id === url.searchParams.get('mode'));
     if (!mode) return { status: 400, json: { error: 'Unknown mode.' } };
     const page = Math.min(5, Math.max(1, parseInt(url.searchParams.get('page'), 10) || 1));
-    if (!env.PEXELS_API_KEY) {
-      if (env.PEXELS_MOCK) { // development only: a real Pexels file so the whole photo path can be tried without a key
-        const u = 'https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg';
-        return { json: { configured: true, mock: true, photos: [{ id: 1103970, url: u + '?auto=compress&cs=tinysrgb&w=1000', thumb: u + '?auto=compress&cs=tinysrgb&w=300', photographer: 'Pexels', pexelsUrl: 'https://www.pexels.com/photo/1103970/', alt: 'sample' }] } };
-      }
-      return { json: { configured: false, photos: [] } };
+    const cache = { 'cache-control': 'public, s-maxage=86400, stale-while-revalidate=86400' }; // Pixabay asks for results to be cached for a day
+    if (env.PIXABAY_API_KEY) {
+      const ask = async vertical => {
+        const q = new URLSearchParams({ key: env.PIXABAY_API_KEY, q: mode.query.slice(0, 100), image_type: 'photo', safesearch: 'true', per_page: '24', page: String(page), min_width: '600', ...(vertical ? { orientation: 'vertical', min_height: '900' } : {}) });
+        const r = await fetch('https://pixabay.com/api/?' + q); if (!r.ok) return { fail: r.status, hits: [] }; return r.json();
+      };
+      let d = await ask(true); if (d.fail) return { status: 502, json: { configured: true, photos: [], error: 'Pixabay did not answer (' + d.fail + ').' } };
+      if ((d.hits || []).length < 6) { const more = await ask(false); if (!more.fail) d = { hits: [...(d.hits || []), ...(more.hits || [])] }; } // few tall photos for this mood: let wide ones in too (they are cropped)
+      const seen = new Set();
+      const photos = (d.hits || []).filter(h => !seen.has(h.id) && seen.add(h.id)).slice(0, 24).map(h => ({ provider: 'pixabay', id: h.id, url: h.largeImageURL, thumb: h.previewURL, photographer: h.user, photographerUrl: `https://pixabay.com/users/${h.user}-${h.user_id}/`, pageUrl: h.pageURL, alt: h.tags || '' }));
+      return { headers: cache, json: { configured: true, provider: 'pixabay', photos } };
     }
-    const r = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(mode.query)}&orientation=portrait&size=large&per_page=18&page=${page}`, { headers: { Authorization: env.PEXELS_API_KEY } });
-    if (!r.ok) return { status: 502, json: { configured: true, photos: [], error: 'Pexels did not answer (' + r.status + ').' } };
-    const d = await r.json();
-    return { headers: { 'cache-control': 'public, s-maxage=3600, stale-while-revalidate=86400' }, json: { configured: true, photos: (d.photos || []).map(p => ({
-      id: p.id, url: p.src.portrait, thumb: p.src.medium, photographer: p.photographer, photographerUrl: p.photographer_url, pexelsUrl: p.url, alt: p.alt || '', color: p.avg_color })) } };
+    if (env.PEXELS_API_KEY) {
+      const r = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(mode.query)}&orientation=portrait&size=large&per_page=18&page=${page}`, { headers: { Authorization: env.PEXELS_API_KEY } });
+      if (!r.ok) return { status: 502, json: { configured: true, photos: [], error: 'Pexels did not answer (' + r.status + ').' } };
+      const d = await r.json();
+      return { headers: { 'cache-control': 'public, s-maxage=3600, stale-while-revalidate=86400' }, json: { configured: true, provider: 'pexels', photos: (d.photos || []).map(p => ({
+        provider: 'pexels', id: p.id, url: p.src.portrait, thumb: p.src.medium, photographer: p.photographer, photographerUrl: p.photographer_url, pageUrl: p.url, alt: p.alt || '', color: p.avg_color })) } };
+    }
+    if (env.PEXELS_MOCK) { // development only: one real photo so the whole photo path can be tried without a key
+      const u = 'https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg';
+      return { json: { configured: true, mock: true, provider: 'pexels', photos: [{ provider: 'pexels', id: 1103970, url: u + '?auto=compress&cs=tinysrgb&w=1000', thumb: u + '?auto=compress&cs=tinysrgb&w=300', photographer: 'Pexels', pageUrl: 'https://www.pexels.com/photo/1103970/', alt: 'sample' }] } };
+    }
+    return { json: { configured: false, photos: [] } };
   },
+  async pexels(args) { return handlers.photos(args); },
 
   async publish({ method, body, headers, env }) {
     if (method !== 'POST') return { status: 405, json: { error: 'Use POST.' } };
@@ -102,6 +120,12 @@ export const handlers = {
     }
     try {
       if (body.image) { const { type, buf } = parseDataUrl(body.image, ['image/jpeg', 'image/png', 'image/webp'], 1_800_000); bundle.style.seed = await store.putImage(`${slug}-bg-${randomBytes(3).toString('hex')}.${type.split('/')[1]}`, buf, type); }
+      else if (PIXABAY_IMG.test(bundle.style.seed)) { // Pixabay does not allow permanent hot-linking, so the story keeps its own copy of the photo
+        const r = await fetch(bundle.style.seed, { headers: { 'user-agent': 'booooks/0.1' } }), type = (r.headers.get('content-type') || '').split(';')[0];
+        if (!r.ok || !/^image\/(jpeg|png|webp)$/.test(type)) throw new Error('That photo could not be fetched. Please pick another one.');
+        const buf = Buffer.from(await r.arrayBuffer()); if (buf.length > 4_000_000) throw new Error('That photo is too large. Please pick another one.');
+        bundle.style.seed = await store.putImage(`${slug}-bg-${randomBytes(3).toString('hex')}.${type.split('/')[1]}`, buf, type);
+      }
       let cardUrl = existing?.cardUrl || null, coverUrl = existing?.coverUrl || null;
       if (body.card) { const { type, buf } = parseDataUrl(body.card, ['image/jpeg'], 400_000); cardUrl = await store.putImage(`${slug}-card-${randomBytes(3).toString('hex')}.jpg`, buf, type); }
       if (body.cover) { const { type, buf } = parseDataUrl(body.cover, ['image/jpeg'], 300_000); coverUrl = await store.putImage(`${slug}-cover-${randomBytes(3).toString('hex')}.jpg`, buf, type); }

@@ -23,7 +23,7 @@ node reader/serve.mjs        # http://localhost:5173, and a Wi-Fi address to ope
 A three-step flow for a creator: **write** (type, paste, or upload a PDF, Word, text or markdown file), **pick a look** (a template, a background mood, optional advanced choices), **publish** (a link). A live preview runs the real reader in a frame, so what you see is what is published.
 
 - **Import** (`lib/import.js`): detects poems or story, rebuilds paragraphs from a PDF's layout, never changes the author's words.
-- **Moods** (`lib/modes.js`): each mood searches Pexels for matching photos and puts an effect on one. Advanced: use your own image, change the effect, switch the text animation and the ambient sound.
+- **Moods** (`lib/modes.js`): each mood searches Pixabay (or Pexels) for matching photos and puts an effect on one. Advanced: use your own image, change the effect, switch the text animation and the ambient sound.
 - **Publishing**: `POST /api/publish` stores the story and a 1200x630 share card, and returns `/s/<slug>`. The same browser can update its own story (an edit key kept in localStorage; only a hash is stored). Link previews in chat apps show the title and card.
 - **Text animation** can be off by default (creator) and is switchable by each reader from the sparkle button; the reader's choice is remembered.
 - The look is liquid-glass accents on flat Aardvark-style colour blocks, in MD Nichrome (see `fonts/README.md`).
@@ -32,10 +32,10 @@ A three-step flow for a creator: **write** (type, paste, or upload a PDF, Word, 
 `node reader/tools/overflow-audit.cjs out.json` loads the reader with awkward stories (long titles and names, unbreakable links, long verse lines, 40 paragraphs) in every template at four screen sizes and reports any text that leaves its page. It should say `runs with problems: 0`; run it after any change to text, templates or layout.
 
 ### Running it locally
-`node reader/serve.mjs` serves the site and the same API. Published stories are saved under `.data/` (not committed). For a sample photo without a key, put `PEXELS_MOCK=1` in `.env.local` at the repo root; for real photos put `PEXELS_API_KEY=...` there.
+`node reader/serve.mjs` serves the site and the same API. Published stories are saved under `.data/` (not committed). For a sample photo without a key, put `PEXELS_MOCK=1` in `.env.local` at the repo root; for real photos put `PIXABAY_API_KEY=...` (or `PEXELS_API_KEY=...`) there. The studio asks `/api/photos`, which uses Pixabay when its key is set, else Pexels.
 
 ### Switching it on at Vercel
-1. **Pexels**: Project Settings, Environment Variables, add `PEXELS_API_KEY` (a free key from pexels.com/api).
+1. **Photos**: Project Settings, Environment Variables, add `PIXABAY_API_KEY` (a free key from pixabay.com/api/docs) or `PEXELS_API_KEY`. Pixabay does not allow permanent hot-linking, so when a story is published the server saves its own copy of the chosen photo to the Blob store; the credit line ("Photo by … on Pixabay") stays on the last page.
 2. **Publishing**: Project, Storage, Create a **Blob** store and connect it to this project (this adds `BLOB_READ_WRITE_TOKEN`). Without it, `/api/publish` answers that publishing is not set up yet.
 3. Redeploy. Published stories live at `/s/<slug>`; the rewrite is in `vercel.json`.
 - No sign-in yet: anyone can publish. Add accounts and rate limits (Turnstile) before opening it widely.
