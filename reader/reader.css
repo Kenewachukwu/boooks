@@ -42,6 +42,12 @@ body { display: grid; place-items: center; overflow: hidden; }
 /* --stage-bg is also what shows if the background cannot load */
 .scrim { position: absolute; inset: 0; pointer-events: none; background: var(--scrim); }
 
+/* the cover that flew in from the front page holds the screen, the same size as the stage, until the reader is ready */
+.splash { display: none; position: fixed; z-index: 60; left: 50%; top: 50%; transform: translate(-50%, -50%); height: 100vh; height: 100dvh; width: min(100vw, calc(100dvh * 9 / 16)); background: #0b0b0f center / cover no-repeat; pointer-events: none; transition: opacity 0.7s var(--ease-out); }
+.splash.on { display: block; }
+.splash.gone { opacity: 0; }
+@media (min-width: 600px) { .splash { border-radius: 22px; height: min(100dvh, 960px); width: min(100vw, calc(min(100dvh, 960px) * 9 / 16)); } }
+
 /* ---- HUD: loading-style progress, rolling counter, sound */
 .bar { position: absolute; z-index: 6; top: env(safe-area-inset-top, 0px); left: 0; right: 0; height: 3px; background: var(--bar-bg); }
 .bar i { display: block; height: 100%; background: var(--bar-fill); transform-origin: 0 50%; transform: scaleX(0); will-change: transform; transition: background 0.4s; }

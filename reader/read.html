@@ -12,6 +12,9 @@
 <link rel="stylesheet" href="reader.css">
 </head>
 <body>
+<!-- when a reader arrives from a cover on the front page, that same cover holds the screen until the story is ready -->
+<div class="splash" id="splash" aria-hidden="true"></div>
+<script>(function () { var s = document.getElementById('splash'); try { var f = JSON.parse(sessionStorage.getItem('booooks.fly') || 'null'); sessionStorage.removeItem('booooks.fly'); if (f && Date.now() - f.t < 8000 && /^[\w\/.:%?=&-]+$/.test(f.src)) { s.style.backgroundImage = 'url("' + f.src + '")'; s.className = 'splash on'; setTimeout(function () { s.remove(); }, 9000); return; } } catch (e) { /* no splash */ } s.remove(); })();</script>
 <main class="stage" id="stage">
   <div class="scrim"></div>
 

@@ -1,0 +1,44 @@
+/* writer profile: who they are on one side, their books as a swipe deck on the other */
+.fonts-wait .who h1, .fonts-wait .sec-h { visibility: hidden; }
+.prof { min-height: 100vh; min-height: 100svh; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: clamp(24px, 6vw, 96px); align-items: center; max-width: var(--page); margin-inline: auto; padding: calc(var(--nav-h) + 40px) var(--gutter) 64px; }
+.who { display: grid; gap: 22px; justify-items: start; }
+.back { text-decoration: none; transition: color 0.2s; }
+.who-top { display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap; }
+.who h1 { font-size: clamp(3.6rem, 9vw, 8.4rem); line-height: 0.8; }
+.who .eyebrow::before, .who .eyebrow::after { content: ""; }
+.who .eyebrow { text-transform: none; letter-spacing: 0.08em; margin-bottom: 14px; }
+.avatar { display: grid; place-items: center; border-radius: 50%; font: 900 1.4rem/1 var(--f-display); font-stretch: 70%; color: #0b0b0d; background: linear-gradient(135deg, var(--a1), var(--a2)); aspect-ratio: 1; }
+.avatar.big { width: clamp(64px, 9vw, 104px); font-size: clamp(1.4rem, 3.4vw, 2.4rem); flex: none; }
+.bio { font-size: clamp(1.3rem, 2.4vw, 2rem); max-width: 28ch; color: #e6e3ea; text-wrap: balance; }
+.meta { display: flex; gap: 16px; flex-wrap: wrap; }
+.who-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.deckbox { display: grid; justify-items: center; gap: 22px; }
+.deck { position: relative; width: min(340px, 74vw); aspect-ratio: 2 / 3; margin: 0 28px 26px 0; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.deck-card { position: absolute; inset: 0; border-radius: 18px; overflow: hidden; background: var(--surface-2); box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55); transform-origin: 50% 100%; transition: transform 0.55s cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.4s var(--ease-out); cursor: grab; touch-action: pan-y; outline: none; will-change: transform; }
+.deck-card.is-front:active { cursor: grabbing; }
+.deck-card:focus-visible { outline: 2px solid var(--blush); outline-offset: 4px; }
+.deck-card img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.deck-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 60px 18px 16px; display: grid; gap: 4px; background: linear-gradient(to top, rgba(5, 5, 6, 0.85), rgba(5, 5, 6, 0)); opacity: 0; transform: translate3d(0, 8px, 0); transition: opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out); pointer-events: none; }
+.deck-cap strong { font: 300 1.2rem/1.05 var(--f-serif); }
+.deck-card.is-front .deck-cap { opacity: 1; transform: none; }
+.deck-card:not(.is-front) img { filter: brightness(0.7); }
+.deck-ui { display: flex; align-items: center; gap: 16px; }
+.deck-ui .pill { min-width: 44px; justify-content: center; }
+.hint { transition: opacity 0.4s; }
+.hint.is-gone { opacity: 0; }
+
+.all { padding-block: 40px 90px; border-top: 1px solid var(--line); }
+.all .sec-h { margin-bottom: 36px; font-size: clamp(2.6rem, 6vw, 5rem); }
+.missing { min-height: 70vh; display: grid; align-items: center; padding-top: var(--nav-h); }
+.missing .wrap { display: grid; gap: 18px; justify-items: start; }
+
+@media (max-width: 860px) {
+  .prof { grid-template-columns: 1fr; padding-top: calc(var(--nav-h) + 20px); gap: 36px; }
+  .deckbox { order: -1; }
+  .deck { width: min(300px, 70vw); }
+}
+@media (hover: hover) and (pointer: fine) {
+  .back:hover { color: var(--text); }
+}
+@media (prefers-reduced-motion: reduce) { .deck-card { transition: opacity 0.2s linear; } }

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en" class="fonts-wait">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Writer · booooks</title>
+<meta name="description" content="A writer on booooks, with their stories as a deck you can swipe through.">
+<meta name="theme-color" content="#050506">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Inter:wght@400..650&family=Roboto+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/ui/tokens.css">
+<link rel="stylesheet" href="/ui/motion.css">
+<link rel="stylesheet" href="/ui/cards.css">
+<link rel="stylesheet" href="/ui/profile.css">
+</head>
+<body class="profile-page">
+<header class="nav" id="nav">
+  <a class="logo" href="/" aria-label="booooks home">bo<i>oo</i>ks</a>
+  <nav class="nav-links" aria-label="Main"><a href="/#feed">Stories</a><a href="/#genres">Genres</a><a href="/#creators">Writers</a></nav>
+  <a class="btn btn--sm" href="/studio/">Create</a>
+</header>
+
+<main class="prof" id="prof">
+  <section class="who" aria-labelledby="name">
+    <a class="back label" href="/#creators">◂ all writers</a>
+    <div class="who-top"><span class="avatar big" id="avatar"></span>
+      <div><p class="eyebrow" id="handle"></p><h1 id="name" class="display lines"><span class="ln"><span id="nameText"></span></span></h1></div></div>
+    <p class="serif bio" id="bio"></p>
+    <p class="label meta" id="meta"></p>
+    <div class="who-cta"><a class="btn" id="readLatest" href="/">Read the latest</a><button class="btn btn--ghost" id="share" type="button">Copy profile link</button></div>
+  </section>
+
+  <section class="deckbox" aria-label="Their stories, as a deck. Swipe or use the arrow keys.">
+    <div class="deck" id="deck" role="group" aria-roledescription="carousel" tabindex="-1"></div>
+    <div class="deck-ui">
+      <button class="pill" id="prev" type="button" aria-label="Previous story">◂</button>
+      <p class="label" id="deckCount" role="status"></p>
+      <button class="pill" id="next" type="button" aria-label="Next story">▸</button>
+    </div>
+    <p class="label hint" id="hint">◂ swipe ▸</p>
+  </section>
+</main>
+
+<section class="all" id="all" aria-labelledby="allH" hidden>
+  <div class="wrap">
+    <h2 id="allH" class="display sec-h">All stories</h2>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<section class="missing" id="missing" hidden>
+  <div class="wrap"><p class="eyebrow">not found</p><h1 class="display sec-h">No writer here.</h1><p class="lead">We could not find that profile. Try the list of writers.</p><a class="btn" href="/#creators">See the writers</a></div>
+</section>
+
+<footer class="footer"><div class="wrap"><div><a class="logo" href="/" aria-label="booooks home">bo<i>oo</i>ks</a><p>Stories that move. Sample writers and stories are made up for this preview.</p></div><p><a href="/studio/">Create a story</a> · <a href="/">Home</a></p></div></footer>
+<script type="module" src="/ui/profile.js"></script>
+</body>
+</html>

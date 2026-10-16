@@ -5,6 +5,7 @@ import { GALLERY, templateById, compose, titleLines } from '../lib/compose.js';
 import { buildBook, readFile } from '../lib/import.js';
 import { EFFECTS, createFx } from '../fx/fx.js';
 import { loadSeed } from '../fx/seeds.js';
+import { MINE_KEY, readMine } from '../ui/data.js';
 
 const $ = id => document.getElementById(id);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -16,7 +17,7 @@ const slugify = t => String(t || '').normalize('NFKD').replace(/[̀-ͯ]/g, '').t
 const editKey = () => { let k = store.get(KEY); if (!k) { k = [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, '0')).join(''); store.set(KEY, k); } return k; };
 
 const S = { step: 1, title: '', author: '', text: '', layout: 'auto', templateId: 'newsprint', modeId: 'dark-abstract', effect: null, photos: [], photoIndex: -1, fbIndex: 0,
-  customImage: null, animate: true, sound: false, slug: '', slugTouched: false, published: null, pexels: null };
+  customImage: null, animate: true, sound: false, slug: '', slugTouched: false, published: null, pexels: null, genre: 'fiction', listed: true };
 try { Object.assign(S, JSON.parse(store.get(DRAFT) || '{}'), { photos: [], photoIndex: -1, customImage: null, step: 1, published: null, pexels: null }); } catch { /* a fresh start */ }
 
 // ---------- what the creator has chosen, as a story bundle (the same shape the server stores)
@@ -39,7 +40,7 @@ let saveT = 0, previewT = 0;
 const saved = $('saved');
 function saveDraft() {
   clearTimeout(saveT); saved.textContent = 'Saving…';
-  saveT = setTimeout(() => { const { title, author, text, layout, templateId, modeId, effect, animate, sound, slug, slugTouched, fbIndex } = S; store.set(DRAFT, JSON.stringify({ title, author, text, layout, templateId, modeId, effect, animate, sound, slug, slugTouched, fbIndex })); saved.textContent = 'Draft saved'; }, 400);
+  saveT = setTimeout(() => { const { title, author, text, layout, templateId, modeId, effect, animate, sound, slug, slugTouched, fbIndex, genre, listed } = S; store.set(DRAFT, JSON.stringify({ title, author, text, layout, templateId, modeId, effect, animate, sound, slug, slugTouched, fbIndex, genre, listed })); saved.textContent = 'Draft saved'; }, 400);
 }
 // The preview is the real reader in a frame. A change loads the new version in a second frame behind the first and swaps them when the
 // reader reports it is ready, on the page the creator was looking at. Nothing is previewed while the chosen photo is still being found,
@@ -72,7 +73,8 @@ const changed = (delay) => { saveDraft(); preview(delay); };
 function swap(run, back) {
   if (!document.startViewTransition || reduced) { run(); return; }
   document.documentElement.classList.toggle('back', !!back);
-  try { const t = document.startViewTransition(run); t.ready.catch(() => {}); t.finished.catch(() => {}); t.updateCallbackDone.catch(() => {}); } catch { run(); }
+  const cls = document.documentElement.classList; cls.add('vt-step');
+  try { const t = document.startViewTransition(run); t.ready.catch(() => {}); t.updateCallbackDone.catch(() => {}); t.finished.catch(() => {}).finally(() => cls.remove('vt-step')); } catch { cls.remove('vt-step'); run(); }
 }
 
 // ---------- steps, with page transitions
@@ -203,6 +205,12 @@ function paintGlance() {
   $('glance').replaceChildren(...rows.map(([e, s]) => { const li = document.createElement('li'); li.innerHTML = `<span>${e}</span><span></span>`; li.lastChild.textContent = s; return li; }));
   if (!S.slugTouched) S.slug = slugify(S.title); $('slug').value = S.slug;
 }
+fetch('/data/library.json').then(r => r.json()).then(lib => {
+  const box = $('genreChips'); if (!box) return;
+  box.replaceChildren(...lib.genres.map(g => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = g.name; b.dataset.id = g.id; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', String(g.id === S.genre)); b.style.setProperty('--gc', g.color); return b; }));
+  box.addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; S.genre = b.dataset.id; box.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-checked', String(c === b))); saveDraft(); });
+}).catch(() => {});
+$('listed').checked = S.listed; $('listed').addEventListener('change', e => { S.listed = e.target.checked; saveDraft(); });
 $('slug').addEventListener('input', e => { S.slugTouched = true; S.slug = slugify(e.target.value); e.target.value = S.slug; saveDraft(); });
 
 async function renderCard(b, seedOverride) {
@@ -230,6 +238,29 @@ async function renderCard(b, seedOverride) {
   } finally { host.remove(); }
 }
 
+// the portrait cover shown in the feed and on the front page: the picture with its effect, then the title and name
+async function renderCover(b, seedOverride) {
+  const W = 480, H = 720, t = compose(b.style), v = t.vars;
+  const host = document.createElement('div'); host.style.cssText = `position:fixed;left:-99999px;top:0;width:${W}px;height:${H}px`;
+  const cv = document.createElement('canvas'); cv.style.cssText = 'display:block;width:100%;height:100%'; host.append(cv); document.body.append(host);
+  try {
+    const fx = createFx(cv, { maxRows: 3000 });
+    let img; try { img = await loadSeed(seedOverride || b.style.seed); } catch { img = await loadSeed(modeById(b.style.modeId).fallback); }
+    fx.setImage(img); fx.setEffect(t.background.effect, t.background.params); fx.setProgress(0.3); fx.draw(3);
+    const out = document.createElement('canvas'); out.width = W; out.height = H; const x = out.getContext('2d'); x.drawImage(cv, 0, 0, W, H);
+    const g = x.createLinearGradient(0, H * 0.3, 0, H); g.addColorStop(0, 'rgba(5,5,6,0)'); g.addColorStop(1, 'rgba(5,5,6,0.9)'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+    await Promise.all(t.fonts.load.map(f => document.fonts.load(f).catch(() => {})));
+    const up = v['--title-transform'] === 'uppercase', lines = b.book.titleLines || [b.book.title], font = s => `${v['--title-style']} ${v['--title-weight']} ${s}px ${v['--font-title']}`;
+    let size = 76; for (; size > 30; size -= 2) { x.font = font(size); if (Math.max(...lines.map(l => x.measureText(up ? l.toUpperCase() : l).width)) <= W - 70 && lines.length * size * 0.98 < H * 0.42) break; }
+    const lh = size * 0.98; let y = H - 78 - (lines.length - 1) * lh; x.textBaseline = 'alphabetic'; x.shadowColor = 'rgba(0,0,0,0.5)'; x.shadowBlur = 14;
+    x.font = font(size); x.fillStyle = '#ffffff'; for (const l of lines) { x.fillText(up ? l.toUpperCase() : l, 34, y); y += lh; }
+    x.shadowBlur = 0; x.fillStyle = v['--accent']; x.fillRect(34, y - lh + size * 0.28, 44, 4);
+    x.font = `500 15px ${v['--ui'] || v['--font-body']}`; x.fillStyle = '#e8e4ec'; x.fillText(b.book.author.toUpperCase().split('').join(String.fromCharCode(8202)), 34, H - 30);
+    let q = 0.82, url = out.toDataURL('image/jpeg', q); while (url.length > 240000 && q > 0.45) { q -= 0.1; url = out.toDataURL('image/jpeg', q); }
+    return url;
+  } finally { host.remove(); }
+}
+
 async function publish() {
   const err = $('error'), btn = $('publish'); err.hidden = true;
   if (!validateStep1()) { go(1); return; }
@@ -237,11 +268,12 @@ async function publish() {
   try {
     const { b } = bundle();
     const image = S.customImage; if (image) b.style.seed = 'dusk';
-    const card = await renderCard(b, image || undefined);
-    const r = await fetch('/api/publish', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ bundle: b, key: editKey(), slug: S.slug || undefined, card, image: image || undefined }) });
+    const [card, cover] = await Promise.all([renderCard(b, image || undefined), renderCover(b, image || undefined).catch(() => undefined)]);
+    const r = await fetch('/api/publish', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ bundle: b, key: editKey(), slug: S.slug || undefined, card, cover, genre: S.genre, listed: S.listed, image: image || undefined }) });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(j.error || 'Could not publish. Please try again.');
     S.published = j; if (j.slug) { S.slug = j.slug; S.slugTouched = true; saveDraft(); }
+    try { const mine = readMine().filter(m => m.slug !== j.slug); mine.unshift({ slug: j.slug, title: S.title, author: S.author, at: Date.now() }); localStorage.setItem(MINE_KEY, JSON.stringify(mine.slice(0, 12))); } catch { /* private mode */ }
     showLive(j, card, b);
   } catch (e) { err.textContent = e.message; err.hidden = false; }
   finally { btn.disabled = false; btn.textContent = 'Publish ✨'; }
@@ -256,7 +288,7 @@ function showLive(j, card, b) {
     $('liveTags').replaceChildren(...[['t-green', `${stats.layout === 'prose' ? '📖 Story' : '✍️ Poems'}`], ['t-violet', `🎨 ${t.name}`], ['t-black', `${m.emoji} ${m.name}`], ['t-olive', `🕑 ${stats.minutes} min`]].map(([c, s]) => { const e = document.createElement('span'); e.className = 'tag ' + c; e.textContent = s; return e; }));
     $('liveCard').src = card;
     const a = $('liveLink'); a.href = j.url; a.textContent = j.url.replace(/^https?:\/\//, ''); $('open').href = j.url;
-    $('share').hidden = !navigator.share;
+    $('share').hidden = !navigator.share; $('feedLink').hidden = !S.listed;
     $('liveNote').textContent = j.updated ? 'Updated. The same link now shows your latest version.' : (S.slug && j.slug !== S.slug ? `That link was taken, so we used /s/${j.slug}.` : 'Your story is live. Anyone with this link can read it.');
     $('liveGlance').replaceChildren(...[['🕑', `About ${stats.minutes} min to read, ${stats.words.toLocaleString()} words`], ['🎨', `${t.name} template, ${m.name.toLowerCase()} mood`], ['✨', S.animate ? 'Animated text (readers can turn it off)' : 'Animation off by default'], ['📱', 'Made for phones: swipe up to read']].map(([e, s]) => { const li = document.createElement('li'); li.innerHTML = `<span>${e}</span><span></span>`; li.lastChild.textContent = s; return li; }));
     const first = derived().book.pages[1].stanzas.slice(0, 2).map(s => s.lines.join(S.layout === 'verse' ? '\n' : ' ')).join('\n\n');

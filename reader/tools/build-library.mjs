@@ -35,7 +35,7 @@ for (const b of BOOKS) {
     v: 1,
     book: { title: b.title, titleLines: titleLines(b.title), author, byline: 'by ' + author, kicker: b.kind === 'prose' ? 'A short story' : 'A book of poems', layout: b.kind,
       pages: [{ n: 1, kind: 'cover' }, { n: 2, kind: 'poem', title: null, stanzas: stanzasOf(b.text, b.kind) }] },
-    style: { templateId: b.template, modeId: b.mood, effect: mode.effect, params: {}, seed: `/media/photos/${b.slug}.jpg`, animate: true, sound: null, layout: b.kind },
+    style: { templateId: b.template, modeId: b.mood, effect: mode.effect, params: b.photo ? { photo: b.photo } : {}, seed: `/media/photos/${b.slug}.jpg`, animate: true, sound: null, layout: b.kind },
     meta: { photo: null },
   };
   fs.writeFileSync(path.join(data, 'seed', b.slug + '.json'), JSON.stringify(bundle));

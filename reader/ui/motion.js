@@ -71,7 +71,7 @@ export function roundRect(ctx, x, y, w, h, r) {
 // ---- opening a story: the cover lifts out of its card, grows to the size of the reader's screen, and the reader takes over.
 // The reader is a 9:16 stage (full screen on a phone, a phone-shaped column on a desktop), so that is where the cover lands.
 export function openStory(href, fromEl, coverSrc) {
-  const go = () => { location.href = href; };
+  const go = () => { try { if (coverSrc) sessionStorage.setItem('booooks.fly', JSON.stringify({ src: (u => (u.origin === location.origin ? u.pathname + u.search : u.href))(new URL(coverSrc, location.href)), t: Date.now() })); } catch { /* private mode */ } location.href = href; };
   if (reduced || !fromEl || !coverSrc || !fromEl.getBoundingClientRect) return go();
   const a = fromEl.getBoundingClientRect(); if (!a.width) return go();
   const vw = innerWidth, vh = innerHeight, phone = vw < 600;

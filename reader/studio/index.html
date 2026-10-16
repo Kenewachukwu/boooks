@@ -5,17 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>booooks studio · make your book move</title>
 <meta name="description" content="Type or upload your book, pick a look, and publish a link where it reads as an animated story.">
-<meta name="theme-color" content="#fddaa6">
+<meta name="theme-color" content="#050506">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Archivo (condensed) stands in for MD Nichrome until its licensed files are added in /fonts (see fonts/README.md) -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Inter:wght@400..650&family=Roboto+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/ui/tokens.css">
+<link rel="stylesheet" href="/ui/motion.css">
 <link rel="stylesheet" href="studio.css">
 </head>
 <body>
 
-<header class="top glass" id="top">
-  <a class="logo" href="/studio/" aria-label="booooks studio">booooks</a>
+<header class="top" id="top">
+  <a class="logo" href="/" aria-label="booooks home">bo<i>oo</i>ks</a><a class="to-feed" href="/#feed">Stories</a>
   <nav class="steps" id="stepNav" aria-label="Steps">
     <button class="pill" type="button" data-go="1"><b>1</b> Write</button>
     <button class="pill" type="button" data-go="2"><b>2</b> Style</button>
@@ -33,7 +34,7 @@
     <p class="eyebrow">Creator studio</p>
     <h1 class="display" id="heroTitle">Make your<br>book move.</h1>
     <div class="tags" aria-hidden="true">
-      <span class="tag t-green">📖 Stories</span><span class="tag t-violet">✍️ Poems</span><span class="tag t-black">🎞️ Animated</span><span class="tag t-olive">🔗 One link</span>
+      <span class="tag">📖 Stories</span><span class="tag">✍️ Poems</span><span class="tag">🎞️ Animated</span><span class="tag">🔗 One link</span>
     </div>
   </section>
 
@@ -103,6 +104,8 @@
         <h2 id="h3w" class="display sm">Publish it.</h2>
         <p class="lead">One click gives you a link anyone can open. It reads as an animated story on any phone.</p>
         <ul class="glance" id="glance"></ul>
+        <div class="field"><span class="lbl">Genre</span><div class="chips" id="genreChips" role="radiogroup" aria-label="Genre"></div></div>
+        <div class="switches"><label class="switch"><input type="checkbox" id="listed" checked><i></i><span>Show it on the front page<small>Anyone browsing booooks can find it. Turn off to keep it link-only.</small></span></label></div>
         <div class="field">
           <label for="slug">Your link</label>
           <div class="linkbox"><span id="linkPrefix"></span><input id="slug" class="input" maxlength="48" autocomplete="off" spellcheck="false" aria-describedby="slugNote"></div>
@@ -122,10 +125,11 @@
           <div class="cover"><span class="badge">LIVE</span><img id="liveCard" alt="Cover of your story"></div>
         </div>
         <div class="live-body">
-          <div class="linkrow glass">
+          <div class="linkrow">
             <a id="liveLink" class="livelink" target="_blank" rel="noopener"></a>
             <button class="btn btn--inverse" id="copy" type="button">Copy link</button>
             <a class="btn" id="open" target="_blank" rel="noopener">Open it</a>
+            <a class="btn btn--secondary" id="feedLink" href="/#feed">See it in the feed</a>
             <button class="btn btn--secondary" id="share" type="button" hidden>Share</button>
           </div>
           <p class="note" id="liveNote" role="status"></p>
@@ -139,7 +143,7 @@
     </div>
 
     <aside class="preview" id="preview" aria-label="Live preview">
-      <div class="phone glass empty" id="phone">
+      <div class="phone empty" id="phone">
         <div class="frames" id="frames"></div>
         <p class="phone-note" id="phoneNote" role="status">Finding a photo…</p>
       </div>
@@ -148,7 +152,7 @@
   </div>
 </main>
 
-<button class="previewbtn glass" id="previewBtn" type="button" aria-pressed="false">Preview</button>
+<button class="previewbtn" id="previewBtn" type="button" aria-pressed="false">Preview</button>
 <script type="module" src="studio.js"></script>
 </body>
 </html>

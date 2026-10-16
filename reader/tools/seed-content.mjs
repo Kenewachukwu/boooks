@@ -57,7 +57,7 @@ Not for luck. For counting.
 One for the morning. One for the bread.
 One for you, who stayed, and did not say so.` },
 
-  { slug: 'harmattan-letters', title: 'Harmattan Letters', handle: 'amara.writes', genre: 'poetry', kind: 'verse', template: 'handwritten', mood: 'golden-hour', date: '2026-09-19',
+  { slug: 'harmattan-letters', title: 'Harmattan Letters', handle: 'amara.writes', genre: 'poetry', kind: 'verse', template: 'handwritten', mood: 'golden-hour', photo: 0.92, date: '2026-09-19',
     blurb: 'Dust on the leaves, a name on the windscreen, and the long dry wait for rain.', text: `
 The dust arrives the way bad news does,
 quietly, then everywhere.
@@ -80,7 +80,7 @@ how long it lasted. I will only remember
 that something in me kept asking
 to be wet again.` },
 
-  { slug: 'the-last-voicenote', title: 'The Last Voicenote', handle: 'marisol.rain', genre: 'love-heartbreak', kind: 'prose', template: 'quiet-serif', mood: 'neon-night', date: '2026-09-27',
+  { slug: 'the-last-voicenote', title: 'The Last Voicenote', handle: 'marisol.rain', genre: 'love-heartbreak', kind: 'prose', template: 'quiet-serif', mood: 'neon-night', photo: 0.8, date: '2026-09-27',
     blurb: 'Forty-one seconds of a voice, played three hundred times.', text: `
 You left me forty-one seconds of your voice and I have played it three hundred times.
 
@@ -94,7 +94,7 @@ Tonight I played it again, and at second thirty-three you say my name the way yo
 
 I held my breath for the rest of it. I am still holding it. The recording ends, and I whisper, "Yes?" to the quiet. The quiet, being kind, does not answer.` },
 
-  { slug: 'seven-days-of-not-texting', title: 'Seven Days of Not Texting', handle: 'marisol.rain', genre: 'love-heartbreak', kind: 'verse', template: 'handwritten', mood: 'dark-abstract', date: '2026-10-05',
+  { slug: 'seven-days-of-not-texting', title: 'Seven Days of Not Texting', handle: 'marisol.rain', genre: 'love-heartbreak', kind: 'verse', template: 'handwritten', mood: 'dark-abstract', photo: 0.9, date: '2026-10-05',
     blurb: 'A week in the life of a phone lying face down.', text: `
 Monday I am magnificent.
 I clean the whole flat. I alphabetise the spices.
@@ -123,7 +123,7 @@ and I do not feel braver. I feel lighter,
 the way you do when you finally put down a bag
 you forgot you were carrying.` },
 
-  { slug: 'the-weight-of-a-small-town', title: 'The Weight of a Small Town', handle: 'tobi.nights', genre: 'fiction', kind: 'prose', template: 'newsprint', mood: 'warm-paper', date: '2026-08-30',
+  { slug: 'the-weight-of-a-small-town', title: 'The Weight of a Small Town', handle: 'tobi.nights', genre: 'fiction', kind: 'prose', template: 'newsprint', mood: 'forest-mist', date: '2026-08-30',
     blurb: 'Everybody knew what you carried before you did. Then you came home.', text: `
 In Okwe, everybody knew what you carried before you did. The baker knew your mother's cough. The mechanic knew your father's debts. And Mrs. Ibe, who sold phone credit under a faded umbrella at the junction, knew when you were in love, usually a week before you admitted it to yourself.
 
@@ -147,7 +147,7 @@ On the ninth day a girl from the secretary pool climbed the stairs with two cups
 
 He laughed for the first time in a month, a rusty, startled sound. Then he took the pen, and in the margin, where the ledger kept its remarks, he wrote beside the number: Two cups of tea, shared.` },
 
-  { slug: 'my-mother-in-the-market', title: 'My Mother in the Market', handle: 'sana.in.ink', genre: 'memoir', kind: 'prose', template: 'newsprint', mood: 'golden-hour', date: '2026-08-21',
+  { slug: 'my-mother-in-the-market', title: 'My Mother in the Market', handle: 'sana.in.ink', genre: 'memoir', kind: 'prose', template: 'newsprint', mood: 'dark-abstract', photo: 0.9, date: '2026-08-21',
     blurb: 'She haggled the way other people pray.', text: `
 My mother haggled the way other people pray: with total concentration and a faint look of disappointment in everyone present. On Saturdays I trailed behind her through the vegetable market in Karachi, learning the grammar of a bargain. First, the insult, delivered with love. Then the walk-away. Then the vendor's cry, half pain, half applause.
 
@@ -169,7 +169,7 @@ We never spoke of it. Years later I saw him on a platform and he lifted two fing
 
 The ferry knew everything about us. That is the secret of a good boat. It holds you for forty minutes and asks for nothing but that you arrive.` },
 
-  { slug: 'the-cartographer-of-ash', title: 'The Cartographer of Ash', handle: 'lena.vale', genre: 'fantasy', kind: 'prose', template: 'poster', mood: 'dark-abstract', date: '2026-07-29',
+  { slug: 'the-cartographer-of-ash', title: 'The Cartographer of Ash', handle: 'lena.vale', genre: 'fantasy', kind: 'prose', template: 'poster', mood: 'dark-abstract', photo: 0.9, date: '2026-07-29',
     blurb: 'After the fire, a mapmaker draws a kingdom back into being.', text: `
 After the fire took the Kingdom of Vael, a mapmaker named Isolde walked into the ruin with a pot of ink and no one to sell a map to. The roads were gone. The rivers had moved. The mountains, being proud, had only changed their minds about where to stand.
 
@@ -191,7 +191,7 @@ Each day I went through, I was a little more of the other side. By midsummer my 
 
 My grandfather found me in the orchard that evening, watched my shadow catch up, and sighed. "Your grandmother did the same," he said. "She came back, in the end. She said it was only a matter of choosing which apples you wanted to taste first."` },
 
-  { slug: 'the-house-keeps-counting', title: 'The House Keeps Counting', handle: 'noor.hollow', genre: 'horror', kind: 'prose', template: 'poster', mood: 'mono-grain', date: '2026-10-01',
+  { slug: 'the-house-keeps-counting', title: 'The House Keeps Counting', handle: 'noor.hollow', genre: 'horror', kind: 'prose', template: 'poster', mood: 'dark-abstract', photo: 0.92, date: '2026-10-01',
     blurb: 'It counted the windows, then the spoons, then the children.', text: `
 We moved in on a Tuesday. On Wednesday I noticed the stairs had thirteen steps, and on Thursday they had twelve. I told myself I had miscounted. I am a person who tells herself things.
 
@@ -203,7 +203,7 @@ I stood in the hallway in my socks, listening to the quiet arithmetic move from 
 
 It had been counting what it was still missing. "Three," it said, kindly, from just behind my left shoulder, and a door that had never been there before began, very slowly, to open.` },
 
-  { slug: 'do-not-answer-the-third-knock', title: 'Do Not Answer the Third Knock', handle: 'noor.hollow', genre: 'horror', kind: 'prose', template: 'newsprint', mood: 'dark-abstract', date: '2026-10-09',
+  { slug: 'do-not-answer-the-third-knock', title: 'Do Not Answer the Third Knock', handle: 'noor.hollow', genre: 'horror', kind: 'prose', template: 'newsprint', mood: 'dark-abstract', photo: 0.9, date: '2026-10-09',
     blurb: 'Grandma had rules for the village. The last one was the important one.', text: `
 Grandma's rules for the village were simple. Never whistle after dark. Never step over a sleeping dog. And when someone knocks three times at night, answer the first, ignore the second, and never, ever answer the third.
 
@@ -217,7 +217,7 @@ I have not slept. I am sitting on the kitchen floor with my back against the fri
 
 And there, from the front door, patient and exactly in the voice of my own mother, comes the third.` },
 
-  { slug: 'signal-from-kepler', title: 'Signal from Kepler', handle: 'kofi.quill', genre: 'sci-fi', kind: 'prose', template: 'poster', mood: 'neon-night', date: '2026-08-12',
+  { slug: 'signal-from-kepler', title: 'Signal from Kepler', handle: 'kofi.quill', genre: 'sci-fi', kind: 'prose', template: 'poster', mood: 'neon-night', photo: 0.8, date: '2026-08-12',
     blurb: 'A pulse every eleven seconds, and a rhythm Abena already knew.', text: `
 The message arrived in the middle of a Tuesday, which is how the biggest things always arrive. Dr. Abena Osei was eating cold jollof at her desk when the array in Chile flagged an anomaly in the data from Kepler-442b: a pulse, regular, every eleven seconds, for forty-one minutes.
 
@@ -227,7 +227,7 @@ Abena played the pulse through a pair of old headphones and realised what had be
 
 Twelve hundred light years away, nobody could have heard it from us. Whatever was out there had arrived at the same heartbeat by itself. And it was not answering with mathematics, or warnings, or demands. It was simply keeping time, the way you do with a stranger at a party when a song comes on that you both love, and you tap along, and neither of you says a word.` },
 
-  { slug: 'the-last-gardener-on-mars', title: 'The Last Gardener on Mars', handle: 'kofi.quill', genre: 'sci-fi', kind: 'prose', template: 'newsprint', mood: 'golden-hour', date: '2026-09-23',
+  { slug: 'the-last-gardener-on-mars', title: 'The Last Gardener on Mars', handle: 'kofi.quill', genre: 'sci-fi', kind: 'prose', template: 'newsprint', mood: 'golden-hour', photo: 0.92, date: '2026-09-23',
     blurb: 'The supply ship is cancelled. The tomato, meanwhile, is ripe.', text: `
 By Sol 1,847 the colony had stopped asking Imani why she wasted water on tomatoes. The hydroponics were enough. The ration packs were enough. But every evening, when the dust storms painted the dome orange, she walked the rows of the little greenhouse with a watering can older than the settlement, and talked to the plants.
 
@@ -243,7 +243,7 @@ Imani did not eat it. She carried it, with both hands, to the airlock where the 
 
 Imani smiled. "Start with the tomato."` },
 
-  { slug: 'the-clockmakers-alibi', title: "The Clockmaker's Alibi", handle: 'eli.fennick', genre: 'mystery', kind: 'prose', template: 'newsprint', mood: 'mono-grain', date: '2026-08-04',
+  { slug: 'the-clockmakers-alibi', title: "The Clockmaker's Alibi", handle: 'eli.fennick', genre: 'mystery', kind: 'prose', template: 'newsprint', mood: 'ocean-calm', date: '2026-08-04',
     blurb: 'Forty clocks, one that was right, and a witness who was not there.', text: `
 At 9:14 p.m., according to every clock in the shop, Matthias Brandt was winding the grandfather clock in the window. At 9:14 p.m., according to the coroner, the landlord was dying in the room above. The two facts sat together like an unlit match and a barrel of oil.
 
@@ -257,7 +257,7 @@ She stopped in front of the grandfather clock. It was the only one in the room r
 
 "The clock says you were here," she said. "But it's the only one that's right. You corrected it tonight, Mr. Brandt, and a man doesn't correct a clock for himself. He corrects it for a witness."` },
 
-  { slug: 'missing-in-plain-sight', title: 'Missing in Plain Sight', handle: 'eli.fennick', genre: 'mystery', kind: 'prose', template: 'quiet-serif', mood: 'dark-abstract', date: '2026-09-30',
+  { slug: 'missing-in-plain-sight', title: 'Missing in Plain Sight', handle: 'eli.fennick', genre: 'mystery', kind: 'prose', template: 'quiet-serif', mood: 'forest-mist', date: '2026-09-30',
     blurb: 'The painting was never stolen. It was just replaced, and the sky knew.', text: `
 The painting had not been stolen. That was the part the museum could not forgive. Nobody had cut it from its frame, or smashed a case, or cut a wire. At closing time the Dutch landscape was on the third-floor wall. At opening time a different Dutch landscape was, and no one had told the paint.
 
@@ -269,7 +269,7 @@ The curator laughed, then stopped. The forger had been brilliant: the brushwork,
 
 The copy had only ever been told what the sky looked like. The old man knew what it felt like.` },
 
-  { slug: 'psalm-for-a-tired-heart', title: 'Psalm for a Tired Heart', handle: 'ngozi.afterdark', genre: 'faith', kind: 'verse', template: 'handwritten', mood: 'soft-pastel', date: '2026-08-17',
+  { slug: 'psalm-for-a-tired-heart', title: 'Psalm for a Tired Heart', handle: 'ngozi.afterdark', genre: 'faith', kind: 'verse', template: 'handwritten', mood: 'ocean-calm', date: '2026-08-17',
     blurb: 'A prayer for the places nobody sees.', text: `
 Lord, I am tired in the places
 nobody sees. The soles of my prayers
@@ -297,7 +297,7 @@ Let that be a hand.
 Let me lay down my heavy
 and be, for one slow breath, carried.` },
 
-  { slug: 'what-the-rooster-taught-me', title: 'What the Rooster Taught Me', handle: 'ngozi.afterdark', genre: 'faith', kind: 'prose', template: 'quiet-serif', mood: 'golden-hour', date: '2026-09-04',
+  { slug: 'what-the-rooster-taught-me', title: 'What the Rooster Taught Me', handle: 'ngozi.afterdark', genre: 'faith', kind: 'prose', template: 'quiet-serif', mood: 'golden-hour', photo: 0.92, date: '2026-09-04',
     blurb: 'He crowed into the dark with no evidence at all.', text: `
 My uncle kept a rooster named Pastor, who woke the whole compound at four every morning, regardless of the weather, the hour, or our feelings on the matter. I hated him with the pure, uncomplicated hatred of a teenager denied sleep.
 
@@ -321,7 +321,7 @@ The first time my feet left the bottom, I screamed. The second time, I laughed. 
 
 I could see Mai's shape on the dock against the first stars. For one second I understood that being held by something does not mean you have stopped being yourself.` },
 
-  { slug: 'the-girl-who-sat-alone-at-lunch', title: 'The Girl Who Sat Alone at Lunch', handle: 'jun.hartley', genre: 'young-adult', kind: 'prose', template: 'poster', mood: 'soft-pastel', date: '2026-10-07',
+  { slug: 'the-girl-who-sat-alone-at-lunch', title: 'The Girl Who Sat Alone at Lunch', handle: 'jun.hartley', genre: 'young-adult', kind: 'prose', template: 'poster', mood: 'forest-mist', date: '2026-10-07',
     blurb: 'Being alone is only a waiting room.', text: `
 Day one at the new school, I ate my sandwich in the library bathroom stall, like a spy who had lost the plot. Day two, I tried the bench by the football field and was nearly knocked out by a ball and a boy shouting "sorry!" in a voice that sounded suspiciously like "serves you right."
 
@@ -335,7 +335,7 @@ The next day I heard someone breathing at the door. A girl with a clarinet case 
 
 Nobody tells you that being alone is only a waiting room. That the day comes when someone opens the door and says you're doing the second bar wrong, and it's the nicest thing anyone has said to you all term.` },
 
-  { slug: 'on-being-late-to-everything', title: 'On Being Late to Everything', handle: 'bea.lindqvist', genre: 'humour', kind: 'prose', template: 'poster', mood: 'warm-paper', date: '2026-07-18',
+  { slug: 'on-being-late-to-everything', title: 'On Being Late to Everything', handle: 'bea.lindqvist', genre: 'humour', kind: 'prose', template: 'poster', mood: 'golden-hour', photo: 0.92, date: '2026-07-18',
     blurb: 'Two weeks late to her own birth, and still not sorry.', text: `
 I have been late to my own birth (two weeks), my own wedding (forty minutes, a record I am proud of), and the funeral of a clock, which is the sort of irony the universe pays for in cash.
 
@@ -345,7 +345,7 @@ Last week I finally arrived early to a dentist appointment, and I sat in the wai
 
 A woman smiled at me. I wanted to ask her how the weather was in the future, but my name was called, and I was, as usual, in the middle of something.` },
 
-  { slug: 'the-group-chat-has-gone-quiet', title: 'The Group Chat Has Gone Quiet', handle: 'bea.lindqvist', genre: 'humour', kind: 'prose', template: 'newsprint', mood: 'soft-pastel', date: '2026-09-25',
+  { slug: 'the-group-chat-has-gone-quiet', title: 'The Group Chat Has Gone Quiet', handle: 'bea.lindqvist', genre: 'humour', kind: 'prose', template: 'newsprint', mood: 'dark-abstract', photo: 0.9, date: '2026-09-25',
     blurb: 'A missing-persons report, filed at 8 a.m.', text: `
 At 7:02 a.m. the group chat, which has a name I am not allowed to repeat, is silent. This has not happened since 2019, when someone was foolish enough to ask whether pineapple belongs on pizza and four people had to be physically separated.
 
@@ -357,7 +357,7 @@ I stare at the phone. There is an other chat. There has always been an other cha
 
 I type "who made the other chat" and hover over the send button, and feel, for the first time since primary school, entirely and magnificently unchosen.` },
 
-  { slug: 'in-praise-of-slow-mornings', title: 'In Praise of Slow Mornings', handle: 'dami.reads', genre: 'essays', kind: 'prose', template: 'quiet-serif', mood: 'golden-hour', date: '2026-08-08',
+  { slug: 'in-praise-of-slow-mornings', title: 'In Praise of Slow Mornings', handle: 'dami.reads', genre: 'essays', kind: 'prose', template: 'quiet-serif', mood: 'golden-hour', photo: 0.92, date: '2026-08-08',
     blurb: 'An hour defended like a small, ridiculous country.', text: `
 There is a particular kind of hour, somewhere between waking and being useful, that I have come to defend like a small, ridiculous country. It has one law: nothing is allowed to be accomplished.
 
@@ -367,7 +367,7 @@ Now I make tea in the same chipped cup. I stand at the window and watch the neig
 
 This is not laziness. It is a kind of tuning. You cannot play an instrument you have not listened to. The slow hour is where I find out what key I am in today. And only then, humming, do I open the door.` },
 
-  { slug: 'what-we-keep-in-drawers', title: 'What We Keep in Drawers', handle: 'dami.reads', genre: 'essays', kind: 'prose', template: 'newsprint', mood: 'warm-paper', date: '2026-09-17',
+  { slug: 'what-we-keep-in-drawers', title: 'What We Keep in Drawers', handle: 'dami.reads', genre: 'essays', kind: 'prose', template: 'newsprint', mood: 'forest-mist', date: '2026-09-17',
     blurb: 'A diary written by objects.', text: `
 Every house has a drawer. The one by the kitchen door, where everything unclassifiable goes to wait: a stamp, a key to nothing, three dead batteries, a recipe for a cake nobody remembers eating, a button that was clearly important to someone, once.
 

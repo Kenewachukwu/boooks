@@ -1,5 +1,6 @@
 // booooks front page: loads the library, builds each section, and starts the effects.
-import { reduced, clamp, reveal, openStory, countUp, autoHideNav } from './motion.js';
+import { reduced, clamp, reveal, countUp, autoHideNav } from './motion.js';
+import { card, wireCardOpen } from './cards.js';
 import { loadLibrary, byGenre, booksOf, initials, readMine } from './data.js';
 import { createHelix } from './fx/helix.js';
 import { createReels } from './fx/reels.js';
@@ -17,20 +18,7 @@ const fontsReady = Promise.race([
   new Promise(r => setTimeout(r, 1200)),
 ]).finally(() => root.classList.remove('fonts-wait'));
 
-// ---- cards
-function card(b, { feature = false } = {}) {
-  const a = el('a', 'card' + (feature ? ' feature' : '')); a.href = b.href; a.dataset.slug = b.slug; a.style.setProperty('--gc', b.color);
-  const cover = el('span', 'card-cover'), img = new Image(); img.src = b.cover; img.alt = `Cover of ${b.title}`; img.loading = 'lazy'; img.decoding = 'async'; img.width = 480; img.height = 720; cover.append(img);
-  if (b.live) cover.append(el('span', 'card-new', 'New'));
-  const meta = el('span', 'card-meta'); meta.append(el('span', 'card-g', `${b.genreName} · ${b.minutes} min`), el('span', 'card-t', b.title), el('span', 'card-a', b.author));
-  a.append(cover, meta); return a;
-}
-// clicking a card lifts its cover and opens the reader (a normal click with a modifier key still opens a new tab)
-document.addEventListener('click', e => {
-  const a = e.target.closest?.('a.card'); if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
-  const cover = a.querySelector('.card-cover'), img = a.querySelector('img'); if (!cover || !img) return;
-  e.preventDefault(); openStory(a.href, cover, img.currentSrc || img.src);
-});
+wireCardOpen();
 
 (async function main() {
   let lib;

@@ -481,6 +481,7 @@ onScroll();
 try { sessionStorage.removeItem('fonts-retry'); } catch { /* private mode */ }
 Promise.race([bgReady, new Promise(r => setTimeout(r, 4000))]).then(() => requestAnimationFrame(() => {
   stage.classList.add('shown');
+  { const sp = document.getElementById('splash'); if (sp) { sp.classList.add('gone'); setTimeout(() => sp.remove(), 800); } } // the cover that carried the reader in lets go
   try { if (parent !== window) parent.postMessage({ type: 'booooks-ready', page: cur, total: TOTAL }, location.origin); } catch { /* cross-origin parent */ }
 }));
 pagesEl.focus({ preventScroll: true });
