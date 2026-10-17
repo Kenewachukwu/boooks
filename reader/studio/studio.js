@@ -5,7 +5,7 @@ import { GALLERY, templateById, compose, titleLines } from '../lib/compose.js';
 import { buildBook, readFile } from '../lib/import.js';
 import { EFFECTS, createFx } from '../fx/fx.js';
 import { loadSeed } from '../fx/seeds.js';
-import { MINE_KEY, readMine } from '../ui/data.js';
+import { MINE_KEY, readMine, unpublish as takeDown } from '../ui/data.js';
 
 const $ = id => document.getElementById(id);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -289,7 +289,8 @@ function showLive(j, card, b) {
     $('liveTags').replaceChildren(...[['t-green', `${stats.layout === 'prose' ? '📖 Story' : '✍️ Poems'}`], ['t-violet', `🎨 ${t.name}`], ['t-black', `${m.emoji} ${m.name}`], ['t-olive', `🕑 ${stats.minutes} min`]].map(([c, s]) => { const e = document.createElement('span'); e.className = 'tag ' + c; e.textContent = s; return e; }));
     $('liveCard').src = card;
     const a = $('liveLink'); a.href = j.url; a.textContent = j.url.replace(/^https?:\/\//, ''); $('open').href = j.url;
-    $('share').hidden = !navigator.share; $('feedLink').hidden = !S.listed;
+    $('share').hidden = !navigator.share; $('feedLink').hidden = !S.listed; $('copy').hidden = $('open').hidden = false;
+    const un = $('unpublish'); un.hidden = false; un.disabled = false; un.textContent = 'Unpublish';
     $('liveNote').textContent = j.updated ? 'Updated. The same link now shows your latest version.' : (S.slug && j.slug !== S.slug ? `That link was taken, so we used /s/${j.slug}.` : 'Your story is live. Anyone with this link can read it.');
     $('liveGlance').replaceChildren(...[['🕑', `About ${stats.minutes} min to read, ${stats.words.toLocaleString()} words`], ['🎨', `${t.name} template, ${m.name.toLowerCase()} mood`], ['✨', S.animate ? 'Animated text (readers can turn it off)' : 'Animation off by default'], ['📱', 'Made for phones: swipe up to read']].map(([e, s]) => { const li = document.createElement('li'); li.innerHTML = `<span>${e}</span><span></span>`; li.lastChild.textContent = s; return li; }));
     const first = derived().book.pages[1].stanzas.slice(0, 2).map(s => s.lines.join(S.layout === 'verse' ? '\n' : ' ')).join('\n\n');
@@ -299,6 +300,16 @@ function showLive(j, card, b) {
   swap(run, false);
 }
 $('copy').addEventListener('click', async e => { const url = $('liveLink').href; try { await navigator.clipboard.writeText(url); e.target.textContent = 'Copied ✓'; } catch { e.target.textContent = 'Press Cmd/Ctrl+C'; const r = document.createRange(); r.selectNodeContents($('liveLink')); getSelection().removeAllRanges(); getSelection().addRange(r); } setTimeout(() => { e.target.textContent = 'Copy link'; }, 1800); });
+$('unpublish').addEventListener('click', async e => {
+  const b = e.currentTarget, slug = S.published?.slug || S.slug; if (!slug) return;
+  if (!confirm('Take this story down? Its link will stop working and it will leave the front page.')) return;
+  b.disabled = true; b.textContent = 'Taking it down…';
+  try {
+    await takeDown(slug); S.published = null; saveDraft();
+    $('liveNote').textContent = 'Taken down. The link stops working within a few minutes. Your text is still here if you want to publish it again.';
+    $('copy').hidden = $('open').hidden = $('feedLink').hidden = $('share').hidden = true; b.hidden = true; $('liveLink').removeAttribute('href'); $('liveLink').textContent = '';
+  } catch (err) { $('liveNote').textContent = err.message; b.disabled = false; b.textContent = 'Unpublish'; }
+});
 $('share').addEventListener('click', () => navigator.share({ title: S.title, text: `${S.title} by ${S.author}`, url: $('liveLink').href }).catch(() => {}));
 $('edit').addEventListener('click', () => go(1));
 $('another').addEventListener('click', () => { if (!confirm('Start a new book? Your published link stays live.')) return; Object.assign(S, { title: '', author: '', text: '', slug: '', slugTouched: false, published: null, customImage: null }); store.set(DRAFT, '{}'); $('title').value = ''; $('author').value = ''; $('text').value = ''; paintStats(); go(1); preview(100); });

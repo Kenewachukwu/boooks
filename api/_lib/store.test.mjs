@@ -14,6 +14,7 @@ function fakeStore() {
     async put(path, body, opts) { calls.put++; files.set(path, { body: String(body), at: Date.now() + calls.put }); return { url: REAL + path, pathname: path, opts }; },
     async head(path) { calls.head++; const f = files.get(path); if (!f) throw new BlobNotFoundError('not found'); return { url: REAL + path, uploadedAt: new Date(f.at) }; },
     async list() { calls.list++; return { blobs: [] }; },
+    async del(urls) { calls.del = (calls.del || []).concat(urls); for (const u of [].concat(urls)) files.delete(new URL(u).pathname.slice(1)); },
   });
   globalThis.fetch = async url => {
     calls.fetch++; const u = new URL(url); if (u.origin + '/' !== REAL) throw new Error('getaddrinfo ENOTFOUND');
@@ -73,5 +74,16 @@ const meta = (slug, t) => ({ slug, title: slug, createdAt: new Date(t).toISOStri
   await st.put('ghost', { slug: 'ghost', bundle: 1 }, meta('ghost', 5));
   assert.equal((await st.get('ghost')).bundle, 1, 'once published it is found');
   assert.ok(files.has('index.json'));
+}
+// 6. taking a story down removes its file, its listing and only its own pictures
+{
+  const { sdk, calls, files } = fakeStore();
+  const st = blobStore({ BLOB_READ_WRITE_TOKEN: 'vercel_blob_rw_realstore1_secret' }, sdk);
+  await st.put('keep', { slug: 'keep' }, meta('keep', 1)); await st.put('gone', { slug: 'gone' }, meta('gone', 2));
+  await st.remove('gone', { cardUrl: REAL + 'images/gone-card-1.jpg', coverUrl: REAL + 'images/keep-cover-9.jpg', bundle: { style: { seed: REAL + 'images/gone-bg-2.jpeg' } } });
+  assert.ok(calls.del.includes(REAL + 'stories/gone.json') && calls.del.includes(REAL + 'images/gone-card-1.jpg') && calls.del.includes(REAL + 'images/gone-bg-2.jpeg'));
+  assert.ok(!calls.del.includes(REAL + 'images/keep-cover-9.jpg'), 'another story\'s picture is never deleted');
+  assert.deepEqual(JSON.parse(files.get('index.json').body).map(m => m.slug), ['keep']);
+  assert.equal(await st.get('gone'), null);
 }
 console.log('store tests passed');

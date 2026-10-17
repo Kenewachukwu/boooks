@@ -5,6 +5,17 @@ const j = url => fetch(url).then(r => (r.ok ? r.json() : Promise.reject(new Erro
 export const MINE_KEY = 'booooks.mine'; // stories published from this browser: [{ slug, title, author, at }]
 export const readMine = () => { try { const v = JSON.parse(localStorage.getItem(MINE_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch { return []; } };
 
+export const KEY_KEY = 'booooks.studio.key'; // the edit key the studio made for this browser
+export const forgetMine = slug => { try { localStorage.setItem(MINE_KEY, JSON.stringify(readMine().filter(m => m.slug !== slug))); } catch { /* private mode */ } };
+// take one of your stories down; only the browser that published it can. Throws a sentence the person can read.
+export async function unpublish(slug) {
+  let key = ''; try { key = localStorage.getItem(KEY_KEY) || ''; } catch { /* private mode */ }
+  const r = await fetch('/api/unpublish', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ slug, key }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok && r.status !== 404) throw new Error(j.error || 'Could not take it down. Please try again.');
+  forgetMine(slug); return true; // a 404 means it is already gone
+}
+
 export async function loadLibrary() {
   const [lib, live] = await Promise.all([j('/data/library.json'), j('/api/stories').catch(() => ({ stories: [] }))]);
   const genres = lib.genres, gById = Object.fromEntries(genres.map(g => [g.id, g]));

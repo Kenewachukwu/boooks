@@ -1,7 +1,7 @@
 // booooks front page: loads the library, builds each section, and starts the effects.
 import { reduced, clamp, reveal, autoHideNav } from './motion.js';
 import { card, wireCardOpen } from './cards.js';
-import { loadLibrary, byGenre, booksOf, initials, readMine } from './data.js';
+import { loadLibrary, byGenre, booksOf, initials, readMine, unpublish } from './data.js';
 import { createHelix } from './fx/helix.js';
 import { createReels } from './fx/reels.js';
 import { createWander } from './fx/wander.js';
@@ -69,7 +69,14 @@ wireCardOpen();
       const open = el('a', 'btn btn--sm', 'Open'); open.href = '/s/' + m.slug;
       const copy = el('button', 'btn btn--sm btn--ghost', 'Copy link'); copy.type = 'button';
       copy.addEventListener('click', async () => { const url = location.origin + '/s/' + m.slug; try { await navigator.clipboard.writeText(url); copy.textContent = 'Copied'; } catch { prompt('Copy your link', url); } setTimeout(() => { copy.textContent = 'Copy link'; }, 1600); });
-      row.append(t, open, copy); $('mineRow').append(row);
+      const rm = el('button', 'btn btn--sm btn--ghost', 'Unpublish'); rm.type = 'button';
+      rm.addEventListener('click', async () => {
+        if (!confirm(`Take “${m.title || m.slug}” down? Its link will stop working and it will leave the front page.`)) return;
+        rm.disabled = true; rm.textContent = 'Taking it down…';
+        try { await unpublish(m.slug); row.remove(); document.querySelectorAll(`.card[data-slug="${m.slug}"]`).forEach(c => c.remove()); if (!$('mineRow').children.length) $('mine').hidden = true; }
+        catch (err) { alert(err.message); rm.disabled = false; rm.textContent = 'Unpublish'; }
+      });
+      row.append(t, open, copy, rm); $('mineRow').append(row);
     }
   }
 

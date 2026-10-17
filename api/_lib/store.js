@@ -1,6 +1,6 @@
 // Where published stories live. On Vercel: a Blob store (enabled by connecting one to the project, which sets BLOB_READ_WRITE_TOKEN).
 // On a developer's machine: plain files under .data/ (never committed, never served by the static site).
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile, unlink } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 const localDir = fileURLToPath(new URL('../../.data/', import.meta.url));
@@ -13,6 +13,11 @@ function localStore() {
     async put(slug, rec, meta) {
       await mkdir(`${localDir}stories`, { recursive: true }); await writeFile(file(slug), JSON.stringify(rec));
       if (meta) { await mkdir(`${localDir}meta`, { recursive: true }); await writeFile(`${localDir}meta/${slug}.json`, JSON.stringify(meta)); }
+    },
+    async remove(slug, rec) { // take a story off the site: its text, its listing and the pictures that belong to it
+      const gone = f => unlink(f).catch(() => {});
+      await gone(file(slug)); await gone(`${localDir}meta/${slug}.json`);
+      for (const u of [rec?.cardUrl, rec?.coverUrl, rec?.bundle?.style?.seed]) { const m = typeof u === 'string' && /^\/api\/asset\?path=images\/([\w.-]+)$/.exec(u); if (m && m[1].startsWith(slug + '-')) await gone(`${localDir}images/${m[1]}`); }
     },
     async list(limit = 60) { // the listing records (title, author, genre, cover...), newest first
       let names = []; try { names = await readdir(`${localDir}meta`); } catch { return []; }
@@ -74,6 +79,17 @@ export function blobStore(env = process.env, sdk = () => import('@vercel/blob'))
       await writeJson(INDEX, next, 60);
     },
     async list(limit = 60) { return ((await readJson(INDEX)) || []).slice(0, limit); },
+    async remove(slug, rec) { // take a story off the site: its text, its listing and the pictures that belong to it (deleting is free)
+      const mod = await lib(), path = `stories/${slug}.json`, urls = [];
+      try { urls.push((await mod.head(path)).url); } catch (e) { if (!isMissing(e, mod)) throw e; }
+      for (const u of [rec?.cardUrl, rec?.coverUrl, rec?.bundle?.style?.seed]) { // only pictures that carry this story's own name, never another story's
+        try { const x = new URL(u); if (/\.public\.blob\.vercel-storage\.com$/.test(x.hostname) && x.pathname.startsWith(`/images/${slug}-`)) urls.push(u); } catch { /* not a URL */ }
+      }
+      if (urls.length) await mod.del(urls);
+      const index = (await readJson(INDEX, { fresh: true })) || [];
+      await writeJson(INDEX, index.filter(m => m.slug !== slug), 60);
+      missing.set(path, Date.now() + 30_000);
+    },
     async putImage(name, buf, type) { const { put } = await lib(); const r = await put(`images/${name}`, buf, { access: 'public', contentType: type, addRandomSuffix: false, allowOverwrite: true }); learn(r.url); return r.url; },
   };
 }

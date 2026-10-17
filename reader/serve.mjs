@@ -21,7 +21,7 @@ try { // .env.local at the repo root: KEY=value lines
   }
 } catch { /* no .env.local: fine */ }
 
-const api = { '/api/photos': toNode(handlers.photos), '/api/pexels': toNode(handlers.pexels), '/api/publish': toNode(handlers.publish), '/api/story': toNode(handlers.story), '/api/stories': toNode(handlers.stories) };
+const api = { '/api/photos': toNode(handlers.photos), '/api/pexels': toNode(handlers.pexels), '/api/publish': toNode(handlers.publish), '/api/unpublish': toNode(handlers.unpublish), '/api/story': toNode(handlers.story), '/api/stories': toNode(handlers.stories) };
 const page = toNode(handlers.page);
 
 function sendFile(req, res, file) {

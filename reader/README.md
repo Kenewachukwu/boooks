@@ -38,6 +38,7 @@ A three-step flow for a creator: **write** (type, paste, or upload a PDF, Word, 
 1. **Photos**: Project Settings, Environment Variables, add `PIXABAY_API_KEY` (a free key from pixabay.com/api/docs) or `PEXELS_API_KEY`. Pixabay does not allow permanent hot-linking, so when a story is published the server saves its own copy of the chosen photo to the Blob store; the credit line ("Photo by … on Pixabay") stays on the last page.
 2. **Publishing**: Project, Storage, Create a **Blob** store and connect it to this project (this adds `BLOB_READ_WRITE_TOKEN`). Without it, `/api/publish` answers that publishing is not set up yet.
 3. Redeploy. Published stories live at `/s/<slug>`; the rewrite is in `vercel.json`.
+- A creator can take a story down from the studio's live page, or from "Your stories" on the front page. `/api/unpublish` checks the edit key kept in that browser, deletes the story, its listing and its own pictures, and frees the link. (A page may linger in caches for a few minutes.)
 - No sign-in yet: anyone can publish. Add accounts and rate limits (Turnstile) before opening it widely.
 
 ## Stories and templates

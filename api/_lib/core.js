@@ -140,6 +140,18 @@ export const handlers = {
     return { json: { ok: true, slug, path: `/s/${slug}`, url: `${o}/s/${slug}`, updated: !!existing } };
   },
 
+  // POST /api/unpublish { slug, key }  ->  the creator's own browser (the one whose edit key published it) takes the story down
+  async unpublish({ method, body, env }) {
+    if (method !== 'POST') return { status: 405, json: { error: 'Use POST.' } };
+    const store = getStore(env); if (!store) return { status: 503, json: { error: 'Publishing is not switched on for this site yet.' } };
+    const slug = slugify(body?.slug), key = String(body?.key || '');
+    if (!slug || key.length < 16) return { status: 400, json: { error: 'Missing the story or the edit key.' } };
+    const rec = await store.get(slug); if (!rec) return { status: 404, json: { error: 'That story is not published.' } };
+    if (rec.keyHash !== sha(key)) return { status: 403, json: { error: 'This story was published from a different browser, so only that browser can take it down.' } };
+    await store.remove(slug, rec);
+    return { json: { ok: true } };
+  },
+
   // GET /api/stories  ->  the stories creators have published and chosen to list, newest first (no edit keys, no text)
   async stories({ url, env }) {
     const store = getStore(env); if (!store) return { json: { stories: [], store: false } };
