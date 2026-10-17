@@ -63,4 +63,15 @@ const meta = (slug, t) => ({ slug, title: slug, createdAt: new Date(t).toISOStri
   await st.put('a', { slug: 'a' }, meta('a', 1));
   assert.equal(await st.get('missing'), null);
 }
+// 5. asking again for something that is not there does not touch the store again; publishing it clears that
+{
+  const { sdk, calls, files } = fakeStore();
+  const st = blobStore({ BLOB_READ_WRITE_TOKEN: 'vercel_blob_rw_realstore1_secret' }, sdk);
+  assert.equal(await st.get('ghost'), null); const before = calls.head + calls.fetch;
+  assert.equal(await st.get('ghost'), null); assert.equal(await st.get('ghost'), null);
+  assert.equal(calls.head + calls.fetch, before, 'a repeat miss is remembered');
+  await st.put('ghost', { slug: 'ghost', bundle: 1 }, meta('ghost', 5));
+  assert.equal((await st.get('ghost')).bundle, 1, 'once published it is found');
+  assert.ok(files.has('index.json'));
+}
 console.log('store tests passed');

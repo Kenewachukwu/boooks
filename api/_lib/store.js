@@ -28,6 +28,7 @@ function localStore() {
 // The address is the store's own host plus the file's path; the host is worked out from the store id and confirmed the first time a real blob answers.
 const INDEX = 'index.json', INDEX_MAX = 300;
 let learnedBase = null;                                                // set once a real blob from this store has been seen
+const missing = new Map();                                             // path -> until when we know it is not there (per running instance), so a bot hitting random links costs nothing twice
 const learn = url => { try { learnedBase = new URL(url).origin + '/'; } catch { /* keep what we had */ } };
 const expectedBase = env => {
   const id = String(env.BLOB_STORE_ID || '').replace(/^store_/, '') || (/^vercel_blob_rw_([A-Za-z0-9]+)_/.exec(env.BLOB_READ_WRITE_TOKEN || '') || [])[1];
@@ -40,7 +41,13 @@ export function blobStore(env = process.env, sdk = () => import('@vercel/blob'))
 
   // read a JSON file. Normal reads go to the public address (cached at the edge, so repeat reads are free).
   // fresh: true asks the store for the newest version first, which a writer needs so it never builds on a stale copy.
-  async function readJson(path, { fresh = false } = {}) {
+  async function readJson(path, opts = {}) {
+    if (!opts.fresh && (missing.get(path) || 0) > Date.now()) return null;
+    const v = await readJsonNow(path, opts);
+    if (v === null && !opts.fresh) missing.set(path, Date.now() + 30_000);
+    return v;
+  }
+  async function readJsonNow(path, { fresh = false } = {}) {
     const mod = await lib();
     const viaStore = async () => {
       try { const h = await mod.head(path); learn(h.url); const r = await fetch(h.url + (fresh ? '?v=' + new Date(h.uploadedAt).getTime() : '')); return r.ok ? await r.json() : null; }
@@ -53,7 +60,7 @@ export function blobStore(env = process.env, sdk = () => import('@vercel/blob'))
     }
     return viaStore(); // the expected address was not confirmed: ask the store once, which also teaches us the real address
   }
-  const writeJson = async (path, value, maxAge) => { const { put } = await lib(); const r = await put(path, JSON.stringify(value), { access: 'public', contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: maxAge }); learn(r.url); return r; };
+  const writeJson = async (path, value, maxAge) => { missing.delete(path); const { put } = await lib(); const r = await put(path, JSON.stringify(value), { access: 'public', contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: maxAge }); learn(r.url); return r; };
 
   return {
     kind: 'blob',
