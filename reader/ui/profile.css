@@ -5,8 +5,7 @@
 .back { text-decoration: none; transition: color 0.2s; }
 .who-top { display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap; }
 .who h1 { font-size: clamp(3.6rem, 9vw, 8.4rem); line-height: 0.8; }
-.who .eyebrow::before, .who .eyebrow::after { content: ""; }
-.who .eyebrow { text-transform: none; letter-spacing: 0.08em; margin-bottom: 14px; }
+.who .handle { font: 500 0.85rem/1.2 var(--f-mono); letter-spacing: 0.06em; color: var(--dim); margin-bottom: 14px; }
 .avatar { display: grid; place-items: center; border-radius: 50%; font: 900 1.4rem/1 var(--f-display); font-stretch: 70%; color: #0b0b0d; background: linear-gradient(135deg, var(--a1), var(--a2)); aspect-ratio: 1; }
 .avatar.big { width: clamp(64px, 9vw, 104px); font-size: clamp(1.4rem, 3.4vw, 2.4rem); flex: none; }
 .bio { font-size: clamp(1.3rem, 2.4vw, 2rem); max-width: 28ch; color: #e6e3ea; text-wrap: balance; }
@@ -25,8 +24,6 @@
 .deck-card:not(.is-front) img { filter: brightness(0.7); }
 .deck-ui { display: flex; align-items: center; gap: 16px; }
 .deck-ui .pill { min-width: 44px; justify-content: center; }
-.hint { transition: opacity 0.4s; }
-.hint.is-gone { opacity: 0; }
 
 .all { padding-block: 40px 90px; border-top: 1px solid var(--line); }
 .all .sec-h { margin-bottom: 36px; font-size: clamp(2.6rem, 6vw, 5rem); }

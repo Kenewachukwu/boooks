@@ -35,8 +35,7 @@ const fontsReady = Promise.race([
   // the deck
   const deck = createDeck($('deck'), books, { onChange: (front, n) => { $('deckCount').textContent = `${front + 1} / ${n}`; } });
   $('prev').addEventListener('click', () => deck.prev()); $('next').addEventListener('click', () => deck.next());
-  if (books.length < 2) { $('prev').hidden = $('next').hidden = true; $('hint').textContent = 'tap the cover to read'; }
-  else $('deck').addEventListener('pointerdown', () => $('hint').classList.add('is-gone'), { once: true });
+  if (books.length < 2) $('prev').hidden = $('next').hidden = true;
 
   // the full list
   if (books.length > 1) { $('all').hidden = false; $('grid').append(...books.map(b => card(b))); }

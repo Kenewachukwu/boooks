@@ -38,7 +38,6 @@
     <canvas class="helix" id="helix" tabindex="0" role="group" aria-label="A spiral of book covers. Drag to turn it, press the arrow keys to move, Enter to open a book."></canvas>
     <div class="hero-scrim" aria-hidden="true"></div>
     <div class="hero-copy" id="heroCopy">
-      <p class="eyebrow">stories that move</p>
       <h1 id="h1" class="display hero-h lines" aria-label="Read it like a film.">
         <span class="ln" aria-hidden="true"><span class="w w1">Read it</span></span>
         <span class="ln" aria-hidden="true"><span class="w w2">like a</span></span>
@@ -50,14 +49,12 @@
         <a class="btn btn--ghost" href="/studio/">Publish yours</a>
       </div>
     </div>
-    <p class="hero-hint label" aria-hidden="true"><span>◂ drag the spiral ▸</span><span id="heroCount"><b id="nStories">0</b> stories · <b id="nWriters">0</b> writers</span></p>
     <ul class="vh" id="helixList" aria-label="All stories"></ul>
   </section>
 
   <!-- 2 · the first rail of stories, peeking in from the right, so the feed is on screen straight away -->
   <section class="fresh" aria-labelledby="freshH">
     <div class="wrap fresh-head">
-      <p class="eyebrow">just in</p>
       <h2 id="freshH" class="display sec-h lines"><span class="ln"><span>Fresh stories</span></span></h2>
     </div>
     <div class="rail" id="rail" role="list" aria-label="Fresh stories"></div>
@@ -68,7 +65,6 @@
   <!-- 3 · what it is: three cards that pile up as you scroll -->
   <section class="what" id="what" aria-labelledby="whatH">
     <div class="wrap what-head">
-      <p class="eyebrow">what booooks is</p>
       <h2 id="whatH" class="display sec-h lines"><span class="ln"><span>A book that</span></span><span class="ln"><span class="accent">moves.</span></span></h2>
     </div>
     <div class="stack" id="stack">
@@ -94,7 +90,7 @@
   <section class="feed" id="feed" aria-labelledby="feedH">
     <div class="wrap">
       <div class="feed-head">
-        <div><p class="eyebrow">the feed</p><h2 id="feedH" class="display sec-h lines"><span class="ln"><span>Pick a story.</span></span></h2></div>
+        <div><h2 id="feedH" class="display sec-h lines"><span class="ln"><span>Pick a story.</span></span></h2></div>
         <p class="lead" id="feedLead">Every card opens a story you can read in a few minutes.</p>
       </div>
       <div class="mine" id="mine" hidden>
@@ -109,7 +105,6 @@
   <!-- 5 · genres: tilted reels of covers -->
   <section class="genres" id="genres" aria-labelledby="genH">
     <div class="wrap genres-head">
-      <p class="eyebrow">explore</p>
       <h2 id="genH" class="display sec-h lines"><span class="ln"><span>Twelve ways</span></span><span class="ln"><span class="accent" id="genAccent">to get lost.</span></span></h2>
     </div>
     <div class="reels" id="reelsBox">
@@ -126,14 +121,12 @@
   <section class="field" id="field" aria-labelledby="fieldH">
     <canvas id="fieldCanvas" aria-label="A field of book covers you drift through. Drag to move; scroll to go deeper; click a cover to open it." tabindex="0"></canvas>
     <div class="field-intro" id="fieldIntro">
-      <p class="eyebrow">wander</p>
       <h2 id="fieldH" class="display sec-h lines"><span class="ln"><span>Drift through</span></span><span class="ln"><span class="accent">the library.</span></span></h2>
       <p class="lead">Every book on booooks, floating in the dark. Drag to move. Click one to read.</p>
       <button class="btn" id="fieldEnter" type="button">Enter the field</button>
     </div>
     <div class="field-open" id="fieldOpen" hidden>
       <button class="btn btn--sm btn--ghost" id="fieldExit" type="button">Leave the field</button>
-      <p class="label" aria-hidden="true">drag to drift · wheel to go deeper · click to open</p>
     </div>
   </section>
 
@@ -141,7 +134,7 @@
   <section class="creators" id="creators" aria-labelledby="crH">
     <div class="wrap">
       <div class="feed-head">
-        <div><p class="eyebrow">writers</p><h2 id="crH" class="display sec-h lines"><span class="ln"><span>Meet the</span></span><span class="ln"><span class="accent">people.</span></span></h2></div>
+        <div><h2 id="crH" class="display sec-h lines"><span class="ln"><span>Meet the</span></span><span class="ln"><span class="accent">people.</span></span></h2></div>
         <p class="lead">Every writer gets a profile with their books as a deck you can swipe through.</p>
       </div>
       <ul class="people stagger" id="people"></ul>
@@ -152,7 +145,6 @@
   <section class="create" id="create" aria-labelledby="createH">
     <div class="create-pin" id="createPin">
       <div class="create-copy">
-        <p class="eyebrow">make yours</p>
         <h2 id="createH" class="display sec-h lines"><span class="ln"><span>Write. Style.</span></span><span class="ln"><span class="accent">Publish.</span></span></h2>
         <p class="lead">Three steps, no account. You get a link of your own, and your book joins the feed above.</p>
         <div class="hero-cta"><a class="btn" href="/studio/">Start writing</a><a class="btn btn--ghost" href="/s/ledger-of-rain">See a story first</a></div>

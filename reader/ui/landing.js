@@ -1,5 +1,5 @@
 // booooks front page: loads the library, builds each section, and starts the effects.
-import { reduced, clamp, reveal, countUp, autoHideNav } from './motion.js';
+import { reduced, clamp, reveal, autoHideNav } from './motion.js';
 import { card, wireCardOpen } from './cards.js';
 import { loadLibrary, byGenre, booksOf, initials, readMine } from './data.js';
 import { createHelix } from './fx/helix.js';
@@ -26,7 +26,6 @@ wireCardOpen();
   const { genres, gById, profiles, books } = lib;
 
   // ---- hero count + spiral
-  const heroCount = $('heroCount'); $('nStories').textContent = books.length; $('nWriters').textContent = lib.writers;
   const helixBooks = books.filter(b => b.cover);
   const helix = createHelix({ canvas: $('helix'), items: helixBooks, copy: $('heroCopy') });
   $('helixList').append(...helixBooks.map(b => { const li = el('li'), a = el('a', null, `${b.title} by ${b.author}`); a.href = b.href; li.append(a); return li; }));
@@ -142,6 +141,5 @@ wireCardOpen();
   for (const a of navLinks) { const s = document.querySelector(a.getAttribute('href')); if (s) spy.observe(s); }
 
   await fontsReady; reveal();
-  setTimeout(() => { countUp($('nStories'), books.length, 1200); countUp($('nWriters'), lib.writers, 1200); }, 700);
   void clamp;
 })();

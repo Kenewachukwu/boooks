@@ -43,8 +43,6 @@ button { font: inherit; color: inherit; }
 .display { font-family: var(--f-display); font-weight: 900; font-stretch: 62%; text-transform: uppercase; line-height: 0.8; letter-spacing: 0.01em; }
 .serif { font-family: var(--f-serif); font-weight: 300; font-optical-sizing: auto; line-height: 1; letter-spacing: -0.015em; }
 .label { font: 500 0.72rem/1.2 var(--f-mono); text-transform: uppercase; letter-spacing: 0.14em; color: var(--dim); }
-.eyebrow { font: 500 0.75rem/1.2 var(--f-mono); text-transform: uppercase; letter-spacing: 0.16em; color: var(--accent); transition: color 0.6s var(--ease-out); }
-.eyebrow::before { content: "◂ "; } .eyebrow::after { content: " ▸"; }
 .lead { font: 400 clamp(1.05rem, 1.6vw, 1.3rem)/1.5 var(--f-ui); color: var(--dim); max-width: 46ch; }
 .accent { color: var(--accent); transition: color 0.6s var(--ease-out); }
 

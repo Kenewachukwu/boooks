@@ -25,9 +25,7 @@ section { position: relative; }
 .hero-h .ch { display: inline-block; transition: transform 0.25s var(--ease-out); }
 .hero-lead { margin-inline: auto; text-wrap: balance; color: #d9d6dc; text-shadow: 0 1px 18px rgba(5, 5, 6, 0.9); }
 .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
-.hero-hint b { font-weight: 500; font-variant-numeric: tabular-nums; }
-.hero-hint { position: absolute; z-index: 2; left: 0; right: 0; bottom: 22px; display: flex; justify-content: center; gap: 28px; pointer-events: none; }
-@media (max-width: 700px) { .hero-copy { padding-bottom: 120px; gap: 18px; } .hero-hint { bottom: 14px; flex-direction: column; align-items: center; gap: 6px; font-size: 0.66rem; } }
+@media (max-width: 700px) { .hero-copy { padding-bottom: 96px; gap: 18px; } }
 
 /* the cover that comes upright out of the spiral */
 .helix-open { position: absolute; inset: 0; z-index: 4; display: grid; place-items: center; }
