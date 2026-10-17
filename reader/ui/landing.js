@@ -22,7 +22,7 @@ wireCardOpen();
 
 (async function main() {
   let lib;
-  try { lib = await loadLibrary(); } catch (e) { console.error(e); $('feedLead').textContent = 'The library could not be loaded. Please refresh.'; root.classList.remove('fonts-wait'); reveal(); return; }
+  try { lib = await loadLibrary(); } catch (e) { console.error(e); $('grid').textContent = 'The library could not be loaded. Please refresh.'; root.classList.remove('fonts-wait'); reveal(); return; }
   const { genres, gById, profiles, books } = lib;
 
   // ---- hero count + spiral
@@ -55,7 +55,7 @@ wireCardOpen();
   }
   function setFilter(id, animate = true) {
     current = id; for (const b of filters.children) b.setAttribute('aria-pressed', String(b.dataset.id === id));
-    renderGrid(animate); $('feedLead').textContent = id === 'all' ? 'Every card opens a story you can read in a few minutes.' : `${gById[id].blurb} ${byGenre(books, id).length} to read.`;
+    renderGrid(animate);
   }
   filters.addEventListener('click', e => { const b = e.target.closest('button'); if (b) setFilter(b.dataset.id); });
   renderGrid(false); tiltCards(grid); tiltCards($('rail'));
