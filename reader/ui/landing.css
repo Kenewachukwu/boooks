@@ -35,7 +35,7 @@ section { position: relative; }
 .helix-open-card img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 14px; background: #111; }
 .helix-open-card figcaption { display: grid; gap: 8px; justify-items: center; text-align: center; }
 .helix-open-card strong { font: 300 1.7rem/1.05 var(--f-serif); letter-spacing: -0.02em; }
-.helix-open-card .by { font: 500 0.78rem/1 var(--f-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+.helix-open-card .by { font: 500 0.95rem/1.2 var(--f-ui); color: var(--dim); }
 .helix-open-card .btn { margin-top: 8px; }
 @keyframes fadein { from { opacity: 0; } }
 
@@ -84,6 +84,7 @@ section { position: relative; }
 .mine { margin: 0 0 36px; padding: 18px 20px 22px; border: 1px solid var(--line-2); border-radius: 20px; background: linear-gradient(180deg, rgba(225, 6, 0, 0.1), rgba(225, 6, 0, 0)); }
 .mine-row { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 14px; }
 .mine-item { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--line-2); border-radius: 14px; background: var(--surface); }
+.mine-title { font-size: 1.6rem; letter-spacing: -0.01em; }
 .mine-item b { font: 400 1.05rem/1.1 var(--f-serif); display: block; max-width: 22ch; }
 .mine-item .btn { min-height: 34px; padding: 0 12px; font-size: 0.78rem; }
 
@@ -128,9 +129,9 @@ body.noscroll { overflow: hidden; }
 .fan img { position: absolute; left: 0; bottom: 0; width: 60px; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 6px; transform-origin: 50% 100%; transform: translate3d(calc(var(--j) * 14px), 0, 0) rotate(calc(var(--j) * 3deg)); transition: transform 0.55s var(--ease-out); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5); }
 .avatar { position: absolute; right: 18px; top: 18px; width: 54px; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; font: 900 1.2rem/1 var(--f-display); font-stretch: 70%; color: #0b0b0d; background: linear-gradient(135deg, var(--a1), var(--a2)); }
 .person strong { font: 300 1.6rem/1.05 var(--f-serif); letter-spacing: -0.015em; }
-.person .h { font: 500 0.74rem/1.2 var(--f-mono); letter-spacing: 0.1em; color: var(--dim); }
+.person .h { font: 500 0.88rem/1.2 var(--f-ui); color: var(--dim); }
 .person p { font-size: 0.88rem; color: var(--dim); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.person .cnt { font: 500 0.7rem/1 var(--f-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-top: 6px; }
+.person .cnt { font: 600 0.88rem/1 var(--f-ui); color: var(--accent); margin-top: 6px; }
 @media (hover: hover) and (pointer: fine) {
   .person:hover { border-color: var(--line-2); background: var(--surface-2); }
   .person:hover .fan img { transform: translate3d(calc(var(--j) * 34px), calc(var(--j) * -5px), 0) rotate(calc(var(--j) * 9deg - 6deg)); }
@@ -161,8 +162,8 @@ body.noscroll { overflow: hidden; }
 .swatches i { height: auto; aspect-ratio: 2 / 3; border-radius: 6px; }
 .swatches i:nth-child(1) { background: linear-gradient(160deg, var(--red), var(--wine)); } .swatches i:nth-child(2) { background: linear-gradient(160deg, var(--iris), #1d1b4b); }
 .swatches i:nth-child(3) { background: linear-gradient(160deg, var(--cyan), #04141b); } .swatches i:nth-child(4) { background: linear-gradient(160deg, var(--blush), #4f0423); }
-.link { display: grid; gap: 4px; padding: 10px; border: 1px dashed var(--line-2); border-radius: 8px; font: 500 0.66rem/1.2 var(--f-mono); color: var(--dim); }
-.link b { color: var(--text); font-weight: 500; font-size: 0.8rem; word-break: break-all; }
+.link { display: grid; gap: 4px; padding: 10px; border: 1px dashed var(--line-2); border-radius: 8px; font: 500 0.72rem/1.2 var(--f-ui); color: var(--dim); }
+.link b { color: var(--text); font-weight: 600; font-size: 0.85rem; word-break: break-all; }
 @media (max-width: 860px) {
   .create-pin { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); align-content: start; gap: 12px; padding-top: calc(var(--nav-h) + 16px); }
   .create-copy { gap: 14px; } .create-copy .lead { display: none; }

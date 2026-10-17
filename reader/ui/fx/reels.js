@@ -57,18 +57,18 @@ export function createReels({ canvas, rows, onFocus, tilt = 7, arch = 52, spot =
       ctx.fillStyle = '#050506'; ctx.textBaseline = 'alphabetic';
       ctx.font = `900 ${Math.round(h * 0.16)}px Archivo, Arial Narrow, sans-serif`; const lines = wrapText(ctx, row.name.toUpperCase(), w - 24, 3);
       lines.forEach((l, i) => ctx.fillText(l, c.x + 12, y - h / 2 + 22 + h * 0.17 * (i + 1) - h * 0.1));
-      ctx.font = `500 ${Math.round(h * 0.075)}px "Roboto Mono", monospace`; ctx.fillText(`${row.books.length} STORIES`, c.x + 12, y + h / 2 - 14);
+      ctx.font = `600 ${Math.round(h * 0.09)}px Archivo, system-ui, sans-serif`; ctx.fillText(`${row.books.length} ${row.books.length === 1 ? 'story' : 'stories'}`, c.x + 12, y + h / 2 - 14);
       ctx.restore();
     } else if (c.type === 'quote') {
       ctx.save(); roundRect(ctx, c.x, y - h / 2, w, h, 10); ctx.fillStyle = '#0e0e11'; ctx.fill(); ctx.strokeStyle = row.color; ctx.globalAlpha *= 0.4 + 0.6 * amt; ctx.lineWidth = 1.2; ctx.stroke(); ctx.clip();
       ctx.fillStyle = '#f6f3ee'; ctx.font = `300 italic ${Math.round(h * 0.105)}px Fraunces, Georgia, serif`;
       wrapText(ctx, '“' + c.b.blurb + '”', w - 26, 7).forEach((l, i) => ctx.fillText(l, c.x + 13, y - h / 2 + 30 + i * h * 0.125));
-      ctx.fillStyle = row.color; ctx.font = `500 ${Math.round(h * 0.062)}px "Roboto Mono", monospace`; ctx.fillText(c.b.title.toUpperCase().slice(0, 22), c.x + 13, y + h / 2 - 14);
+      ctx.fillStyle = row.color; ctx.font = `600 ${Math.round(h * 0.075)}px Archivo, system-ui, sans-serif`; ctx.fillText(c.b.title.length > 24 ? c.b.title.slice(0, 23) + '…' : c.b.title, c.x + 13, y + h / 2 - 14);
       ctx.restore();
     } else {
       ctx.save(); roundRect(ctx, c.x, y - h / 2, w, h, 10); ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.setLineDash([4, 5]); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle = '#a9a7ae'; ctx.font = `500 ${Math.round(h * 0.075)}px "Roboto Mono", monospace`; ctx.textAlign = 'center';
-      const mins = row.books.reduce((s, b) => s + (b.minutes || 1), 0); ctx.fillText(`${mins} MIN OF`, c.x + w / 2, y - 6); ctx.fillText('READING', c.x + w / 2, y + 12); ctx.restore();
+      ctx.fillStyle = '#a9a7ae'; ctx.font = `500 ${Math.round(h * 0.085)}px Archivo, system-ui, sans-serif`; ctx.textAlign = 'center';
+      const mins = row.books.reduce((s, b) => s + (b.minutes || 1), 0); ctx.fillText(`${mins} min of`, c.x + w / 2, y - 6); ctx.fillText('reading', c.x + w / 2, y + 14); ctx.restore();
     }
   }
 

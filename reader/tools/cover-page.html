@@ -1,12 +1,12 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <!-- Used by tools/build-covers.mjs through headless Chrome: draws one book cover (480 x 720) over a painting, and crops the clean 9:16 photo the reader uses as its background. -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=Roboto+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&display=swap">
 <style>
   html, body { margin: 0; background: #000; }
   .cv { position: relative; width: 480px; height: 720px; overflow: hidden; color: #fff; background: #111 center / cover no-repeat; --c: #fff; }
   .cv * { box-sizing: border-box; margin: 0; }
-  .mono { font: 500 12px/1.2 "Roboto Mono", monospace; text-transform: uppercase; letter-spacing: 0.16em; }
+  .mono { font: 600 15px/1.2 "Archivo", sans-serif; letter-spacing: 0; }
   .ttl { font-family: "Fraunces", Georgia, serif; font-weight: 300; font-optical-sizing: auto; letter-spacing: -0.02em; line-height: 0.98; text-wrap: balance; }
   .cnd { font-family: "Archivo", sans-serif; font-weight: 900; font-stretch: 62%; text-transform: uppercase; line-height: 0.8; letter-spacing: 0.01em; }
   .shade { position: absolute; inset: 0; }
@@ -75,7 +75,7 @@
 
   window.makeCover = async spec => {
     document.querySelectorAll('.cv').forEach(e => e.remove());
-    await Promise.all(['300 40px "Fraunces"', 'italic 300 40px "Fraunces"', '900 40px "Archivo"', '500 12px "Roboto Mono"'].map(f => document.fonts.load(f))); // so fitting measures the real fonts
+    await Promise.all(['300 40px "Fraunces"', 'italic 300 40px "Fraunces"', '900 40px "Archivo"', '600 15px "Archivo"'].map(f => document.fonts.load(f))); // so fitting measures the real fonts
     const img = await pictureOf(spec), canvas = cropTo(img, 480, 720, spec.fx ?? 50, spec.fy ?? 50);
     const style = spec.style || STYLE_OF[spec.genre] || 1;
     const el = $('div', 'cv s' + style); el.style.setProperty('--c', spec.color);

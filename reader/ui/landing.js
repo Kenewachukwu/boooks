@@ -14,7 +14,7 @@ const root = document.documentElement;
 
 // ---- big type waits for its fonts (but never longer than ~2s), so nothing flashes in a fallback face
 const fontsReady = Promise.race([
-  Promise.all([document.fonts.load('900 80px "Archivo"'), document.fonts.load('300 40px "Fraunces"'), document.fonts.load('500 12px "Roboto Mono"')]),
+  Promise.all([document.fonts.load('900 80px "Archivo"'), document.fonts.load('300 40px "Fraunces"')]),
   new Promise(r => setTimeout(r, 1200)),
 ]).finally(() => root.classList.remove('fonts-wait'));
 

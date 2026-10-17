@@ -91,7 +91,7 @@ body { display: grid; place-items: center; overflow: hidden; }
 .src { margin: 0; }
 .src:not(.split) { padding-left: var(--hang); text-indent: calc(-1 * var(--hang)); } /* measuring mode: hanging indent for wrapped lines */
 .sheet.measure { visibility: hidden; pointer-events: none; }
-.note { font: 500 clamp(11px, 3.2cqw, 13px)/1.2 var(--ui); letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.7; margin: 0 0 1.1em; }
+.note { font: 500 clamp(11px, 3.2cqw, 13px)/1.2 var(--ui); letter-spacing: 0.02em; opacity: 0.7; margin: 0 0 1.1em; }
 .title, .cover h1, .end h2 { text-transform: var(--title-transform, none); }
 .title { font-family: var(--font-title); font-size: calc(var(--title-scale) * 1em); font-weight: var(--title-weight); font-style: var(--title-style); color: var(--accent); line-height: var(--title-lh); margin: 0; }
 .title .ln { transform-origin: 0 70%; }
@@ -124,7 +124,7 @@ body { display: grid; place-items: center; overflow: hidden; }
 .cover-in > *, .end-in > * { max-width: 100%; }
 .kicker .ln, .by .ln { white-space: normal; } /* long names wrap; a single unbreakable word is shrunk by the fitter in reader.js */
 .title, .cover h1, .end h2 { font-stretch: var(--title-stretch, normal); }
-.kicker { font: 500 clamp(11px, 3.4cqw, 14px)/1 var(--ui); font-size: calc(clamp(11px, 3.4cqw, 14px) * var(--fit, 1)); letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink); opacity: 0.8; margin: 0 0 0.9em; }
+.kicker { font: 500 clamp(11px, 3.4cqw, 14px)/1 var(--ui); font-size: calc(clamp(11px, 3.4cqw, 14px) * var(--fit, 1)); letter-spacing: 0.03em; color: var(--ink); opacity: 0.8; margin: 0 0 0.9em; }
 .cover h1 { margin: 0; font-family: var(--font-title); font-size: calc(var(--cover-size) * var(--fit, 1) * var(--fit-all, 1)); line-height: var(--cover-lh); font-weight: var(--title-weight); font-style: var(--title-style); color: var(--accent); }
 .cover .rule { width: min(72%, 12em); font-size: calc(var(--cover-size) * var(--fit-all, 1)); margin-top: 0.02em; }
 .by { margin: 0.1em 0 0; font-size: calc(var(--by-size) * var(--fit, 1) * var(--fit-all, 1)); color: var(--ink); }
