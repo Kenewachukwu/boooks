@@ -107,7 +107,7 @@ export function createHelix({ canvas, items, copy, opts = {} }) {
 
   function openCard(c) {
     if (openN !== null) return; openScroll = scrollY; const it = items[c.item]; openItem = it; openN = c.n;
-    fImg.src = it.cover; fImg.alt = `Cover of ${it.title}`; fLabel.textContent = it.genreName || ''; fTitle.textContent = it.title; fBy.textContent = 'by ' + it.author; fBtn.href = '/s/' + it.slug;
+    fImg.src = it.cover; fImg.alt = `Cover of ${it.title}`; fLabel.textContent = it.minutes ? `${it.minutes} min` : ''; fTitle.textContent = it.title; fBy.textContent = 'by ' + it.author; fBtn.href = '/s/' + it.slug;
     fBtn.onclick = e => { e.preventDefault(); openStory(fBtn.href, fImg, it.cover); };
     frame.hidden = false;
     const r = canvas.getBoundingClientRect(), tw = fCard.getBoundingClientRect();

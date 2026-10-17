@@ -81,7 +81,7 @@
     const el = $('div', 'cv s' + style); el.style.setProperty('--c', spec.color);
     el.style.backgroundImage = `url(${canvas.toDataURL('image/jpeg', 0.92)})`;
     el.append($('div', 'shade')); document.body.append(el); // in the page before fitting, so the text can be measured
-    const label = `<span class="mono c">${esc(spec.genreName)}</span>`, by = `<span class="mono">${esc(spec.author)}</span>`;
+    const label = '', by = `<span class="mono">${esc(spec.author)}</span>`;
     const lines = (spec.titleLines || [spec.title]).map(esc);
     if (style === 1) { const b = $('div', 'box', `${label}<h2 class="ttl">${esc(spec.title)}</h2><div class="rule"></div>${by}`); el.append(b); fit(b.querySelector('.ttl'), 260); }
     if (style === 2) {

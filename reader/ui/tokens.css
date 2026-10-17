@@ -81,12 +81,6 @@ button { font: inherit; color: inherit; }
 @media (hover: hover) and (pointer: fine) { .nav-links a:hover { color: var(--text); } }
 @media (max-width: 700px) { .nav-links { display: none; } .logo { font-size: 1.55rem; } }
 
-/* ---- marquee of words */
-.marquee { overflow: hidden; border-block: 1px solid var(--line); padding: 14px 0; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
-.marquee-track { display: flex; width: max-content; gap: 2.2rem; animation: marquee 48s linear infinite; }
-.marquee-track span { font: 500 0.78rem/1 var(--f-mono); text-transform: uppercase; letter-spacing: 0.18em; color: var(--dim); white-space: nowrap; }
-.marquee-track span::before { content: "✦"; margin-right: 2.2rem; color: var(--accent); }
-@keyframes marquee { to { transform: translateX(-50%); } }
 
 /* ---- shared page chrome */
 .wrap { width: min(var(--page), 100%); margin-inline: auto; padding-inline: var(--gutter); }
@@ -96,6 +90,5 @@ button { font: inherit; color: inherit; }
 @media (max-width: 700px) { .footer .wrap { grid-template-columns: 1fr; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .marquee-track { animation: none; }
   .btn, .pill, .nav { transition-duration: 0.01s; }
 }

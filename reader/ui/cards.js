@@ -7,7 +7,7 @@ export function card(b, { feature = false } = {}) {
   const a = el('a', 'card' + (feature ? ' feature' : '')); a.href = b.href; a.dataset.slug = b.slug; a.style.setProperty('--gc', b.color);
   const cover = el('span', 'card-cover'), img = new Image(); img.src = b.cover; img.alt = `Cover of ${b.title}`; img.loading = 'lazy'; img.decoding = 'async'; img.width = 480; img.height = 720; cover.append(img);
   if (b.live) cover.append(el('span', 'card-new', 'New'));
-  const meta = el('span', 'card-meta'); meta.append(el('span', 'card-g', `${b.genreName} · ${b.minutes} min`), el('span', 'card-t', b.title), el('span', 'card-a', b.author));
+  const meta = el('span', 'card-meta'); meta.append(el('span', 'card-g', `${b.minutes} min`), el('span', 'card-t', b.title), el('span', 'card-a', b.author));
   a.append(cover, meta); return a;
 }
 

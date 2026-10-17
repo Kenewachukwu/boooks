@@ -35,8 +35,6 @@ wireCardOpen();
   const fresh = [...books].sort((a, b) => String(b.createdAt || b.date).localeCompare(String(a.createdAt || a.date))).slice(0, 12);
   $('rail').append(...fresh.map(b => { const c = card(b); c.setAttribute('role', 'listitem'); return c; }));
 
-  // ---- marquee of genre names
-  const words = genres.map(g => g.name); $('marquee').append(...[...words, ...words, ...words, ...words].map(w => el('span', null, w)));
 
   // ---- feed with filters
   const filters = $('filters'), grid = $('grid'); let current = 'all';
